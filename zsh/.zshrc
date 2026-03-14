@@ -19,10 +19,6 @@ case "$(uname -s)" in
     ;;
 esac
 
-if [[ -d "$HOME/.opencode/bin" ]]; then
-  export PATH="$HOME/.opencode/bin:$PATH"
-fi
-
 if [[ "$DOTFILES_OS" == "linux" ]]; then
   if [[ -d /home/linuxbrew/.linuxbrew/bin ]]; then
     export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
