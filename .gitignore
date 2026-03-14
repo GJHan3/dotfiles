@@ -1,0 +1,4 @@
+.DS_Store
+zsh/.zsh.secrets
+config/nvim/lua/plugins/.example.lua.swp
+config/nvim/.neoconf.json
