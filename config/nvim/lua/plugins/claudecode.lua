@@ -1,5 +1,8 @@
 return {
   "coder/claudecode.nvim",
+  enabled = function()
+    return vim.fn.executable("claude") == 1
+  end,
   dependencies = { "folke/snacks.nvim" },
   opts = {
     -- 终端配置
@@ -16,8 +19,8 @@ return {
     vertical_split = true, -- 垂直分割显示 diff
     diff_split_direction = "left", -- diff 窗口在左侧
 
-    -- Claude CLI 路径（使用 ept claude）
-    terminal_cmd = "ept claude",
+    -- Claude CLI 路径
+    terminal_cmd = "claude",
 
     -- 日志级别（调试时可以改成 "debug"）
     log_level = "info",

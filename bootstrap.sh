@@ -15,6 +15,80 @@ need_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
 
+detect_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64) echo "x86_64" ;;
+    aarch64|arm64) echo "arm64" ;;
+    *) echo "unsupported" ;;
+  esac
+}
+
+remove_stale_lazygit_ppa() {
+  local source_file="/etc/apt/sources.list.d/lazygit-team-ubuntu-release-jammy.list"
+
+  if [[ -f "$source_file" ]]; then
+    sudo rm -f "$source_file"
+  fi
+}
+
+install_neovim_ubuntu() {
+  local arch archive_name download_url tmp_archive install_dir
+
+  arch="$(detect_arch)"
+  case "$arch" in
+    x86_64) archive_name="nvim-linux-x86_64.tar.gz" ;;
+    arm64) archive_name="nvim-linux-arm64.tar.gz" ;;
+    *)
+      echo "Skipping Neovim install: unsupported architecture $(uname -m)" >&2
+      return
+      ;;
+  esac
+
+  download_url="https://github.com/neovim/neovim/releases/download/stable/${archive_name}"
+  tmp_archive="/tmp/${archive_name}"
+  install_dir="/opt/nvim-linux-${arch}"
+
+  curl -fL "$download_url" -o "$tmp_archive"
+  sudo rm -rf "$install_dir"
+  sudo tar -C /opt -xzf "$tmp_archive"
+  sudo ln -sf "${install_dir}/bin/nvim" /usr/local/bin/nvim
+}
+
+install_lazygit_ubuntu() {
+  local arch api_url version archive_name archive_name_suffix download_url tmp_archive tmp_dir
+
+  arch="$(detect_arch)"
+  case "$arch" in
+    x86_64) archive_name_suffix="x86_64" ;;
+    arm64) archive_name_suffix="arm64" ;;
+    *)
+      echo "Skipping lazygit install: unsupported architecture $(uname -m)" >&2
+      return
+      ;;
+  esac
+
+  api_url="https://api.github.com/repos/jesseduffield/lazygit/releases/latest"
+  version="$(
+    curl -fsSL "$api_url" | sed -n 's/.*"tag_name":[[:space:]]*"v\([^"]*\)".*/\1/p' | head -n 1
+  )"
+
+  if [[ -z "$version" ]]; then
+    echo "Failed to detect latest lazygit version." >&2
+    return 1
+  fi
+
+  archive_name="lazygit_${version}_linux_${archive_name_suffix}.tar.gz"
+  download_url="https://github.com/jesseduffield/lazygit/releases/download/v${version}/${archive_name}"
+  tmp_archive="/tmp/${archive_name}"
+  tmp_dir="/tmp/lazygit-${version}-${arch}"
+
+  curl -fL "$download_url" -o "$tmp_archive"
+  rm -rf "$tmp_dir"
+  mkdir -p "$tmp_dir"
+  tar -C "$tmp_dir" -xzf "$tmp_archive" lazygit
+  sudo install "$tmp_dir/lazygit" /usr/local/bin/lazygit
+}
+
 detect_os() {
   case "$(uname -s)" in
     Darwin) echo "macos" ;;
@@ -55,20 +129,17 @@ install_packages_macos() {
 }
 
 install_packages_ubuntu() {
+  remove_stale_lazygit_ppa
   sudo apt-get update
-  sudo apt-get install -y git zsh tmux neovim curl fzf ripgrep fd-find xclip nodejs npm build-essential unzip software-properties-common fontconfig
+  sudo apt-get install -y git zsh tmux curl fzf ripgrep fd-find xclip nodejs npm build-essential unzip software-properties-common fontconfig
 
   if ! need_cmd fd && [[ -x /usr/bin/fdfind ]]; then
     sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
   fi
 
-  if ! need_cmd lazygit; then
-    if need_cmd add-apt-repository; then
-      sudo add-apt-repository -y ppa:lazygit-team/release || true
-      sudo apt-get update
-      sudo apt-get install -y lazygit || true
-    fi
-  fi
+  install_neovim_ubuntu
+  install_lazygit_ubuntu
+
 }
 
 clone_or_update_repo() {
@@ -169,10 +240,10 @@ configure_git_identity() {
 }
 
 print_post_install_notes() {
-  if ! need_cmd ept; then
+  if ! need_cmd claude; then
     cat <<'EOF'
-Note: `ept` is not installed.
-Your Neovim ClaudeCode plugin is configured to run `ept claude`, so install `ept`
+Note: `claude` is not installed.
+Your Neovim ClaudeCode plugin is configured to run the `claude` command, so install it
 manually on machines where you want that workflow.
 EOF
   fi
