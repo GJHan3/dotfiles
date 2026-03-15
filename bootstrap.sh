@@ -94,8 +94,9 @@ install_yazi_ubuntu() {
 
   arch="$(detect_arch)"
   case "$arch" in
-    x86_64) archive_name="yazi-x86_64-unknown-linux-gnu.zip" ;;
-    arm64) archive_name="yazi-aarch64-unknown-linux-gnu.zip" ;;
+    # Prefer musl builds on Debian/Ubuntu to avoid host glibc version mismatches.
+    x86_64) archive_name="yazi-x86_64-unknown-linux-musl.zip" ;;
+    arm64) archive_name="yazi-aarch64-unknown-linux-musl.zip" ;;
     *)
       echo "Skipping yazi install: unsupported architecture $(uname -m)" >&2
       return
@@ -167,7 +168,7 @@ install_packages_macos() {
 install_packages_ubuntu() {
   remove_stale_lazygit_ppa
   sudo apt-get update
-  sudo apt-get install -y git zsh tmux curl fzf ripgrep fd-find xclip nodejs npm build-essential unzip software-properties-common fontconfig
+  sudo apt-get install -y git zsh tmux curl fzf ripgrep fd-find xclip nodejs npm build-essential unzip software-properties-common fontconfig file
 
   if ! need_cmd fd && [[ -x /usr/bin/fdfind ]]; then
     sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
