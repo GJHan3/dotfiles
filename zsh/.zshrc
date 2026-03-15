@@ -138,6 +138,28 @@ sshid() {
   echo "Added $alias_name to $config_file"
 }
 
+y() {
+  emulate -L zsh
+
+  local tmp cwd
+  if ! command -v yazi >/dev/null 2>&1; then
+    echo "yazi is not installed"
+    return 1
+  fi
+
+  if ! tmp="$(mktemp "${TMPDIR:-/tmp}/yazi-cwd.XXXXXX" 2>/dev/null)"; then
+    tmp="$(mktemp -t yazi-cwd)"
+  fi
+
+  yazi "$@" --cwd-file="$tmp"
+
+  if cwd="$(command cat -- "$tmp" 2>/dev/null)" && [[ -n "$cwd" && "$cwd" != "$PWD" ]]; then
+    builtin cd -- "$cwd"
+  fi
+
+  rm -f -- "$tmp"
+}
+
 proxy_on
 
 export ZSH="$HOME/.oh-my-zsh"
@@ -159,3 +181,5 @@ if [[ -d "$HOME/.config/zsh/local" ]]; then
     source "$local_rc"
   done
 fi
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

@@ -27,7 +27,7 @@ For a fresh macOS or Ubuntu machine, run:
 
 `bootstrap.sh` can:
 
-- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `node`
+- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `yazi`, `node`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
@@ -42,6 +42,11 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
+
+## Tool notes
+
+- [docs/yazi.md](/Users/hanguangjiang/dotfiles/docs/yazi.md): `yazi` launcher and common file-manager shortcuts
+- [docs/shortcuts.md](/Users/hanguangjiang/dotfiles/docs/shortcuts.md): shortcut cheat sheet for Yazi, Neovim, and Tmux
 
 ## Managed links
 

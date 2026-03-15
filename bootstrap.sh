@@ -89,6 +89,42 @@ install_lazygit_ubuntu() {
   sudo install "$tmp_dir/lazygit" /usr/local/bin/lazygit
 }
 
+install_yazi_ubuntu() {
+  local arch api_url version archive_name download_url tmp_archive tmp_dir
+
+  arch="$(detect_arch)"
+  case "$arch" in
+    x86_64) archive_name="yazi-x86_64-unknown-linux-gnu.zip" ;;
+    arm64) archive_name="yazi-aarch64-unknown-linux-gnu.zip" ;;
+    *)
+      echo "Skipping yazi install: unsupported architecture $(uname -m)" >&2
+      return
+      ;;
+  esac
+
+  api_url="https://api.github.com/repos/sxyazi/yazi/releases/latest"
+  version="$(
+    curl -fsSL "$api_url" | sed -n 's/.*"tag_name":[[:space:]]*"v\([^"]*\)".*/\1/p' | head -n 1
+  )"
+
+  if [[ -z "$version" ]]; then
+    echo "Failed to detect latest yazi version." >&2
+    return 1
+  fi
+
+  download_url="https://github.com/sxyazi/yazi/releases/download/v${version}/${archive_name}"
+  tmp_archive="/tmp/${archive_name}"
+  tmp_dir="/tmp/yazi-${version}-${arch}"
+
+  curl -fL "$download_url" -o "$tmp_archive"
+  rm -rf "$tmp_dir"
+  mkdir -p "$tmp_dir"
+  unzip -q "$tmp_archive" -d "$tmp_dir"
+
+  sudo install "$tmp_dir"/yazi-*/yazi /usr/local/bin/yazi
+  sudo install "$tmp_dir"/yazi-*/ya /usr/local/bin/ya
+}
+
 detect_os() {
   case "$(uname -s)" in
     Darwin) echo "macos" ;;
@@ -125,7 +161,7 @@ install_packages_macos() {
     brew_bin="$(command -v brew)"
   fi
 
-  "$brew_bin" install git zsh tmux neovim curl fzf ripgrep fd lazygit node
+  "$brew_bin" install git zsh tmux neovim curl fzf ripgrep fd lazygit node yazi
 }
 
 install_packages_ubuntu() {
@@ -139,6 +175,7 @@ install_packages_ubuntu() {
 
   install_neovim_ubuntu
   install_lazygit_ubuntu
+  install_yazi_ubuntu
 
 }
 
