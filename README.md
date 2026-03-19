@@ -25,14 +25,22 @@ For a fresh macOS or Ubuntu machine, run:
 ~/dotfiles/bootstrap.sh
 ```
 
+By default, `bootstrap.sh` skips tools that are already installed. Use `--force` to reinstall or refresh managed tools:
+
+```sh
+~/dotfiles/bootstrap.sh --force
+```
+
 `bootstrap.sh` can:
 
-- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `yazi`, `node`
+- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `yazi`, `node`, `codex`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
 - optionally configure global Git identity
 - optionally switch the default shell to `zsh`
+
+After bootstrap, run `codex` or `codex login` once to authenticate the Codex CLI.
 
 Private secrets should live in `~/.zsh.secrets` and should not be committed.
 

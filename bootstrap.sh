@@ -6,6 +6,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OH_MY_ZSH_DIR="${HOME}/.oh-my-zsh"
 P10K_DIR="${OH_MY_ZSH_DIR}/custom/themes/powerlevel10k"
 INTERACTIVE=0
+FORCE_INSTALL=0
 
 if [[ -t 0 && -t 1 ]]; then
   INTERACTIVE=1
@@ -13,6 +14,71 @@ fi
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1
+}
+
+need_apt_package() {
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -qx 'install ok installed'
+}
+
+should_install_cmd() {
+  local cmd=$1
+  [[ $FORCE_INSTALL -eq 1 ]] || ! need_cmd "$cmd"
+}
+
+should_install_apt_package() {
+  local package=$1
+  [[ $FORCE_INSTALL -eq 1 ]] || ! need_apt_package "$package"
+}
+
+should_update_existing() {
+  [[ $FORCE_INSTALL -eq 1 ]]
+}
+
+append_formula_if_missing() {
+  local formula=$1
+  local cmd=${2:-$formula}
+
+  if should_install_cmd "$cmd"; then
+    FORMULAE+=("$formula")
+  fi
+}
+
+append_apt_package_if_missing() {
+  local package=$1
+
+  if should_install_apt_package "$package"; then
+    APT_PACKAGES+=("$package")
+  fi
+}
+
+usage() {
+  cat <<'EOF'
+Usage: ./bootstrap.sh [--force]
+
+Options:
+  --force     Reinstall or update managed tools even if they already exist.
+  -h, --help  Show this help message.
+EOF
+}
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force)
+        FORCE_INSTALL=1
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: $1" >&2
+        usage >&2
+        exit 1
+        ;;
+    esac
+    shift
+  done
 }
 
 detect_arch() {
@@ -33,6 +99,10 @@ remove_stale_lazygit_ppa() {
 
 install_neovim_ubuntu() {
   local arch archive_name download_url tmp_archive install_dir
+
+  if ! should_install_cmd nvim; then
+    return
+  fi
 
   arch="$(detect_arch)"
   case "$arch" in
@@ -56,6 +126,10 @@ install_neovim_ubuntu() {
 
 install_lazygit_ubuntu() {
   local arch api_url version archive_name archive_name_suffix download_url tmp_archive tmp_dir
+
+  if ! should_install_cmd lazygit; then
+    return
+  fi
 
   arch="$(detect_arch)"
   case "$arch" in
@@ -92,6 +166,10 @@ install_lazygit_ubuntu() {
 install_yazi_ubuntu() {
   local arch api_url version archive_name download_url tmp_archive tmp_dir
 
+  if ! should_install_cmd yazi; then
+    return
+  fi
+
   arch="$(detect_arch)"
   case "$arch" in
     # Prefer musl builds on Debian/Ubuntu to avoid host glibc version mismatches.
@@ -126,6 +204,29 @@ install_yazi_ubuntu() {
   sudo install "$tmp_dir"/yazi-*/ya /usr/local/bin/ya
 }
 
+install_codex_cli() {
+  if ! should_install_cmd codex; then
+    return
+  fi
+
+  if ! need_cmd npm; then
+    echo "Skipping Codex CLI install: npm is not available." >&2
+    return 1
+  fi
+
+  if npm i -g @openai/codex@latest; then
+    return
+  fi
+
+  if need_cmd sudo; then
+    sudo npm i -g @openai/codex@latest
+    return
+  fi
+
+  echo "Failed to install Codex CLI with npm." >&2
+  return 1
+}
+
 detect_os() {
   case "$(uname -s)" in
     Darwin) echo "macos" ;;
@@ -153,22 +254,59 @@ install_homebrew() {
 }
 
 install_packages_macos() {
+  local brew_bin
+  local -a FORMULAE=()
+
   install_homebrew
 
-  local brew_bin
   if [[ -x /opt/homebrew/bin/brew ]]; then
     brew_bin=/opt/homebrew/bin/brew
   else
     brew_bin="$(command -v brew)"
   fi
 
-  "$brew_bin" install git zsh tmux neovim curl fzf ripgrep fd lazygit node yazi
+  append_formula_if_missing git
+  append_formula_if_missing zsh
+  append_formula_if_missing tmux
+  append_formula_if_missing neovim nvim
+  append_formula_if_missing curl
+  append_formula_if_missing fzf
+  append_formula_if_missing ripgrep rg
+  append_formula_if_missing fd
+  append_formula_if_missing lazygit
+  append_formula_if_missing node
+  append_formula_if_missing yazi
+
+  if (( ${#FORMULAE[@]} > 0 )); then
+    "$brew_bin" install "${FORMULAE[@]}"
+  fi
 }
 
 install_packages_ubuntu() {
+  local -a APT_PACKAGES=()
+
   remove_stale_lazygit_ppa
-  sudo apt-get update
-  sudo apt-get install -y git zsh tmux curl fzf ripgrep fd-find xclip nodejs npm build-essential unzip software-properties-common fontconfig file
+
+  append_apt_package_if_missing git
+  append_apt_package_if_missing zsh
+  append_apt_package_if_missing tmux
+  append_apt_package_if_missing curl
+  append_apt_package_if_missing fzf
+  append_apt_package_if_missing ripgrep
+  append_apt_package_if_missing fd-find
+  append_apt_package_if_missing xclip
+  append_apt_package_if_missing nodejs
+  append_apt_package_if_missing npm
+  append_apt_package_if_missing build-essential
+  append_apt_package_if_missing unzip
+  append_apt_package_if_missing software-properties-common
+  append_apt_package_if_missing fontconfig
+  append_apt_package_if_missing file
+
+  if (( ${#APT_PACKAGES[@]} > 0 )); then
+    sudo apt-get update
+    sudo apt-get install -y "${APT_PACKAGES[@]}"
+  fi
 
   if ! need_cmd fd && [[ -x /usr/bin/fdfind ]]; then
     sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
@@ -185,7 +323,9 @@ clone_or_update_repo() {
   local target_dir=$2
 
   if [[ -d "${target_dir}/.git" ]]; then
-    git -C "$target_dir" pull --ff-only
+    if should_update_existing; then
+      git -C "$target_dir" pull --ff-only
+    fi
   else
     mkdir -p "$(dirname "$target_dir")"
     git clone --depth=1 "$repo_url" "$target_dir"
@@ -201,6 +341,14 @@ install_powerlevel10k() {
 }
 
 install_meslo_fonts_macos() {
+  if ! should_update_existing &&
+    [[ -f "${HOME}/Library/Fonts/MesloLGS NF Regular.ttf" ]] &&
+    [[ -f "${HOME}/Library/Fonts/MesloLGS NF Bold.ttf" ]] &&
+    [[ -f "${HOME}/Library/Fonts/MesloLGS NF Italic.ttf" ]] &&
+    [[ -f "${HOME}/Library/Fonts/MesloLGS NF Bold Italic.ttf" ]]; then
+    return
+  fi
+
   mkdir -p "${HOME}/Library/Fonts"
 
   curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf -o "${HOME}/Library/Fonts/MesloLGS NF Regular.ttf"
@@ -210,6 +358,14 @@ install_meslo_fonts_macos() {
 }
 
 install_meslo_fonts_ubuntu() {
+  if ! should_update_existing &&
+    [[ -f "${HOME}/.local/share/fonts/MesloLGS NF Regular.ttf" ]] &&
+    [[ -f "${HOME}/.local/share/fonts/MesloLGS NF Bold.ttf" ]] &&
+    [[ -f "${HOME}/.local/share/fonts/MesloLGS NF Italic.ttf" ]] &&
+    [[ -f "${HOME}/.local/share/fonts/MesloLGS NF Bold Italic.ttf" ]]; then
+    return
+  fi
+
   mkdir -p "${HOME}/.local/share/fonts"
 
   curl -fsSL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf -o "${HOME}/.local/share/fonts/MesloLGS NF Regular.ttf"
@@ -278,6 +434,13 @@ configure_git_identity() {
 }
 
 print_post_install_notes() {
+  if need_cmd codex; then
+    cat <<'EOF'
+Note: Codex CLI is installed.
+Run `codex` or `codex login` to sign in with your ChatGPT account or API key.
+EOF
+  fi
+
   if ! need_cmd claude; then
     cat <<'EOF'
 Note: `claude` is not installed.
@@ -294,6 +457,7 @@ EOF
 
 main() {
   local os
+  parse_args "$@"
   os="$(detect_os)"
 
   case "$os" in
@@ -321,6 +485,8 @@ main() {
   else
     install_meslo_fonts_ubuntu
   fi
+
+  install_codex_cli
 
   "${DOTFILES_DIR}/install.sh"
   configure_git_identity
