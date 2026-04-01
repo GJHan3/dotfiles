@@ -227,6 +227,38 @@ install_codex_cli() {
   return 1
 }
 
+install_lark_cli() {
+  if ! should_install_cmd lark-cli; then
+    return
+  fi
+
+  if ! need_cmd npm; then
+    echo "Skipping Lark CLI install: npm is not available." >&2
+    return 1
+  fi
+
+  if npm i -g @larksuite/cli; then
+    return
+  fi
+
+  if need_cmd sudo; then
+    sudo npm i -g @larksuite/cli
+    return
+  fi
+
+  echo "Failed to install Lark CLI with npm." >&2
+  return 1
+}
+
+install_lark_skills() {
+  if ! need_cmd npx; then
+    echo "Skipping Lark skills install: npx is not available." >&2
+    return 1
+  fi
+
+  npx skills add larksuite/cli -g -y
+}
+
 detect_os() {
   case "$(uname -s)" in
     Darwin) echo "macos" ;;
@@ -441,6 +473,14 @@ Run `codex` or `codex login` to sign in with your ChatGPT account or API key.
 EOF
   fi
 
+  if need_cmd lark-cli; then
+    cat <<'EOF'
+Note: Lark CLI is installed.
+Run `lark-cli config init --new`.
+If you want user-level access, also run `lark-cli auth login`.
+EOF
+  fi
+
   if ! need_cmd claude; then
     cat <<'EOF'
 Note: `claude` is not installed.
@@ -487,6 +527,10 @@ main() {
   fi
 
   install_codex_cli
+  install_lark_cli
+  if need_cmd lark-cli; then
+    install_lark_skills
+  fi
 
   "${DOTFILES_DIR}/install.sh"
   configure_git_identity

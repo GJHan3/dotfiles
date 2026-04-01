@@ -34,7 +34,7 @@ By default, `bootstrap.sh` skips tools that are already installed. Use `--force`
 
 `bootstrap.sh` can:
 
-- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `yazi`, `node`, `codex`
+- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `yazi`, `node`, `codex`, `lark-cli`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
@@ -42,6 +42,8 @@ By default, `bootstrap.sh` skips tools that are already installed. Use `--force`
 - optionally switch the default shell to `zsh`
 
 After bootstrap, run `codex` or `codex login` once to authenticate the Codex CLI.
+Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
+Then run `lark-cli config init --new`, and optionally `lark-cli auth login`.
 
 Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
