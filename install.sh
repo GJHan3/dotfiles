@@ -17,7 +17,11 @@ fi
 if [[ -e "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
   rm -rf "$HOME/.config/nvim"
 fi
+if [[ -e "$HOME/.config/yazi" && ! -L "$HOME/.config/yazi" ]]; then
+  rm -rf "$HOME/.config/yazi"
+fi
 ln -sfn "$DOTFILES_DIR/config/git" "$HOME/.config/git"
 ln -sfn "$DOTFILES_DIR/config/nvim" "$HOME/.config/nvim"
+ln -sfn "$DOTFILES_DIR/config/yazi" "$HOME/.config/yazi"
 
 echo "linked dotfiles from $DOTFILES_DIR"

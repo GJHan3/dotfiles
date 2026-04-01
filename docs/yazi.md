@@ -10,6 +10,11 @@ y .
 y ~/Downloads
 ```
 
+Current layout preference in this repository:
+
+- `[mgr].ratio = [1, 2, 5]`
+- This makes the preview pane wider than the current file list pane.
+
 ## Navigation
 
 - `j` / `k`: move cursor down or up

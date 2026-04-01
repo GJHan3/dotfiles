@@ -8,6 +8,7 @@ This repository stores personal shell and editor configuration for this machine.
 - `tmux/.tmux.conf`: tmux settings
 - `config/git/ignore`: global git ignores
 - `config/nvim/`: Neovim config
+- `config/yazi/`: Yazi file manager config
 - `bootstrap.sh`: install dependencies and shell tooling on a new machine
 - `install.sh`: relink managed files into `$HOME` and `~/.config`
 
@@ -64,3 +65,4 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - `~/.tmux.conf`
 - `~/.config/git`
 - `~/.config/nvim`
+- `~/.config/yazi`
