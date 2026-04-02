@@ -205,6 +205,45 @@ install_yazi_ubuntu() {
   sudo install "$tmp_dir"/yazi-*/ya /usr/local/bin/ya
 }
 
+install_stylua_ubuntu() {
+  local arch api_url version archive_name download_url tmp_archive tmp_dir
+
+  if ! should_install_cmd stylua; then
+    return
+  fi
+
+  arch="$(detect_arch)"
+  case "$arch" in
+    x86_64) archive_name="stylua-linux-x86_64-musl.zip" ;;
+    arm64) archive_name="stylua-linux-aarch64-musl.zip" ;;
+    *)
+      echo "Skipping stylua install: unsupported architecture $(uname -m)" >&2
+      return
+      ;;
+  esac
+
+  api_url="https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest"
+  version="$(
+    curl -fsSL "$api_url" | sed -n 's/.*"tag_name":[[:space:]]*"v\{0,1\}\([^"]*\)".*/\1/p' | head -n 1
+  )"
+
+  if [[ -z "$version" ]]; then
+    echo "Failed to detect latest stylua version." >&2
+    return 1
+  fi
+
+  download_url="https://github.com/JohnnyMorganz/StyLua/releases/download/v${version}/${archive_name}"
+  tmp_archive="/tmp/${archive_name}"
+  tmp_dir="/tmp/stylua-${version}-${arch}"
+
+  curl -fL "$download_url" -o "$tmp_archive"
+  rm -rf "$tmp_dir"
+  mkdir -p "$tmp_dir"
+  unzip -q "$tmp_archive" -d "$tmp_dir"
+
+  sudo install "$tmp_dir/stylua" /usr/local/bin/stylua
+}
+
 install_codex_cli() {
   if ! should_install_cmd codex; then
     return
@@ -331,6 +370,7 @@ install_packages_macos() {
   append_formula_if_missing fd
   append_formula_if_missing lazygit
   append_formula_if_missing node
+  append_formula_if_missing stylua
   append_formula_if_missing yazi
 
   if (( ${#FORMULAE[@]} > 0 )); then
@@ -370,6 +410,7 @@ install_packages_ubuntu() {
 
   install_neovim_ubuntu
   install_lazygit_ubuntu
+  install_stylua_ubuntu
   install_yazi_ubuntu
 
 }
