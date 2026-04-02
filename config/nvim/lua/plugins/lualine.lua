@@ -18,9 +18,9 @@ return {
 
     -- 常驻装饰表情（男性风格 - 科技/运动/军事混合）
     local decorative_emojis = {
-      left = { "⚡", "🔥", "💥", "⚔️", "🛡️", "🎯", "🔫", "💣", "🎖️", "🏹" },    -- 力量/战斗/军事系列
-      right = { "🚀", "🎮", "🏆", "👑", "💎", "🔱", "🤖", "💻", "⚙️", "🛸" },  -- 成就/科技系列
-      center = { "💪", "🦾", "🤘", "👊", "✊", "🔧", "⚽", "🏀", "🏈", "⚾" },  -- 酷炫/运动系列
+      left = { "⚡", "🔥", "💥", "⚔️", "🛡️", "🎯", "🔫", "💣", "🎖️", "🏹" }, -- 力量/战斗/军事系列
+      right = { "🚀", "🎮", "🏆", "👑", "💎", "🔱", "🤖", "💻", "⚙️", "🛸" }, -- 成就/科技系列
+      center = { "💪", "🦾", "🤘", "👊", "✊", "🔧", "⚽", "🏀", "🏈", "⚾" }, -- 酷炫/运动系列
     }
 
     -- 随机选择表情的函数
@@ -94,19 +94,19 @@ return {
 
     -- 模式表情图标
     local mode_icons = {
-      n = "🎯",      -- NORMAL
-      i = "✏️",      -- INSERT
-      v = "👁️",      -- VISUAL
-      V = "👁️",      -- V-LINE
+      n = "🎯", -- NORMAL
+      i = "✏️", -- INSERT
+      v = "👁️", -- VISUAL
+      V = "👁️", -- V-LINE
       ["\22"] = "👁️", -- V-BLOCK
-      c = "🎮",      -- COMMAND
-      s = "📌",      -- SELECT
-      S = "📌",      -- S-LINE
+      c = "🎮", -- COMMAND
+      s = "📌", -- SELECT
+      S = "📌", -- S-LINE
       ["\19"] = "📌", -- S-BLOCK
-      R = "🔄",      -- REPLACE
+      R = "🔄", -- REPLACE
       r = "🔄",
-      ["!"] = "💥",  -- SHELL
-      t = "💻",      -- TERMINAL
+      ["!"] = "💥", -- SHELL
+      t = "💻", -- TERMINAL
     }
 
     -- 自定义组件：模式 + 表情
@@ -228,7 +228,7 @@ return {
     opts.sections = {
       -- 左侧
       lualine_a = {
-        { left_decoration },  -- 🌸 常驻装饰
+        { left_decoration }, -- 🌸 常驻装饰
         { mode_with_icon },
         { "mode" },
       },
@@ -249,7 +249,7 @@ return {
             newfile = icons.newfile,
           },
         },
-        { center_decoration },  -- 💖 常驻装饰
+        { center_decoration }, -- 💖 常驻装饰
         filetype_with_icon,
         filesize_with_icon,
       },
@@ -268,7 +268,7 @@ return {
       lualine_z = {
         date_with_icon,
         time_with_icon,
-        { right_decoration },  -- ✨ 常驻装饰
+        { right_decoration }, -- ✨ 常驻装饰
       },
     }
 

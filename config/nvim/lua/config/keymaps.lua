@@ -12,14 +12,17 @@ vim.keymap.set("n", "<leader>gq", function()
   -- 先关闭 diff 模式
   vim.cmd("diffoff!")
 
-  -- 关闭 gitsigns 创建的历史版本窗口
+  -- 再清理 gitsigns 历史窗口和残留的 Git 终端窗口
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
     local bufname = vim.api.nvim_buf_get_name(buf)
     local buftype = vim.bo[buf].buftype
+    local filetype = vim.bo[buf].filetype
 
-    -- gitsigns 创建的窗口特征：bufname 包含 "gitsigns://" 或 buftype 为 "nofile"
-    if bufname:match("gitsigns://") or (buftype == "nofile" and bufname:match("^/")) then
+    if
+      bufname:match("^gitsigns://")
+      or (buftype == "terminal" and (bufname:match("term://.*lazygit") or filetype == "lazygit"))
+    then
       pcall(vim.api.nvim_win_close, win, true)
     end
   end
@@ -34,10 +37,7 @@ vim.keymap.set("n", "<leader>xf", function()
     local buftype = vim.bo[buf].buftype
 
     -- 查找 Trouble、Quickfix、Telescope 等搜索结果窗口
-    if filetype == "trouble" or
-       filetype == "qf" or
-       buftype == "quickfix" or
-       filetype == "TelescopePrompt" then
+    if filetype == "trouble" or filetype == "qf" or buftype == "quickfix" or filetype == "TelescopePrompt" then
       vim.api.nvim_set_current_win(win)
       return
     end
@@ -100,4 +100,3 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.keymap.set("n", "a", "a", vim.tbl_extend("force", opts, { desc = "Enter insert mode" }))
   end,
 })
-

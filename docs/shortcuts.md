@@ -61,6 +61,7 @@ y ~/Downloads
 - `<leader>gr`: 在终端里查看最近 `git reflog`
 - `<leader>gd`: 调用 `gitsigns` 做 diff 对比
 - `<leader>gq`: 关闭 diff，并清理相关历史窗口
+- `LazyGit` / `git log` / `git reflog` 退出后会自动关闭对应终端窗口，不需要再补一次 `q`
 
 ### 搜索
 
@@ -69,6 +70,7 @@ y ~/Downloads
 - `Telescope` 结果面板里按 `<C-q>`: 发送结果到 quickfix，并打开 Trouble
 - `<leader>xf`: 聚焦到 Trouble / quickfix / Telescope 搜索结果窗口
 - `Trouble` 窗口里按 `<CR>`: 跳到目标，并优先复用普通编辑窗口
+- `Trouble` / quickfix / `help` / `man` 窗口里按 `q` 或 `<Esc>`: 关闭当前临时窗口
 
 ### 窗口
 
@@ -98,6 +100,7 @@ y ~/Downloads
 - `gpr`: 预览 references
 - `gpc`: 关闭所有预览窗口
 - 预览窗口内 `q` 或 `<Esc>`: 关闭预览
+- `gitsigns` 打开的历史窗口里按 `q` 或 `<Esc>`: 关闭历史窗口
 
 ### Claude Code
 
