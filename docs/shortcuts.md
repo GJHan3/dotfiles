@@ -24,6 +24,8 @@ y ~/Downloads
 - `h` / `l`: 返回上级目录 / 进入目录，或按配置打开文件（默认 `nvim`，`html` / `htm` 优先浏览器）
 - `g` / `G`: 跳到顶部 / 底部
 - `g b`: 用系统浏览器打开当前文件；`html` / `htm` 默认也会优先走浏览器
+- `g c`: 从 `~` 开始逐级进入目标目录，最后把当前已选中的文件复制过去
+- `g x`: 从 `~` 开始逐级进入目标目录，最后把当前已选中的文件移动过去
 - `M s`: 打开 `sshfs.yazi` 菜单，可直接从 `~/.ssh/config` 里的主机做 SSHFS 挂载、跳转和卸载
 - `M m`: 挂载 SSH 主机并直接跳转
 - `M j`: 跳转到已挂载的 SSHFS 目录
@@ -51,6 +53,8 @@ y ~/Downloads
 4. 按 `p`。
 
 补充说明见 [yazi.md](/Users/hanguangjiang/dotfiles/docs/yazi.md)。
+
+`g c` / `g x` 都依赖 [config/yazi/ycopyto.sh](/Users/hanguangjiang/dotfiles/config/yazi/ycopyto.sh)，默认从 `~` 开始浏览；同时会提供当前目录、`~/sshmnt`、已挂载 SSHFS 路径等 `@ shortcut` 跳转项。进入目标目录时只扫当前层，避免在 SSHFS 挂载上卡住；`Enter` 和右方向键都可以进入下一层，左方向键可稳定返回上一层，也支持直接输入绝对路径或 `~/...`，并按输入前缀动态刷新候选目录；如果输入的是已存在目录，`Enter` 会直接跳到该路径，`Right` 可继续进入当前高亮子目录。`g c` 执行复制，`g x` 执行移动；取消选择不会动源文件。
 
 ## SSHFS Shell
 

@@ -2,6 +2,22 @@
 prepend_keymap = [
   { on = [ "g", "b" ], run = "shell --orphan 'open %h'", for = "macos", desc = "Open hovered file in browser" },
   { on = [ "g", "b" ], run = "shell --orphan 'xdg-open %h'", for = "linux", desc = "Open hovered file in browser" },
+  { on = [ "g", "c" ], run = '''shell --block --
+set -- %s
+if [ "$#" -eq 0 ]; then
+  exec "$HOME/.config/yazi/ycopyto.sh" --copy %h
+else
+  exec "$HOME/.config/yazi/ycopyto.sh" --copy "$@"
+fi
+''' , desc = "Copy selected files to chosen directory" },
+  { on = [ "g", "x" ], run = '''shell --block --
+set -- %s
+if [ "$#" -eq 0 ]; then
+  exec "$HOME/.config/yazi/ycopyto.sh" --move %h
+else
+  exec "$HOME/.config/yazi/ycopyto.sh" --move "$@"
+fi
+''' , desc = "Move selected files to chosen directory" },
   { on = [ "M", "s" ], run = "plugin sshfs -- menu", desc = "Open SSHFS options" },
   { on = [ "M", "m" ], run = "plugin sshfs -- mount --jump", desc = "Mount SSH host and jump" },
   { on = [ "M", "j" ], run = "plugin sshfs -- jump", desc = "Jump to SSH mount" },
