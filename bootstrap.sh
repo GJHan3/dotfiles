@@ -8,6 +8,10 @@ P10K_DIR="${OH_MY_ZSH_DIR}/custom/themes/powerlevel10k"
 INTERACTIVE=0
 FORCE_INSTALL=0
 NPM_REGISTRY="https://registry.npmmirror.com"
+NPM_FALLBACK_REGISTRY="https://registry.npmjs.org"
+NODESOURCE_NODE_MAJOR="22"
+NODESOURCE_KEYRING="/usr/share/keyrings/nodesource.gpg"
+NODESOURCE_SOURCE_FILE="/etc/apt/sources.list.d/nodesource.sources"
 MACFUSE_CASK="macfuse"
 SSHFS_MACOS_VERSION="3.7.5"
 SSHFS_MACOS_URL="https://github.com/libfuse/sshfs/releases/download/sshfs-${SSHFS_MACOS_VERSION}/sshfs-${SSHFS_MACOS_VERSION}.pkg"
@@ -15,6 +19,48 @@ SSHFS_MACOS_URL="https://github.com/libfuse/sshfs/releases/download/sshfs-${SSHF
 if [[ -t 0 && -t 1 ]]; then
   INTERACTIVE=1
 fi
+
+COLOR_RESET=""
+COLOR_BOLD=""
+COLOR_NEXT=""
+COLOR_WARN=""
+COLOR_INFO=""
+COLOR_DONE=""
+COLOR_COMMAND=""
+
+setup_colors() {
+  if [[ -t 1 ]] && [[ -z "${NO_COLOR:-}" ]]; then
+    COLOR_RESET="$(printf "\\033[0m")"
+    COLOR_BOLD="$(printf "\\033[1m")"
+    COLOR_NEXT="$(printf "\\033[1;36m")"
+    COLOR_WARN="$(printf "\\033[1;33m")"
+    COLOR_INFO="$(printf "\\033[1;34m")"
+    COLOR_DONE="$(printf "\033[1;32m")"
+    COLOR_COMMAND="$(printf "\033[1;7m")"
+  fi
+}
+
+print_status_header() {
+  local level=$1
+  local title=$2
+  local color=$COLOR_INFO
+
+  case "$level" in
+    NEXT) color=$COLOR_NEXT ;;
+    WARN) color=$COLOR_WARN ;;
+    INFO) color=$COLOR_INFO ;;
+    DONE) color=$COLOR_DONE ;;
+  esac
+
+  printf "\n%s[%s]%s %s%s%s\n" "$color" "$level" "$COLOR_RESET" "$COLOR_BOLD" "$title" "$COLOR_RESET"
+}
+
+print_command_hint() {
+  local label=$1
+  local command=$2
+
+  printf "  %s %s%s%s\n" "$label" "$COLOR_COMMAND" "$command" "$COLOR_RESET"
+}
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1
@@ -103,6 +149,33 @@ remove_stale_lazygit_ppa() {
   if [[ -f "$source_file" ]]; then
     sudo rm -f "$source_file"
   fi
+}
+
+install_nodesource_ubuntu() {
+  local arch key_url source_url
+
+  if [[ $FORCE_INSTALL -eq 0 ]] && [[ -f "$NODESOURCE_SOURCE_FILE" ]] && [[ -f "$NODESOURCE_KEYRING" ]] && grep -q "node_${NODESOURCE_NODE_MAJOR}\.x" "$NODESOURCE_SOURCE_FILE"; then
+    return
+  fi
+
+  arch="$(dpkg --print-architecture)"
+  key_url="https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key"
+  source_url="https://deb.nodesource.com/node_${NODESOURCE_NODE_MAJOR}.x"
+
+  sudo apt-get update
+  sudo apt-get install -y ca-certificates gnupg
+  sudo mkdir -p "$(dirname "$NODESOURCE_KEYRING")" "$(dirname "$NODESOURCE_SOURCE_FILE")"
+  curl -fsSL "$key_url" | sudo gpg --dearmor --yes -o "$NODESOURCE_KEYRING"
+  sudo chmod 0644 "$NODESOURCE_KEYRING"
+
+  cat <<EOF | sudo tee "$NODESOURCE_SOURCE_FILE" >/dev/null
+Types: deb
+URIs: ${source_url}
+Suites: nodistro
+Components: main
+Architectures: ${arch}
+Signed-By: ${NODESOURCE_KEYRING}
+EOF
 }
 
 install_neovim_ubuntu() {
@@ -251,27 +324,49 @@ install_stylua_ubuntu() {
   sudo install "$tmp_dir/stylua" /usr/local/bin/stylua
 }
 
+run_npm_global_install() {
+  local package=$1
+  local registry=$2
+
+  npm i -g "$package" --registry="$registry"
+}
+
+install_npm_global_package() {
+  local package=$1
+  local label=$2
+  local registry
+
+  if ! need_cmd npm; then
+    echo "Skipping ${label} install: npm is not available." >&2
+    return 1
+  fi
+
+  for registry in "$NPM_REGISTRY" "$NPM_FALLBACK_REGISTRY"; do
+    if run_npm_global_install "$package" "$registry"; then
+      return 0
+    fi
+  done
+
+  if need_cmd sudo; then
+    for registry in "$NPM_REGISTRY" "$NPM_FALLBACK_REGISTRY"; do
+      if sudo npm i -g "$package" --registry="$registry"; then
+        return 0
+      fi
+    done
+  fi
+
+  echo "Failed to install ${label} with npm." >&2
+  return 1
+}
+
 install_codex_cli() {
   if ! should_install_cmd codex; then
     return
   fi
 
-  if ! need_cmd npm; then
-    echo "Skipping Codex CLI install: npm is not available." >&2
-    return 1
+  if ! install_npm_global_package "@openai/codex@latest" "Codex CLI"; then
+    echo "Continuing without Codex CLI." >&2
   fi
-
-  if npm i -g @openai/codex@latest --registry="$NPM_REGISTRY"; then
-    return
-  fi
-
-  if need_cmd sudo; then
-    sudo npm i -g @openai/codex@latest --registry="$NPM_REGISTRY"
-    return
-  fi
-
-  echo "Failed to install Codex CLI with npm." >&2
-  return 1
 }
 
 install_lark_cli() {
@@ -279,22 +374,9 @@ install_lark_cli() {
     return
   fi
 
-  if ! need_cmd npm; then
-    echo "Skipping Lark CLI install: npm is not available." >&2
-    return 1
+  if ! install_npm_global_package "@larksuite/cli" "Lark CLI"; then
+    echo "Continuing without Lark CLI." >&2
   fi
-
-  if npm i -g @larksuite/cli --registry="$NPM_REGISTRY"; then
-    return
-  fi
-
-  if need_cmd sudo; then
-    sudo npm i -g @larksuite/cli --registry="$NPM_REGISTRY"
-    return
-  fi
-
-  echo "Failed to install Lark CLI with npm." >&2
-  return 1
 }
 
 install_cc_connect() {
@@ -302,31 +384,20 @@ install_cc_connect() {
     return
   fi
 
-  if ! need_cmd npm; then
-    echo "Skipping cc-connect install: npm is not available." >&2
-    return 1
+  if ! install_npm_global_package "cc-connect" "cc-connect"; then
+    echo "Continuing without cc-connect." >&2
   fi
-
-  if npm i -g cc-connect --registry="$NPM_REGISTRY"; then
-    return
-  fi
-
-  if need_cmd sudo; then
-    sudo npm i -g cc-connect --registry="$NPM_REGISTRY"
-    return
-  fi
-
-  echo "Failed to install cc-connect with npm." >&2
-  return 1
 }
 
 install_lark_skills() {
   if ! need_cmd npx; then
     echo "Skipping Lark skills install: npx is not available." >&2
-    return 1
+    return 0
   fi
 
-  npx skills add larksuite/cli -g -y
+  if ! npx -y skills add larksuite/cli -g -y; then
+    echo "Skipping Lark skills install: npx skills add failed." >&2
+  fi
 }
 
 detect_os() {
@@ -415,6 +486,7 @@ install_packages_ubuntu() {
   local -a APT_PACKAGES=()
 
   remove_stale_lazygit_ppa
+  install_nodesource_ubuntu
 
   append_apt_package_if_missing git
   append_apt_package_if_missing zsh
@@ -425,7 +497,6 @@ install_packages_ubuntu() {
   append_apt_package_if_missing fd-find
   append_apt_package_if_missing xclip
   append_apt_package_if_missing nodejs
-  append_apt_package_if_missing npm
   append_apt_package_if_missing build-essential
   append_apt_package_if_missing unzip
   append_apt_package_if_missing sshfs
@@ -520,10 +591,46 @@ set_default_shell_to_zsh() {
   if [[ $INTERACTIVE -eq 1 ]]; then
     printf "Set default shell to %s? [Y/n] " "$zsh_path"
     read -r reply
-    reply="${reply:-Y}"
+    reply=""
     if [[ "$reply" =~ ^[Yy]$ ]]; then
       chsh -s "$zsh_path" || true
     fi
+  fi
+}
+
+prompt_enable_proxy() {
+  local reply
+  local proxy_file="$HOME/.config/zsh/local/10-bootstrap-proxy.zsh"
+
+  if [[ $INTERACTIVE -ne 1 ]]; then
+    return
+  fi
+
+  if ! need_cmd zsh; then
+    return
+  fi
+
+  if ! zsh -ic "typeset -f proxy_on >/dev/null 2>/dev/null" >/dev/null 2>&1; then
+    return
+  fi
+
+  print_status_header NEXT "Auto-enable proxy"
+  print_command_hint "Run on new shells:" "proxy_on"
+  printf "  Persist proxy_on for future zsh sessions? [y/N] "
+  read -r reply
+  reply="${reply:-N}"
+
+  mkdir -p "$HOME/.config/zsh/local"
+
+  if [[ "$reply" =~ ^[Yy]$ ]]; then
+    cat <<'PROXY_EOF' >"$proxy_file"
+# Generated by bootstrap.sh to auto-enable the local proxy in new zsh sessions.
+proxy_on
+PROXY_EOF
+    printf "  proxy_on will run automatically in new zsh sessions via %s.\n" "$proxy_file"
+  else
+    rm -f "$proxy_file"
+    printf "  proxy_on auto-enable is disabled.\n"
   fi
 }
 
@@ -566,53 +673,48 @@ configure_git_identity() {
 
 print_post_install_notes() {
   if need_cmd codex; then
-    cat <<'EOF'
-Note: Codex CLI is installed.
-Run `codex` or `codex login` to sign in with your ChatGPT account or API key.
-EOF
+    print_status_header NEXT "Codex CLI"
+    print_command_hint "Run:" "codex"
+    print_command_hint "Or:" "codex login"
+    printf "  Sign in with your ChatGPT account or API key.\n"
   fi
 
   if need_cmd lark-cli; then
-    cat <<'EOF'
-Note: Lark CLI is installed.
-Run `lark-cli config init --new`.
-If you want user-level access, also run `lark-cli auth login`.
-EOF
+    print_status_header NEXT "Lark CLI"
+    print_command_hint "Run:" "lark-cli config init --new"
+    print_command_hint "Optional:" "lark-cli auth login"
+    printf "  Use the optional login if you want user-level access.\n"
   fi
 
   if need_cmd cc-connect; then
-    cat <<'EOF'
-Note: cc-connect is installed.
-Run `cc-connect --help` to verify the command and see available setup options.
-EOF
+    print_status_header NEXT "cc-connect"
+    print_command_hint "Run:" "cc-connect --help"
+    printf "  Verify the command and review available setup options.\n"
   fi
 
   if ! need_cmd claude; then
-    cat <<'EOF'
-Note: `claude` is not installed.
-Your Neovim ClaudeCode plugin is configured to run the `claude` command, so install it
-manually on machines where you want that workflow.
-EOF
+    print_status_header WARN "ClaudeCode dependency missing"
+    printf "  Command not found: claude\n"
+    printf "  Your Neovim ClaudeCode plugin expects the `claude` command, so install it\n"
+    printf "  manually on machines where you want that workflow.\n"
   fi
 
   if need_cmd sshfs; then
-    cat <<'EOF'
-Note: SSHFS support is installed for Yazi.
-On macOS, if mounts are blocked, check:
-  System Settings -> Privacy & Security
-and allow macFUSE if macOS asks for approval.
-EOF
+    print_status_header INFO "SSHFS for Yazi is ready"
+    printf "  On macOS, if mounts are blocked, check:\n"
+    printf "    System Settings -> Privacy & Security\n"
+    printf "  Allow macFUSE if macOS asks for approval.\n"
   fi
 
-  cat <<'EOF'
-If Powerlevel10k icons still look wrong, set your terminal font to:
-  MesloLGS NF
-EOF
+  print_status_header INFO "Font"
+  printf "  If Powerlevel10k icons still look wrong, set your terminal font to:\n"
+  printf "    MesloLGS NF\n"
 }
 
 main() {
   local os
   parse_args "$@"
+  setup_colors
   os="$(detect_os)"
 
   case "$os" in
@@ -651,12 +753,11 @@ main() {
   "${DOTFILES_DIR}/install.sh"
   configure_git_identity
   set_default_shell_to_zsh
+  prompt_enable_proxy
   print_post_install_notes
 
-  cat <<'EOF'
-Bootstrap complete.
-Restart your terminal after bootstrap completes.
-EOF
+  print_status_header DONE "Bootstrap complete."
+  print_status_header NEXT "Restart your terminal before using the updated shell environment."
 }
 
 main "$@"

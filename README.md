@@ -46,10 +46,9 @@ For Yazi's `sshfs.yazi` workflow, `bootstrap.sh` also installs the platform SSHF
 - macOS: installs `macFUSE` and the official `SSHFS.pkg`
 - Ubuntu/Debian: installs the `sshfs` package
 
-After bootstrap, run `codex` or `codex login` once to authenticate the Codex CLI.
-Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
-Then run `lark-cli config init --new`, and optionally `lark-cli auth login`.
-`cc-connect` is also installed via npm; run `cc-connect --help` to verify the command on a new machine.
+After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`. Actionable follow-up items are printed with status prefixes such as `[NEXT]`, `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI emphasis in interactive terminals. Near the end of an interactive bootstrap run, the script also asks whether it should optionally auto-enable `proxy_on` for future zsh sessions; the default answer is no if that zsh helper exists.
+
+Typical follow-up commands are `codex` or `codex login` for Codex CLI authentication, `lark-cli config init --new` and optional `lark-cli auth login` for Lark CLI setup, and `cc-connect --help` to verify the installed command. Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
 
 After changing files under `config/nvim`, verify the config before committing:
 
@@ -66,7 +65,8 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
-- npm-based CLI installs in `bootstrap.sh` use `https://registry.npmmirror.com`.
+- On Ubuntu/Debian, `bootstrap.sh` configures NodeSource Node.js 22.x and installs `nodejs` from that source, which already provides `npm`. Do not run `apt install npm` separately.
+- npm-based CLI installs in `bootstrap.sh` try `https://registry.npmmirror.com` first and fall back to `https://registry.npmjs.org` if the mirror fails.
 - On macOS, `bootstrap.sh` installs `macFUSE`; the first use may still require approval in `System Settings -> Privacy & Security`.
 
 ## Tool notes
