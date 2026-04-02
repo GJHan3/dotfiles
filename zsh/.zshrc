@@ -160,6 +160,334 @@ y() {
   rm -f -- "$tmp"
 }
 
+typeset -g SSHFS_MOUNT_ROOT="$HOME/sshmnt"
+typeset -g SSHFS_MOUNT_OPTIONS="defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user"
+
+sshhosts() {
+  emulate -L zsh
+
+  local config
+  local -a configs
+  configs=("$HOME/.ssh/config" "$HOME/.ssh/config.d"/*(.N))
+
+  awk '
+    tolower($1) == "host" {
+      for (i = 2; i <= NF; i++) {
+        if ($i !~ /[*?!]/) print $i
+      }
+    }
+  ' "${configs[@]}" 2>/dev/null | sort -u
+}
+
+_sshfs_select_host() {
+  emulate -L zsh
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "fzf is not installed" >&2
+    return 1
+  fi
+
+  sshhosts | fzf \
+    --prompt="Select SSH host: " \
+    --height=40% \
+    --reverse \
+    --border \
+    --bind='tab:down,shift-tab:up' \
+    --header="Hosts from ~/.ssh/config"
+}
+
+_sshfs_mount_dir() {
+  emulate -L zsh
+
+  local host="$1"
+  local remote_path="$2"
+  local cleaned_path base_name
+
+  cleaned_path="${remote_path%/}"
+  if [[ -z "$cleaned_path" || "$cleaned_path" == "/" ]]; then
+    base_name="root"
+  elif [[ "$cleaned_path" == "~" || "$cleaned_path" == "~/" ]]; then
+    base_name="home"
+  else
+    base_name="${cleaned_path:t}"
+  fi
+
+  printf "%s/%s-%s" "$SSHFS_MOUNT_ROOT" "$host" "$base_name"
+}
+
+_sshfs_select_remote_path() {
+  emulate -L zsh
+
+  local host="$1"
+  local seed="${2:-~}"
+  local current_path
+  local remote_home
+  local selected_path
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    printf "%s" "$seed"
+    return 0
+  fi
+
+  remote_home="$(ssh "$host" "printf '%s' \"\$HOME\"" 2>/dev/null)"
+  [[ -z "$remote_home" ]] && remote_home="/"
+
+  case "$seed" in
+    "~")
+      current_path="$remote_home"
+      ;;
+    "~/"*)
+      current_path="${remote_home}/${seed#~/}"
+      ;;
+    *)
+      current_path="$seed"
+      ;;
+  esac
+
+  while true; do
+    selected_path="$(
+      {
+        printf './ [use %s]\n' "$current_path"
+        if [[ "$current_path" != "/" ]]; then
+          printf '../\n'
+        fi
+        ssh "$host" "sh -lc '
+          current=\${1:-/}
+          [ -d \"\$current\" ] || exit 0
+          find -L \"\$current\" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -u
+        ' sh $(printf '%q' "$current_path")" 2>/dev/null
+      } | fzf \
+        --prompt="Select remote dir> " \
+        --height=50% \
+        --reverse \
+        --border \
+        --layout=reverse-list \
+        --no-sort \
+        --header=$'Current remote path: '"$current_path"$'\nEnter on a directory: go into it\nEnter on ./: use current directory\nEnter on ../: go to parent directory'
+    )"
+
+    if [[ -z "$selected_path" || "$selected_path" == "./ [use $current_path]" ]]; then
+      printf "%s" "$current_path"
+      return 0
+    fi
+
+    if [[ "$selected_path" == "../" ]]; then
+      if [[ "$current_path" == "/" ]]; then
+        continue
+      elif [[ "$current_path" != */* ]]; then
+        current_path="/"
+      else
+        current_path="${current_path:h}"
+      fi
+      continue
+    fi
+
+    if [[ "$current_path" == "/" ]]; then
+      current_path="/$selected_path"
+    else
+      current_path="$current_path/$selected_path"
+    fi
+  done
+}
+
+_sshfs_mounts() {
+  emulate -L zsh
+
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    mount | awk -v root="$SSHFS_MOUNT_ROOT" '
+      {
+        if (tolower($0) ~ /(sshfs|macfuse|osxfuse)/) {
+          line = $0
+          sub(/^.* on /, "", line)
+          sub(/ \(.*/, "", line)
+          if (index(line, root) == 1) {
+            print line
+          }
+        }
+      }
+    '
+  else
+    mount | awk -v root="$SSHFS_MOUNT_ROOT" '
+      / fuse\.sshfs / {
+        if (index($3, root) == 1) {
+          print $3
+        }
+      }
+    '
+  fi
+}
+
+_sshfs_is_mounted() {
+  emulate -L zsh
+
+  local mount_path="$1"
+  local candidate
+  for candidate in "${(@f)$(_sshfs_mounts)}"; do
+    if [[ "$candidate" == "$mount_path" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+sshm() {
+  emulate -L zsh
+
+  local host="${1:-}"
+  local remote_path="${2:-}"
+  local remote_path_input=""
+  local selected_remote_path=""
+  local local_path="${3:-}"
+  local volume_name=""
+  local mount_cmd=()
+  local remote_home=""
+
+  if ! command -v sshfs >/dev/null 2>&1; then
+    echo "sshfs is not installed"
+    return 1
+  fi
+
+  if [[ -z "$host" ]]; then
+    host="$(_sshfs_select_host)" || return 1
+  fi
+
+  if [[ -z "$host" ]]; then
+    return 1
+  fi
+
+  remote_home="$(ssh "$host" "printf '%s' \"\$HOME\"" 2>/dev/null)"
+  [[ -z "$remote_home" ]] && remote_home="/"
+
+  if [[ -z "$remote_path" ]]; then
+    selected_remote_path="$(_sshfs_select_remote_path "$host" "$remote_home" "Select remote path")"
+    read "remote_path_input?Remote path to mount [$selected_remote_path]: "
+    remote_path="${remote_path_input:-$selected_remote_path}"
+  fi
+
+  if [[ -z "$local_path" ]]; then
+    local_path="$(_sshfs_mount_dir "$host" "$remote_path")"
+    read "local_path?Local mount path [$local_path]: "
+    local_path="${local_path:-$(_sshfs_mount_dir "$host" "$remote_path")}"
+  fi
+
+  if [[ -d "$local_path" ]] && _sshfs_is_mounted "$local_path"; then
+    echo "SSHFS mount already exists at ${local_path}"
+    builtin cd -- "$local_path"
+    return 0
+  fi
+
+  mkdir -p "$local_path" 2>/dev/null || true
+
+  volume_name="${local_path:t}"
+  mount_cmd=(sshfs "${host}:${remote_path}" "$local_path" -o "${SSHFS_MOUNT_OPTIONS},volname=${volume_name}")
+  if [[ ! -w "$local_path" ]]; then
+    mount_cmd=(sudo "${mount_cmd[@]}")
+  fi
+
+  echo "Mounting ${host}:${remote_path} -> ${local_path}"
+  "${mount_cmd[@]}" || return 1
+  builtin cd -- "$local_path"
+}
+
+sshj() {
+  emulate -L zsh
+
+  local mount_path="${1:-}"
+  if [[ -z "$mount_path" ]]; then
+    if ! command -v fzf >/dev/null 2>&1; then
+      echo "fzf is not installed"
+      return 1
+    fi
+
+    mount_path="$(_sshfs_mounts | fzf \
+      --prompt="Jump to SSHFS mount: " \
+      --height=40% \
+      --reverse \
+      --border \
+      --header="Mounted SSHFS directories")"
+  fi
+
+  [[ -z "$mount_path" ]] && return 1
+  builtin cd -- "$mount_path"
+}
+
+sshu() {
+  emulate -L zsh
+
+  local mount_path="${1:-}"
+  local -a mounts
+  local unmounted=0
+  if [[ -z "$mount_path" ]]; then
+    if ! command -v fzf >/dev/null 2>&1; then
+      echo "fzf is not installed"
+      return 1
+    fi
+
+    mounts=("${(@f)$(_sshfs_mounts)}")
+    if (( ${#mounts[@]} == 0 )); then
+      echo "No SSHFS mounts found under $SSHFS_MOUNT_ROOT"
+      return 1
+    fi
+
+    mount_path="$(printf '%s\n' "${mounts[@]}" | fzf \
+      --prompt="Unmount SSHFS mount: " \
+      --height=40% \
+      --reverse \
+      --border \
+      --header="Mounted SSHFS directories")"
+  fi
+
+  [[ -z "$mount_path" ]] && return 1
+
+  echo "Unmounting $mount_path"
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    if ! diskutil unmount "$mount_path" >/dev/null 2>&1 &&
+      ! umount "$mount_path" >/dev/null 2>&1 &&
+      ! sudo diskutil unmount force "$mount_path" >/dev/null 2>&1 &&
+      ! sudo umount "$mount_path" >/dev/null 2>&1; then
+      if _sshfs_is_mounted "$mount_path"; then
+        echo "Unmount failed for $mount_path"
+        return 1
+      fi
+    fi
+  else
+    if ! fusermount -u "$mount_path" 2>/dev/null &&
+      ! umount "$mount_path" 2>/dev/null &&
+      ! sudo umount "$mount_path" >/dev/null 2>&1; then
+      if _sshfs_is_mounted "$mount_path"; then
+        echo "Unmount failed for $mount_path"
+        return 1
+      fi
+    fi
+  fi
+  unmounted=1
+
+  if (( unmounted == 1 )) && [[ -d "$mount_path" ]]; then
+    rmdir "$mount_path" 2>/dev/null || true
+  fi
+}
+
+sshhome() {
+  emulate -L zsh
+
+  mkdir -p "$SSHFS_MOUNT_ROOT"
+  builtin cd -- "$SSHFS_MOUNT_ROOT"
+}
+
+sshs() {
+  emulate -L zsh
+
+  local host="${1:-}"
+
+  if [[ -z "$host" ]]; then
+    host="$(_sshfs_select_host)" || return 1
+  fi
+
+  [[ -z "$host" ]] && return 1
+
+  ssh "$host"
+}
+
 tn() {
   emulate -L zsh
 

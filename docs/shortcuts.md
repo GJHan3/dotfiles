@@ -52,6 +52,26 @@ y ~/Downloads
 
 补充说明见 [yazi.md](/Users/hanguangjiang/dotfiles/docs/yazi.md)。
 
+## SSHFS Shell
+
+基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的快捷函数，可直接复用 `~/.ssh/config`：
+
+- `sshhosts`: 列出 `~/.ssh/config` 里的可用 Host 别名
+- `sshs`: 用 `fzf` 选择一个 Host，然后直接执行 `ssh <host>`
+- `sshm`: 用 `fzf` 选择 Host，再逐级浏览远程目录；选中 `./` 确认当前目录，选中 `../` 返回上一级；如果目标本地目录已经挂载，则直接进入
+- `sshj`: 用 `fzf` 在当前已挂载的 SSHFS 目录间跳转
+- `sshu`: 用 `fzf` 选择一个 `SSHFS_MOUNT_ROOT` 下的 SSHFS 挂载并卸载；卸载成功后会顺手删除空的本地挂载目录
+- `sshhome`: 进入 SSHFS 挂载根目录，默认是 `~/sshmnt`
+
+默认行为：
+
+- 默认挂载根目录是 `~/sshmnt`
+- 默认挂载参数是 `defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user`
+- `sshm` 会自动把本地挂载目录名设置成 Finder 里的卷名，避免显示成默认的 `macFUSE Volume 0 (sshfs)`
+- 可通过环境变量覆盖：
+  - `SSHFS_MOUNT_ROOT`
+  - `SSHFS_MOUNT_OPTIONS`
+
 ## Neovim
 
 说明：
