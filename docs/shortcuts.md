@@ -159,6 +159,7 @@ y ~/Downloads
 
 当前仓库里的 [tmux/.tmux.conf](/Users/hanguangjiang/dotfiles/tmux/.tmux.conf) 当前配置了：
 
+- 前缀键是反引号 `` ` ``，按两次 `` ` `` 可发送原始前缀
 - `set -g mouse on`: 开启鼠标支持
 - 状态栏保留少量科技风图标，并通过 [tmux/status-cpu.sh](/Users/hanguangjiang/dotfiles/tmux/status-cpu.sh) 和 [tmux/status-memory.sh](/Users/hanguangjiang/dotfiles/tmux/status-memory.sh) 显示系统名、CPU 占用、内存用量、日期和时间
 - 主状态栏左侧显示 `🚀 <session>` 和 `🔥 pane <pane编号> <当前命令>`，窗口信息留给窗口列表本身展示
@@ -175,15 +176,15 @@ y ~/Downloads
 
 其余交互基本还是默认快捷键：
 
-- `Ctrl-b c`: 新建窗口
-- `Ctrl-b ,`: 重命名当前窗口
-- `Ctrl-b n` / `p`: 下一个 / 上一个窗口
-- `Ctrl-b %`: 默认左右分屏，当前配置更推荐用 `prefix + \`
-- `Ctrl-b "`: 默认上下分屏，当前配置更推荐用 `prefix + -`
-- `Ctrl-b o`: 在分屏间切换
-- `Ctrl-b x`: 关闭当前 pane
-- `Ctrl-b d`: 暂时 detach 当前 session
-- `Ctrl-b [`: 进入复制模式
+- `prefix + c`: 新建窗口
+- `prefix + ,`: 重命名当前窗口
+- `prefix + n` / `p`: 下一个 / 上一个窗口
+- `prefix + %`: 默认左右分屏，当前配置更推荐用 `prefix + \`
+- `prefix + "`: 默认上下分屏，当前配置更推荐用 `prefix + -`
+- `prefix + o`: 在分屏间切换
+- `prefix + x`: 关闭当前 pane
+- `prefix + d`: 暂时 detach 当前 session
+- `prefix + [`: 进入复制模式
 
 Shell 辅助命令定义在 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc)：
 
