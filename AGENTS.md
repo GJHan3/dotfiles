@@ -21,7 +21,7 @@
 ## 代码风格与命名约定
 除非脚本明确依赖 Bash 或 Zsh 特性，否则优先保持 Shell 写法兼容、清晰、可重复执行。脚本应延续现有防御式风格，例如 `set -euo pipefail`。涉及系统命令时，优先沿用仓库中已有的 macOS 与 Ubuntu/Debian 分支判断，不要假设 Homebrew、apt、字体路径或二进制位置完全一致。Neovim Lua 配置遵循 `config/nvim/stylua.toml`：2 空格缩进，120 列宽。插件文件名应与功能对应，例如 `lua/plugins/lualine.lua`、`lua/plugins/lazygit.lua`。
 
-`bootstrap.sh` 的收尾提示属于实际工作流的一部分：对用户有后续动作要求的输出，应保留统一的状态前缀（如 `[NEXT]`、`[WARN]`、`[INFO]`、`[DONE]`），并对命令本身做 ANSI 高亮；如果存在 `proxy_on` 这类环境切换入口，允许在安装末尾提供默认值为否的交互式确认，并优先用本地覆盖文件持久化到后续 shell，而不是只在临时子进程里执行。新增或调整这类提示时，同步更新对应文档说明。
+`bootstrap.sh` 的收尾提示属于实际工作流的一部分：对用户有后续动作要求的输出，应保留统一的状态前缀（如 `[NEXT]`、`[WARN]`、`[INFO]`、`[DONE]`），并对命令本身做 ANSI 高亮；如果存在 `proxy_on` 这类环境切换入口，默认应保持关闭，只提供手动执行提示，例如提醒用户按需运行 `proxy_on`。新增或调整这类提示时，同步更新对应文档说明。
 
 ## 测试指南
 当前没有独立的自动化测试套件。修改后先跑语法检查，再用实际工具验证效果，例如执行 `./install.sh`、打开新的 Zsh 会话、重新加载 tmux，或启动 Neovim。凡是改动 `bootstrap.sh`、`zsh/.zprofile`、架构检测或下载地址逻辑时，至少要检查 macOS 和 Ubuntu/Debian 两侧是否仍能工作。启动报错、链接失效、覆盖错误都应视为阻塞问题。

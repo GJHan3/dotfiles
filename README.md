@@ -46,9 +46,9 @@ For Yazi's `sshfs.yazi` workflow, `bootstrap.sh` also installs the platform SSHF
 - macOS: installs `macFUSE` and the official `SSHFS.pkg`
 - Ubuntu/Debian: installs the `sshfs` package
 
-After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`. Actionable follow-up items are printed with status prefixes such as `[NEXT]`, `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI emphasis in interactive terminals. Near the end of an interactive bootstrap run, the script also asks whether it should optionally auto-enable `proxy_on` for future zsh sessions; the default answer is no if that zsh helper exists.
+After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`. Actionable follow-up items are printed with status prefixes such as `[NEXT]`, `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI emphasis in interactive terminals.
 
-Typical follow-up commands are `codex` or `codex login` for Codex CLI authentication, `lark-cli config init --new` and optional `lark-cli auth login` for Lark CLI setup, and `cc-connect --help` to verify the installed command. Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
+Typical follow-up commands are `codex` or `codex login` for Codex CLI authentication, `lark-cli config init --new` and optional `lark-cli auth login` for Lark CLI setup, `cc-connect --help` to verify the installed command, and `proxy_on` if you want to enable the local proxy manually. Proxy is off by default. Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
 
 After changing files under `config/nvim`, verify the config before committing:
 
