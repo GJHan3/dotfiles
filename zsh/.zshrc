@@ -160,6 +160,110 @@ y() {
   rm -f -- "$tmp"
 }
 
+tn() {
+  emulate -L zsh
+
+  local session_name="${1:-}"
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux is not installed"
+    return 1
+  fi
+
+  if [[ -z "$session_name" ]]; then
+    read "session_name?Enter session name: "
+  fi
+
+  if [[ -z "$session_name" ]]; then
+    echo "Session name cannot be empty"
+    return 1
+  fi
+
+  if tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "Session '$session_name' already exists. Attaching..."
+    if [[ -n "${TMUX:-}" ]]; then
+      tmux switch-client -t "$session_name"
+    else
+      tmux attach-session -t "$session_name"
+    fi
+  else
+    echo "Creating new session: $session_name"
+    if [[ -n "${TMUX:-}" ]]; then
+      tmux new-session -d -s "$session_name"
+      tmux switch-client -t "$session_name"
+    else
+      tmux new-session -s "$session_name"
+    fi
+  fi
+}
+
+ts() {
+  emulate -L zsh
+
+  local session
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux is not installed"
+    return 1
+  fi
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "fzf is not installed"
+    return 1
+  fi
+
+  session="$(
+    tmux list-sessions -F "#{session_name}: #{session_windows} windows (created #{session_created_string})" 2>/dev/null |
+      fzf --prompt="Select tmux session: " \
+        --height=40% \
+        --reverse \
+        --border \
+        --bind='tab:down,shift-tab:up' \
+        --header="Tab/Shift-Tab or ↑↓ to navigate, Enter to select" |
+      cut -d: -f1
+  )"
+
+  if [[ -n "$session" ]]; then
+    if [[ -n "${TMUX:-}" ]]; then
+      tmux switch-client -t "$session"
+    else
+      tmux attach-session -t "$session"
+    fi
+  fi
+}
+
+tk() {
+  emulate -L zsh
+
+  local sessions
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux is not installed"
+    return 1
+  fi
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "fzf is not installed"
+    return 1
+  fi
+
+  sessions="$(
+    tmux list-sessions -F "#{session_name}: #{session_windows} windows (created #{session_created_string})" 2>/dev/null |
+      fzf --multi \
+        --prompt="Select sessions to kill: " \
+        --height=40% \
+        --reverse \
+        --border \
+        --bind='tab:toggle+down,shift-tab:toggle+up' \
+        --header="Tab to select/deselect, Enter to confirm kill" |
+      cut -d: -f1
+  )"
+
+  if [[ -n "$sessions" ]]; then
+    local session
+    while IFS= read -r session; do
+      [[ -z "$session" ]] && continue
+      echo "Killing session: $session"
+      tmux kill-session -t "$session"
+    done <<< "$sessions"
+  fi
+}
+
 proxy_on
 
 export ZSH="$HOME/.oh-my-zsh"

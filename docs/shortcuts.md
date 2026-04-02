@@ -130,24 +130,33 @@ y ~/Downloads
 当前仓库里的 [tmux/.tmux.conf](/Users/hanguangjiang/dotfiles/tmux/.tmux.conf) 当前配置了：
 
 - `set -g mouse on`: 开启鼠标支持
-- 简洁状态栏：左侧显示 session 名，右侧显示日期和时间
-- 当前窗口格式为 `[#I:#W]`，非当前窗口格式为 `#I:#W`
+- 状态栏保留少量科技风图标，并通过 [tmux/status-cpu.sh](/Users/hanguangjiang/dotfiles/tmux/status-cpu.sh) 和 [tmux/status-memory.sh](/Users/hanguangjiang/dotfiles/tmux/status-memory.sh) 显示系统名、CPU 占用、内存用量、日期和时间
+- 主状态栏左侧显示 `🚀 <session>` 和 `🔥 pane <pane编号> <当前命令>`，窗口信息留给窗口列表本身展示
+- 当前窗口格式为绿色背景的 `🎯 #I:#W`，非当前窗口为浅紫背景的 `#I:#W`
+- `set -g set-clipboard on`: 启用 OSC 52 剪贴板支持
+- `prefix + S`: 打开放大的 session / window 树选择器
+- `prefix + C-s`: 用 `fzf` 选择 session
+- `prefix + L`: 切回上一个 session
+- `prefix + C-n`: 提示输入并创建新 session
+- `prefix + g`: 临时显示所有 pane 的编号；随后直接按编号可跳转到对应 pane
+- `prefix + -`: 上下分屏
+- `prefix + \`: 左右分屏
+- 鼠标滚轮会自动进入复制模式，拖拽选区会优先走 `pbcopy`、`wl-copy` 或 `xclip`
 
 其余交互基本还是默认快捷键：
 
 - `Ctrl-b c`: 新建窗口
 - `Ctrl-b ,`: 重命名当前窗口
 - `Ctrl-b n` / `p`: 下一个 / 上一个窗口
-- `Ctrl-b %`: 左右分屏
-- `Ctrl-b "`: 上下分屏
+- `Ctrl-b %`: 默认左右分屏，当前配置更推荐用 `prefix + \`
+- `Ctrl-b "`: 默认上下分屏，当前配置更推荐用 `prefix + -`
 - `Ctrl-b o`: 在分屏间切换
 - `Ctrl-b x`: 关闭当前 pane
 - `Ctrl-b d`: 暂时 detach 当前 session
 - `Ctrl-b [`: 进入复制模式
 
-如果你后面要高频使用 tmux，建议下一步再补一层自定义键位，比如：
+Shell 辅助命令定义在 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc)：
 
-- 把前缀从 `Ctrl-b` 改成更顺手的键
-- 用 `hjkl` 切 pane
-- 一键重载 `tmux.conf`
-- 一键新建横向 / 纵向 pane
+- `tn [name]`: 新建或切换到指定 tmux session；不带参数时会提示输入
+- `ts`: 用 `fzf` 选择并切换 / attach 到现有 tmux session
+- `tk`: 用 `fzf` 多选并批量 kill tmux session

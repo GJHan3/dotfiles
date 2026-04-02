@@ -11,6 +11,7 @@ ln -sfn "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
 ln -sfn "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
 ln -sfn "$DOTFILES_DIR/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
 ln -sfn "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+ln -sfn "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
 if [[ -e "$HOME/.config/git" && ! -L "$HOME/.config/git" ]]; then
   rm -rf "$HOME/.config/git"
 fi
