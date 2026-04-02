@@ -251,6 +251,29 @@ install_lark_cli() {
   return 1
 }
 
+install_cc_connect() {
+  if ! should_install_cmd cc-connect; then
+    return
+  fi
+
+  if ! need_cmd npm; then
+    echo "Skipping cc-connect install: npm is not available." >&2
+    return 1
+  fi
+
+  if npm i -g cc-connect --registry="$NPM_REGISTRY"; then
+    return
+  fi
+
+  if need_cmd sudo; then
+    sudo npm i -g cc-connect --registry="$NPM_REGISTRY"
+    return
+  fi
+
+  echo "Failed to install cc-connect with npm." >&2
+  return 1
+}
+
 install_lark_skills() {
   if ! need_cmd npx; then
     echo "Skipping Lark skills install: npx is not available." >&2
@@ -482,6 +505,13 @@ If you want user-level access, also run `lark-cli auth login`.
 EOF
   fi
 
+  if need_cmd cc-connect; then
+    cat <<'EOF'
+Note: cc-connect is installed.
+Run `cc-connect --help` to verify the command and see available setup options.
+EOF
+  fi
+
   if ! need_cmd claude; then
     cat <<'EOF'
 Note: `claude` is not installed.
@@ -529,6 +559,7 @@ main() {
 
   install_codex_cli
   install_lark_cli
+  install_cc_connect
   if need_cmd lark-cli; then
     install_lark_skills
   fi
