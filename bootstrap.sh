@@ -7,6 +7,7 @@ OH_MY_ZSH_DIR="${HOME}/.oh-my-zsh"
 P10K_DIR="${OH_MY_ZSH_DIR}/custom/themes/powerlevel10k"
 INTERACTIVE=0
 FORCE_INSTALL=0
+NPM_REGISTRY="https://registry.npmmirror.com"
 
 if [[ -t 0 && -t 1 ]]; then
   INTERACTIVE=1
@@ -214,12 +215,12 @@ install_codex_cli() {
     return 1
   fi
 
-  if npm i -g @openai/codex@latest; then
+  if npm i -g @openai/codex@latest --registry="$NPM_REGISTRY"; then
     return
   fi
 
   if need_cmd sudo; then
-    sudo npm i -g @openai/codex@latest
+    sudo npm i -g @openai/codex@latest --registry="$NPM_REGISTRY"
     return
   fi
 
@@ -237,12 +238,12 @@ install_lark_cli() {
     return 1
   fi
 
-  if npm i -g @larksuite/cli; then
+  if npm i -g @larksuite/cli --registry="$NPM_REGISTRY"; then
     return
   fi
 
   if need_cmd sudo; then
-    sudo npm i -g @larksuite/cli
+    sudo npm i -g @larksuite/cli --registry="$NPM_REGISTRY"
     return
   fi
 

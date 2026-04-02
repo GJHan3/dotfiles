@@ -53,6 +53,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
+- npm-based CLI installs in `bootstrap.sh` use `https://registry.npmmirror.com`.
 
 ## Tool notes
 
