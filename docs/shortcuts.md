@@ -126,11 +126,13 @@ y ~/Downloads
 
 ## Tmux
 
-当前仓库里的 [tmux/.tmux.conf](/Users/hanguangjiang/dotfiles/tmux/.tmux.conf) 只配置了：
+当前仓库里的 [tmux/.tmux.conf](/Users/hanguangjiang/dotfiles/tmux/.tmux.conf) 当前配置了：
 
 - `set -g mouse on`: 开启鼠标支持
+- 简洁状态栏：左侧显示 session 名，右侧显示日期和时间
+- 当前窗口格式为 `[#I:#W]`，非当前窗口格式为 `#I:#W`
 
-也就是说，Tmux 主要还是默认快捷键：
+其余交互基本还是默认快捷键：
 
 - `Ctrl-b c`: 新建窗口
 - `Ctrl-b ,`: 重命名当前窗口
