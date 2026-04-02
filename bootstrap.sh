@@ -8,6 +8,9 @@ P10K_DIR="${OH_MY_ZSH_DIR}/custom/themes/powerlevel10k"
 INTERACTIVE=0
 FORCE_INSTALL=0
 NPM_REGISTRY="https://registry.npmmirror.com"
+MACFUSE_CASK="macfuse"
+SSHFS_MACOS_VERSION="3.7.5"
+SSHFS_MACOS_URL="https://github.com/libfuse/sshfs/releases/download/sshfs-${SSHFS_MACOS_VERSION}/sshfs-${SSHFS_MACOS_VERSION}.pkg"
 
 if [[ -t 0 && -t 1 ]]; then
   INTERACTIVE=1
@@ -50,6 +53,10 @@ append_apt_package_if_missing() {
   if should_install_apt_package "$package"; then
     APT_PACKAGES+=("$package")
   fi
+}
+
+need_macos_pkg() {
+  pkgutil --pkgs "$1" >/dev/null 2>&1
 }
 
 usage() {
@@ -376,6 +383,32 @@ install_packages_macos() {
   if (( ${#FORMULAE[@]} > 0 )); then
     "$brew_bin" install "${FORMULAE[@]}"
   fi
+
+  install_sshfs_macos "$brew_bin"
+}
+
+install_sshfs_macos() {
+  local brew_bin=$1
+  local macfuse_dmg mount_point sshfs_pkg
+
+  if [[ $FORCE_INSTALL -eq 1 ]] || ! need_macos_pkg io.macfuse.installer.components.core; then
+    "$brew_bin" install --cask "$MACFUSE_CASK"
+  fi
+
+  if [[ $FORCE_INSTALL -eq 1 ]] || ! need_cmd sshfs; then
+    sshfs_pkg="/tmp/sshfs-${SSHFS_MACOS_VERSION}.pkg"
+    curl -fL "$SSHFS_MACOS_URL" -o "$sshfs_pkg"
+    sudo /usr/sbin/installer -pkg "$sshfs_pkg" -target /
+  fi
+
+  # Best effort cleanup for cask cache mounts if the brew install left them attached.
+  macfuse_dmg="$("$brew_bin" --cache --cask "$MACFUSE_CASK" 2>/dev/null || true)"
+  if [[ -n "$macfuse_dmg" ]]; then
+    mount_point="$(hdiutil info | awk -v dmg="$macfuse_dmg" '$0 ~ dmg {found=1} found && /\/Volumes\// {print $1; exit}')"
+    if [[ -n "$mount_point" ]]; then
+      hdiutil detach "$mount_point" >/dev/null 2>&1 || true
+    fi
+  fi
 }
 
 install_packages_ubuntu() {
@@ -395,6 +428,7 @@ install_packages_ubuntu() {
   append_apt_package_if_missing npm
   append_apt_package_if_missing build-essential
   append_apt_package_if_missing unzip
+  append_apt_package_if_missing sshfs
   append_apt_package_if_missing software-properties-common
   append_apt_package_if_missing fontconfig
   append_apt_package_if_missing file
@@ -558,6 +592,15 @@ EOF
 Note: `claude` is not installed.
 Your Neovim ClaudeCode plugin is configured to run the `claude` command, so install it
 manually on machines where you want that workflow.
+EOF
+  fi
+
+  if need_cmd sshfs; then
+    cat <<'EOF'
+Note: SSHFS support is installed for Yazi.
+On macOS, if mounts are blocked, check:
+  System Settings -> Privacy & Security
+and allow macFUSE if macOS asks for approval.
 EOF
   fi
 

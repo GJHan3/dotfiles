@@ -34,12 +34,17 @@ By default, `bootstrap.sh` skips tools that are already installed. Use `--force`
 
 `bootstrap.sh` can:
 
-- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `stylua`, `yazi`, `node`, `codex`, `lark-cli`, `cc-connect`
+- install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`, `stylua`, `yazi`, `sshfs`, `node`, `codex`, `lark-cli`, `cc-connect`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
 - optionally configure global Git identity
 - optionally switch the default shell to `zsh`
+
+For Yazi's `sshfs.yazi` workflow, `bootstrap.sh` also installs the platform SSHFS dependency:
+
+- macOS: installs `macFUSE` and the official `SSHFS.pkg`
+- Ubuntu/Debian: installs the `sshfs` package
 
 After bootstrap, run `codex` or `codex login` once to authenticate the Codex CLI.
 Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
@@ -62,6 +67,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
 - npm-based CLI installs in `bootstrap.sh` use `https://registry.npmmirror.com`.
+- On macOS, `bootstrap.sh` installs `macFUSE`; the first use may still require approval in `System Settings -> Privacy & Security`.
 
 ## Tool notes
 
@@ -74,6 +80,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - `~/.zprofile`
 - `~/.p10k.zsh`
 - `~/.tmux.conf`
+- `~/.config/tmux`
 - `~/.config/git`
 - `~/.config/nvim`
 - `~/.config/yazi`

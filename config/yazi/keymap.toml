@@ -1,11 +1,11 @@
-[[mgr.prepend_keymap]]
-on = [ "g", "b" ]
-run = "shell --orphan 'open %h'"
-for = "macos"
-desc = "Open hovered file in browser"
-
-[[mgr.prepend_keymap]]
-on = [ "g", "b" ]
-run = "shell --orphan 'xdg-open %h'"
-for = "linux"
-desc = "Open hovered file in browser"
+[mgr]
+prepend_keymap = [
+  { on = [ "g", "b" ], run = "shell --orphan 'open %h'", for = "macos", desc = "Open hovered file in browser" },
+  { on = [ "g", "b" ], run = "shell --orphan 'xdg-open %h'", for = "linux", desc = "Open hovered file in browser" },
+  { on = [ "M", "s" ], run = "plugin sshfs -- menu", desc = "Open SSHFS options" },
+  { on = [ "M", "m" ], run = "plugin sshfs -- mount --jump", desc = "Mount SSH host and jump" },
+  { on = [ "M", "j" ], run = "plugin sshfs -- jump", desc = "Jump to SSH mount" },
+  { on = [ "M", "u" ], run = "plugin sshfs -- unmount", desc = "Unmount SSHFS" },
+  { on = [ "M", "h" ], run = "plugin sshfs -- home", desc = "Go to SSHFS mount home" },
+  { on = [ "M", "c" ], run = "cd ~/.ssh/", desc = "Go to ssh config" },
+]

@@ -16,6 +16,7 @@ Current layout preference in this repository:
 - This makes the preview pane wider than the current file list pane.
 - Files are opened with `nvim` via a custom `edit` opener.
 - `*.html` and `*.htm` are opened in the system browser first, with `nvim` as a fallback opener.
+- `sshfs.yazi` is enabled. Press `M s` to open the SSHFS menu and mount hosts from `~/.ssh/config`.
 
 ## Navigation
 
@@ -25,7 +26,24 @@ Current layout preference in this repository:
 - `g`: jump to the top
 - `G`: jump to the bottom
 - `g` `b`: open the hovered file in the system browser
+- `M` `s`: open the SSHFS menu
+- `M` `m`: mount a host and jump to it
+- `M` `j`: jump to an existing mount
+- `M` `u`: unmount a mounted host
 - `q`: quit
+
+## SSHFS
+
+- `M` `s`: open the `sshfs.yazi` menu
+- `M` `m`: mount a host and jump to it
+- `M` `u`: unmount a mounted host
+- `M` `j`: jump to an existing mount
+- `M` `h`: jump to the SSHFS mount home directory
+- `M` `c`: open `~/.ssh/config`
+- The `M s` menu remains available if you prefer a single entry point.
+- The plugin reads hosts from `~/.ssh/config` and can also keep Yazi-only custom hosts.
+- `bootstrap.sh` installs the required SSHFS dependency on both macOS and Ubuntu/Debian.
+- On macOS, the first mount may still require approval in `System Settings -> Privacy & Security` if macFUSE is blocked by the system.
 
 ## Selection
 
@@ -56,5 +74,5 @@ Typical move workflow:
 
 ## Notes
 
-- `bootstrap.sh` installs `yazi` on macOS and Ubuntu/Debian.
+- `bootstrap.sh` installs `yazi` and the SSHFS dependency on macOS and Ubuntu/Debian.
 - `yazi --version` checks whether the binary is available.
