@@ -1,0 +1,11 @@
+[[mgr.prepend_keymap]]
+on = [ "g", "b" ]
+run = "shell --orphan 'open %h'"
+for = "macos"
+desc = "Open hovered file in browser"
+
+[[mgr.prepend_keymap]]
+on = [ "g", "b" ]
+run = "shell --orphan 'xdg-open %h'"
+for = "linux"
+desc = "Open hovered file in browser"

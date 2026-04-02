@@ -14,14 +14,17 @@ Current layout preference in this repository:
 
 - `[mgr].ratio = [1, 2, 5]`
 - This makes the preview pane wider than the current file list pane.
+- Files are opened with `nvim` via a custom `edit` opener.
+- `*.html` and `*.htm` are opened in the system browser first, with `nvim` as a fallback opener.
 
 ## Navigation
 
 - `j` / `k`: move cursor down or up
 - `h`: go to parent directory
-- `l`: enter directory or open file
+- `l`: enter directory, or open files with the configured opener (`nvim` by default, browser first for `html` / `htm`)
 - `g`: jump to the top
 - `G`: jump to the bottom
+- `g` `b`: open the hovered file in the system browser
 - `q`: quit
 
 ## Selection

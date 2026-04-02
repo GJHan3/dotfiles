@@ -1,2 +1,19 @@
 [mgr]
 ratio = [1, 2, 5]
+
+[opener]
+browser = [
+  { run = "open %s", orphan = true, desc = "Open in browser", for = "macos" },
+  { run = "xdg-open %s", orphan = true, desc = "Open in browser", for = "linux" },
+]
+edit = [
+  { run = "nvim %s", block = true, for = "unix" },
+]
+
+[[open.prepend_rules]]
+url = "*.{html,htm}"
+use = [ "browser", "edit" ]
+
+[[open.prepend_rules]]
+url = "*"
+use = "edit"
