@@ -3,5 +3,7 @@ use = "uhs-robert/sshfs"
 rev = "b4c7c5c"
 hash = "d1cd188c14a53d03ae4a87e6e40f7233"
 
-[flavor]
-deps = []
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-macchiato"
+rev = "9511cb0"
+hash = "67f2240fd9c98f21714527a24cd672f8"

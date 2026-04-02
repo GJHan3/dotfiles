@@ -14,6 +14,7 @@ Current layout preference in this repository:
 
 - `[mgr].ratio = [1, 2, 5]`
 - This makes the preview pane wider than the current file list pane.
+- `theme.toml` uses the official `catppuccin-macchiato` flavor instead of the stock colors.
 - Files are opened with `nvim` via a custom `edit` opener.
 - `*.html` and `*.htm` are opened in the system browser first, with `nvim` as a fallback opener.
 - `sshfs.yazi` is enabled. Press `M s` to open the SSHFS menu and mount hosts from `~/.ssh/config`.
@@ -101,4 +102,5 @@ Notes about `g c`:
 ## Notes
 
 - `bootstrap.sh` installs `yazi` and the SSHFS dependency on macOS and Ubuntu/Debian.
+- `install.sh` runs `ya pkg install` when `ya` is available, so Yazi plugins and flavors are deployed after linking.
 - `yazi --version` checks whether the binary is available.

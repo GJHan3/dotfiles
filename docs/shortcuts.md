@@ -7,6 +7,7 @@
 - `Neovim` 这里重点记录仓库里明确配置过的映射。
 - `Tmux` 当前几乎没有自定义快捷键，因此主要是默认按键。
 - `Yazi` 建议用 `y` 启动，而不是直接运行 `yazi`。
+- `Yazi` 当前使用官方 `catppuccin-macchiato` flavor，不是默认配色。
 
 ## Yazi
 

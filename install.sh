@@ -25,4 +25,8 @@ ln -sfn "$DOTFILES_DIR/config/git" "$HOME/.config/git"
 ln -sfn "$DOTFILES_DIR/config/nvim" "$HOME/.config/nvim"
 ln -sfn "$DOTFILES_DIR/config/yazi" "$HOME/.config/yazi"
 
+if command -v ya >/dev/null 2>&1; then
+  (cd "$HOME/.config/yazi" && ya pkg install)
+fi
+
 echo "linked dotfiles from $DOTFILES_DIR"
