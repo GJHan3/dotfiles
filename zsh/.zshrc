@@ -618,4 +618,6 @@ xqallow() {
   "$HOME/dotfiles/scripts/xquartz-allow-localhost.sh" "$@"
 }
 
-export DISPLAY=:0
+if [[ "$DOTFILES_OS" == "macos" && -z "$SSH_CONNECTION" ]]; then
+  export DISPLAY=:0
+fi
