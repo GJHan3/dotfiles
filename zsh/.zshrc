@@ -479,7 +479,7 @@ sshs() {
 
   [[ -z "$host" ]] && return 1
 
-  ssh "$host"
+  ssh -Y "$host"
 }
 
 tn() {

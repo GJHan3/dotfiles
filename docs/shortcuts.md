@@ -62,7 +62,7 @@ y ~/Downloads
 基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的快捷函数，可直接复用 `~/.ssh/config`：
 
 - `sshhosts`: 列出 `~/.ssh/config` 里的可用 Host 别名
-- `sshs`: 用 `fzf` 选择一个 Host，然后直接执行 `ssh <host>`
+- `sshs`: 用 `fzf` 选择一个 Host，然后直接执行 `ssh -Y <host>`
 - `sshm`: 用 `fzf` 选择 Host，再逐级浏览远程目录；选中 `./` 确认当前目录，选中 `../` 返回上一级；如果目标本地目录已经挂载，则直接进入
 - `sshj`: 用 `fzf` 在当前已挂载的 SSHFS 目录间跳转
 - `sshu`: 用 `fzf` 选择一个 `SSHFS_MOUNT_ROOT` 下的 SSHFS 挂载并卸载；卸载成功后会顺手删除空的本地挂载目录
