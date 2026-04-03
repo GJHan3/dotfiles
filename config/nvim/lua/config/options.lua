@@ -2,8 +2,7 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
--- Force use of OSC 52 for clipboard (SSH remote support)
--- This allows copying to system clipboard from inside nvim over SSH
+-- Force OSC 52 clipboard handling so SSH sessions avoid remote X11 clipboard tools.
 local function paste()
   return {
     vim.fn.split(vim.fn.getreg('"'), "\n"),
@@ -23,9 +22,7 @@ vim.g.clipboard = {
   },
 }
 
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See :help 'clipboard'
+-- Keep unnamedplus enabled, but route clipboard traffic through the OSC 52 provider above.
 vim.opt.clipboard = "unnamedplus"
 
 -- 设置窗口分隔符，使窗口边界更清晰

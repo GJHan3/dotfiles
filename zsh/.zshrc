@@ -1,7 +1,9 @@
 # vim别名
 alias vim="nvim"
 
-export PATH="$HOME/.local/bin:$PATH"
+if [[ -f "$HOME/.config/zsh/path.zsh" ]]; then
+  source "$HOME/.config/zsh/path.zsh"
+fi
 
 if [[ -f "$HOME/.zsh.secrets" ]]; then
   source "$HOME/.zsh.secrets"
@@ -18,14 +20,6 @@ case "$(uname -s)" in
     export DOTFILES_OS="unknown"
     ;;
 esac
-
-if [[ "$DOTFILES_OS" == "linux" ]]; then
-  if [[ -d /home/linuxbrew/.linuxbrew/bin ]]; then
-    export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-  elif [[ -d "$HOME/.linuxbrew/bin" ]]; then
-    export PATH="$HOME/.linuxbrew/bin:$PATH"
-  fi
-fi
 
 proxy_on() {
   export https_proxy=http://127.0.0.1:7897

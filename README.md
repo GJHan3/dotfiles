@@ -46,7 +46,7 @@ For Yazi's `sshfs.yazi` workflow, `bootstrap.sh` also installs the platform SSHF
 - macOS: installs `macFUSE` and the official `SSHFS.pkg`
 - Ubuntu/Debian: installs the `sshfs` package
 
-After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`. Actionable follow-up items are printed with status prefixes such as `[NEXT]`, `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI emphasis in interactive terminals.
+After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`. Actionable follow-up items are printed with status prefixes such as `[NEXT]`, `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI emphasis in interactive terminals. If npm-based CLI tools such as `codex`, `lark-cli`, or `cc-connect` are still missing after bootstrap, the script now prints a `[WARN]` block so the missing command is obvious.
 
 Typical follow-up commands are `codex` or `codex login` for Codex CLI authentication, `lark-cli config init --new` and optional `lark-cli auth login` for Lark CLI setup, `cc-connect --help` to verify the installed command, and `proxy_on` if you want to enable the local proxy manually. Proxy is off by default. Bootstrap also runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
 
@@ -61,7 +61,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
 ## Cross-platform notes
 
-- `zsh/.zprofile` auto-detects Homebrew on macOS and Linuxbrew on Linux.
+- `~/.config/zsh/path.zsh` is the shared PATH policy for both login and interactive `zsh`. It auto-detects Homebrew/Linuxbrew and adds common user-level tool bins such as `~/.local/bin`, npm global bin, `pnpm`, `cargo`, `go`, and `bun`.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
@@ -73,6 +73,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
 - [docs/yazi.md](/Users/hanguangjiang/dotfiles/docs/yazi.md): `yazi` launcher and common file-manager shortcuts
 - [docs/shortcuts.md](/Users/hanguangjiang/dotfiles/docs/shortcuts.md): shortcut cheat sheet for Yazi, Neovim, and Tmux
+- `scripts/check-osc52.sh`: emit a one-time OSC 52 clipboard token for quick terminal/tmux verification
 
 ## Managed links
 

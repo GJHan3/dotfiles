@@ -173,7 +173,7 @@ y ~/Downloads
 - `prefix + g`: 临时显示所有 pane 的编号；随后直接按编号可跳转到对应 pane
 - `prefix + -`: 上下分屏
 - `prefix + \`: 左右分屏
-- 鼠标滚轮会自动进入复制模式，拖拽选区会优先走 `pbcopy`、`wl-copy` 或 `xclip`
+- 鼠标滚轮会自动进入复制模式，拖拽选区默认走 tmux 自带剪贴板通道；在 SSH 远程会话里优先使用 OSC 52，不再主动调用远端 `xclip`
 
 其余交互基本还是默认快捷键：
 
@@ -186,6 +186,15 @@ y ~/Downloads
 - `prefix + x`: 关闭当前 pane
 - `prefix + d`: 暂时 detach 当前 session
 - `prefix + [`: 进入复制模式
+
+OSC 52 快速检查：
+
+```sh
+./scripts/check-osc52.sh
+```
+
+- 脚本会自动打印当前是否在 `tmux` / `SSH` 环境，并发送一个唯一 token 到 OSC 52 剪贴板通道
+- 最后只需要在本地终端外部粘贴一次，确认结果是否等于终端里显示的 `Expected value`
 
 Shell 辅助命令定义在 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc)：
 

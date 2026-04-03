@@ -62,8 +62,62 @@ print_command_hint() {
   printf "  %s %s%s%s\n" "$label" "$COLOR_COMMAND" "$command" "$COLOR_RESET"
 }
 
+print_missing_command_warning() {
+  local title=$1
+  local command_name=$2
+  local detail=$3
+  local hint=${4:-}
+
+  print_status_header WARN "${title} missing"
+  printf "  Command not found: %s\n" "$command_name"
+  printf "  %s\n" "$detail"
+  if [[ -n "$hint" ]]; then
+    print_command_hint "Check:" "$hint"
+  fi
+}
+
 need_cmd() {
   command -v "$1" >/dev/null 2>&1
+}
+
+prepend_path_if_dir() {
+  local dir=$1
+
+  if [[ ! -d "$dir" ]]; then
+    return
+  fi
+
+  case ":${PATH}:" in
+    *":${dir}:"*) ;;
+    *) PATH="${dir}:${PATH}" ;;
+  esac
+}
+
+refresh_command_paths() {
+  local brew_bin npm_prefix
+
+  for brew_bin in \
+    /opt/homebrew/bin/brew \
+    /usr/local/bin/brew \
+    /home/linuxbrew/.linuxbrew/bin/brew; do
+    if [[ -x "$brew_bin" ]]; then
+      eval "$("$brew_bin" shellenv 2>/dev/null)"
+      break
+    fi
+  done
+
+  prepend_path_if_dir "${HOME}/.local/bin"
+  prepend_path_if_dir "${HOME}/bin"
+  prepend_path_if_dir "${HOME}/.npm-global/bin"
+
+  if need_cmd npm; then
+    npm_prefix="$(npm config get prefix 2>/dev/null || true)"
+    if [[ -n "$npm_prefix" ]] && [[ "$npm_prefix" != "undefined" ]]; then
+      prepend_path_if_dir "${npm_prefix}/bin"
+    fi
+  fi
+
+  hash -r 2>/dev/null || true
 }
 
 need_apt_package() {
@@ -336,6 +390,8 @@ install_npm_global_package() {
   local label=$2
   local registry
 
+  refresh_command_paths
+
   if ! need_cmd npm; then
     echo "Skipping ${label} install: npm is not available." >&2
     return 1
@@ -343,6 +399,7 @@ install_npm_global_package() {
 
   for registry in "$NPM_REGISTRY" "$NPM_FALLBACK_REGISTRY"; do
     if run_npm_global_install "$package" "$registry"; then
+      refresh_command_paths
       return 0
     fi
   done
@@ -350,6 +407,7 @@ install_npm_global_package() {
   if need_cmd sudo; then
     for registry in "$NPM_REGISTRY" "$NPM_FALLBACK_REGISTRY"; do
       if sudo npm i -g "$package" --registry="$registry"; then
+        refresh_command_paths
         return 0
       fi
     done
@@ -431,9 +489,12 @@ install_packages_macos() {
   local -a FORMULAE=()
 
   install_homebrew
+  refresh_command_paths
 
   if [[ -x /opt/homebrew/bin/brew ]]; then
     brew_bin=/opt/homebrew/bin/brew
+  elif [[ -x /usr/local/bin/brew ]]; then
+    brew_bin=/usr/local/bin/brew
   else
     brew_bin="$(command -v brew)"
   fi
@@ -454,6 +515,8 @@ install_packages_macos() {
   if (( ${#FORMULAE[@]} > 0 )); then
     "$brew_bin" install "${FORMULAE[@]}"
   fi
+
+  refresh_command_paths
 
   install_sshfs_macos "$brew_bin"
 }
@@ -508,6 +571,8 @@ install_packages_ubuntu() {
     sudo apt-get update
     sudo apt-get install -y "${APT_PACKAGES[@]}"
   fi
+
+  refresh_command_paths
 
   if ! need_cmd fd && [[ -x /usr/bin/fdfind ]]; then
     sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
@@ -641,6 +706,12 @@ print_post_install_notes() {
     print_command_hint "Run:" "codex"
     print_command_hint "Or:" "codex login"
     printf "  Sign in with your ChatGPT account or API key.\n"
+  else
+    print_missing_command_warning \
+      "Codex CLI" \
+      "codex" \
+      "bootstrap.sh could not install it automatically, so Codex terminal workflows stay unavailable until you install it manually." \
+      "npm i -g @openai/codex@latest"
   fi
 
   if need_cmd lark-cli; then
@@ -648,18 +719,30 @@ print_post_install_notes() {
     print_command_hint "Run:" "lark-cli config init --new"
     print_command_hint "Optional:" "lark-cli auth login"
     printf "  Use the optional login if you want user-level access.\n"
+  else
+    print_missing_command_warning \
+      "Lark CLI" \
+      "lark-cli" \
+      "bootstrap.sh could not install it automatically, so Feishu/Lark command workflows will not work yet." \
+      "npm i -g @larksuite/cli"
   fi
 
   if need_cmd cc-connect; then
     print_status_header NEXT "cc-connect"
     print_command_hint "Run:" "cc-connect --help"
     printf "  Verify the command and review available setup options.\n"
+  else
+    print_missing_command_warning \
+      "cc-connect" \
+      "cc-connect" \
+      "bootstrap.sh could not install it automatically, so the Claude Code connection helper is not ready on this machine." \
+      "npm i -g cc-connect"
   fi
 
   if ! need_cmd claude; then
     print_status_header WARN "ClaudeCode dependency missing"
     printf "  Command not found: claude\n"
-    printf "  Your Neovim ClaudeCode plugin expects the `claude` command, so install it\n"
+    printf '  Your Neovim ClaudeCode plugin expects the `claude` command, so install it\n'
     printf "  manually on machines where you want that workflow.\n"
   fi
 
@@ -685,6 +768,7 @@ main() {
   local os
   parse_args "$@"
   setup_colors
+  refresh_command_paths
   os="$(detect_os)"
 
   case "$os" in

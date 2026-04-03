@@ -1,16 +1,3 @@
-case "$(uname -s)" in
-  Darwin)
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-      eval "$(/opt/homebrew/bin/brew shellenv zsh)"
-    elif [[ -x /usr/local/bin/brew ]]; then
-      eval "$(/usr/local/bin/brew shellenv zsh)"
-    fi
-    ;;
-  Linux)
-    if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
-    elif [[ -x "$HOME/.linuxbrew/bin/brew" ]]; then
-      eval "$("$HOME/.linuxbrew/bin/brew" shellenv zsh)"
-    fi
-    ;;
-esac
+if [[ -f "$HOME/.config/zsh/path.zsh" ]]; then
+  source "$HOME/.config/zsh/path.zsh"
+fi
