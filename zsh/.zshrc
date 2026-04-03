@@ -613,3 +613,9 @@ if [[ -d "$HOME/.config/zsh/local" ]]; then
 fi
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+xqallow() {
+  "$HOME/dotfiles/scripts/xquartz-allow-localhost.sh" "$@"
+}
+
+export DISPLAY=:0
