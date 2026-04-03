@@ -468,10 +468,11 @@ sshhome() {
   builtin cd -- "$SSHFS_MOUNT_ROOT"
 }
 
-sshs() {
+sshexec() {
   emulate -L zsh
 
   local host="${1:-}"
+  shift 2>/dev/null || true
 
   if [[ -z "$host" ]]; then
     host="$(_sshfs_select_host)" || return 1
@@ -479,7 +480,103 @@ sshs() {
 
   [[ -z "$host" ]] && return 1
 
-  ssh -Y "$host"
+  if (( $# == 0 )); then
+    echo "Usage: sshexec [host] <command...>"
+    return 1
+  fi
+
+  ssh "$host" "$@"
+}
+
+_ssh_x11_locally_available() {
+  emulate -L zsh
+
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    [[ -n "${DISPLAY:-}" ]] || return 1
+    [[ -x /usr/X11/bin/xauth ]] || return 1
+    pgrep -x XQuartz >/dev/null 2>&1 || return 1
+    return 0
+  fi
+
+  [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]]
+}
+
+_ssh_supports_x11_forwarding() {
+  emulate -L zsh
+
+  local host="$1"
+
+  _ssh_x11_locally_available || return 1
+
+  ssh \
+    -o BatchMode=yes \
+    -o ConnectTimeout=5 \
+    -o ForwardX11=yes \
+    -o ForwardX11Trusted=yes \
+    -o ExitOnForwardFailure=yes \
+    -o RequestTTY=no \
+    "$host" "true" >/dev/null 2>&1
+}
+
+sshs() {
+  emulate -L zsh
+
+  local host="${1:-}"
+  local -a ssh_cmd
+
+  if [[ -z "$host" ]]; then
+    host="$(_sshfs_select_host)" || return 1
+  fi
+
+  [[ -z "$host" ]] && return 1
+
+  ssh_cmd=(ssh)
+
+  if _ssh_supports_x11_forwarding "$host"; then
+    ssh_cmd+=(-Y)
+  fi
+
+  "${ssh_cmd[@]}" "$host"
+}
+
+sshx11check() {
+  emulate -L zsh
+
+  local host="${1:-}"
+  local script_path="$HOME/dotfiles/scripts/check-remote-x11.sh"
+
+  if [[ -z "$host" ]]; then
+    host="$(_sshfs_select_host)" || return 1
+  fi
+
+  [[ -z "$host" ]] && return 1
+
+  if [[ ! -f "$script_path" ]]; then
+    echo "Script not found: $script_path"
+    return 1
+  fi
+
+  ssh "$host" 'sh -s' < "$script_path"
+}
+
+sshx11() {
+  emulate -L zsh
+
+  local host="${1:-}"
+  local script_path="$HOME/dotfiles/scripts/setup-remote-x11.sh"
+
+  if [[ -z "$host" ]]; then
+    host="$(_sshfs_select_host)" || return 1
+  fi
+
+  [[ -z "$host" ]] && return 1
+
+  if [[ ! -f "$script_path" ]]; then
+    echo "Script not found: $script_path"
+    return 1
+  fi
+
+  ssh "$host" 'sh -s' < "$script_path"
 }
 
 tn() {

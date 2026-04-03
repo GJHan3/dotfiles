@@ -16,6 +16,28 @@ X11UseLocalhost yes
 
 5. 如果图形显示正常但图片粘贴仍然失败，重启 `XQuartz`，重新 `ssh -Y` 连接，并重新复制图片后再试。
 
+远端检查可以直接执行：
+
+```sh
+sshx11
+sshx11 my-host
+sshx11check
+sshx11check my-host
+sshexec my-host uname -a
+```
+
+其中 `sshx11` 会把本地仓库里的 [setup-remote-x11.sh](/Users/hanguangjiang/dotfiles/scripts/setup-remote-x11.sh) 通过 SSH 发到远端执行，用来：
+
+- 安装 `xauth`
+- 把 `sshd_config` 里的 `X11Forwarding` 和 `X11UseLocalhost` 设为 `yes`
+- 自动重启 `sshd` 或 `ssh`
+
+其中 `sshx11check` 会把本地仓库里的 [check-remote-x11.sh](/Users/hanguangjiang/dotfiles/scripts/check-remote-x11.sh) 通过 SSH 发到远端执行，用来检查：
+
+- `xauth` 是否存在
+- `sshd_config` 是否包含 `X11Forwarding` / `X11UseLocalhost`
+- SSH 服务是否处于 active 状态
+
 ## 结论
 
 - `ssh -Y` 用于可信 X11 转发。

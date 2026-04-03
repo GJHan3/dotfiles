@@ -62,7 +62,10 @@ y ~/Downloads
 基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的快捷函数，可直接复用 `~/.ssh/config`：
 
 - `sshhosts`: 列出 `~/.ssh/config` 里的可用 Host 别名
-- `sshs`: 用 `fzf` 选择一个 Host，然后直接执行 `ssh -Y <host>`
+- `sshs`: 用 `fzf` 选择一个 Host；若本地 X11/XQuartz 已就绪且远端可快速确认支持 X11 forwarding，则自动执行 `ssh -Y <host>`，否则回退到普通 `ssh <host>`
+- `sshexec`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后执行远端命令，例如 `sshexec devbox uname -a`
+- `sshx11`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后在远端自动安装 `xauth`、打开 `sshd_config` 里的 X11 forwarding，并重启 SSH 服务
+- `sshx11check`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后把仓库里的远端 X11 检查脚本通过 SSH 发过去执行
 - `sshm`: 用 `fzf` 选择 Host，再逐级浏览远程目录；选中 `./` 确认当前目录，选中 `../` 返回上一级；如果目标本地目录已经挂载，则直接进入
 - `sshj`: 用 `fzf` 在当前已挂载的 SSHFS 目录间跳转
 - `sshu`: 用 `fzf` 选择一个 `SSHFS_MOUNT_ROOT` 下的 SSHFS 挂载并卸载；卸载成功后会顺手删除空的本地挂载目录
@@ -73,6 +76,9 @@ y ~/Downloads
 - 默认挂载根目录是 `~/sshmnt`
 - 默认挂载参数是 `defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user`
 - `sshm` 会自动把本地挂载目录名设置成 Finder 里的卷名，避免显示成默认的 `macFUSE Volume 0 (sshfs)`
+- `sshs` 的 X11 自动开启依赖本地已有可用 X server。macOS 侧要求 `XQuartz` 已启动且当前 shell 有 `DISPLAY`；如果主机需要密码登录，预检查会跳过 X11，避免先额外弹一次认证
+- `sshx11` 当前会尝试兼容 `apt-get`、`dnf`、`yum`、`zypper`、`apk`；需要远端有 root 或可用 `sudo`
+- `sshx11check` 只检查远端 `xauth`、`sshd_config` 里的 X11 相关项，以及 SSH 服务是否在运行；它不会自动改远端配置
 - 可通过环境变量覆盖：
   - `SSHFS_MOUNT_ROOT`
   - `SSHFS_MOUNT_OPTIONS`
