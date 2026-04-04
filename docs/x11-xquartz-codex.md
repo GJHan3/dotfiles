@@ -55,6 +55,7 @@ sshexec my-host uname -a
 
 - 安装 `xauth`
 - 把 `sshd_config` 里的 `X11Forwarding` 和 `X11UseLocalhost` 设为 `yes`
+- 幂等地把 `~/.codex-home/.Xauthority` 指到 `~/.Xauthority`
 - 自动重启 `sshd` 或 `ssh`
 
 其中 `sshx11check` 会把本地仓库里的 [check-remote-x11.sh](/Users/hanguangjiang/dotfiles/scripts/check-remote-x11.sh) 通过 SSH 发到远端执行，用来检查：

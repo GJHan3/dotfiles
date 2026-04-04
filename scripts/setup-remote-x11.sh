@@ -95,6 +95,27 @@ detect_sshd_config() {
   return 1
 }
 
+ensure_user_xauthority_bridge() {
+  user_home="${HOME:-}"
+  xauthority_file="${user_home}/.Xauthority"
+  codex_home="${user_home}/.codex-home"
+  codex_xauthority="${codex_home}/.Xauthority"
+
+  if [ -z "$user_home" ] || [ ! -d "$user_home" ]; then
+    warn "could not determine user home; skipping .Xauthority bridge setup"
+    return 1
+  fi
+
+  if [ ! -f "$xauthority_file" ]; then
+    warn "missing $xauthority_file; skipping .codex-home/.Xauthority bridge for now"
+    return 1
+  fi
+
+  mkdir -p "$codex_home"
+  ln -sfn "$xauthority_file" "$codex_xauthority"
+  done_msg "ensured $codex_xauthority -> $xauthority_file"
+}
+
 ensure_sshd_option() {
   key="$1"
   value="$2"
@@ -174,6 +195,7 @@ main() {
   done_msg "ensured X11Forwarding yes"
   done_msg "ensured X11UseLocalhost yes"
 
+  ensure_user_xauthority_bridge || true
   restart_ssh_service
 
   printf '\n'
