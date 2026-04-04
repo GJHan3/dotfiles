@@ -592,6 +592,8 @@ sshx11() {
 
   local host="${1:-}"
   local script_path="$HOME/dotfiles/scripts/setup-remote-x11.sh"
+  local remote_tmp=""
+  local remote_tmp_quoted=""
 
   if [[ -z "$host" ]]; then
     host="$(_sshfs_select_host)" || return 1
@@ -604,7 +606,15 @@ sshx11() {
     return 1
   fi
 
-  ssh "$host" 'sh -s' < "$script_path"
+  remote_tmp="$(ssh "$host" 'mktemp /tmp/setup-remote-x11.XXXXXX')" || return 1
+  remote_tmp_quoted="${(q)remote_tmp}"
+
+  if ! ssh "$host" "cat > $remote_tmp_quoted && chmod 700 $remote_tmp_quoted" < "$script_path"; then
+    ssh "$host" "rm -f $remote_tmp_quoted" >/dev/null 2>&1 || true
+    return 1
+  fi
+
+  ssh -tt "$host" "sh $remote_tmp_quoted; status=\$?; rm -f $remote_tmp_quoted; exit \$status"
 }
 
 tn() {
