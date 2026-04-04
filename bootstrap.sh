@@ -447,6 +447,11 @@ install_cc_connect() {
   fi
 }
 
+ensure_codex_xauthority_bridge() {
+  mkdir -p "${HOME}/.codex-home"
+  ln -sfn "${HOME}/.Xauthority" "${HOME}/.codex-home/.Xauthority"
+}
+
 install_lark_skills() {
   if ! need_cmd npx; then
     echo "Skipping Lark skills install: npx is not available." >&2
@@ -804,6 +809,7 @@ main() {
     install_lark_skills
   fi
 
+  ensure_codex_xauthority_bridge
   "${DOTFILES_DIR}/install.sh"
   configure_git_identity
   set_default_shell_to_zsh

@@ -21,6 +21,41 @@ case "$(uname -s)" in
     ;;
 esac
 
+_dotfiles_real_home() {
+  emulate -L zsh
+
+  local real_home=""
+
+  if command -v getent >/dev/null 2>&1; then
+    real_home="$(getent passwd "$USER" 2>/dev/null | cut -d: -f6)"
+  elif [[ "$DOTFILES_OS" == "macos" ]] && command -v dscl >/dev/null 2>&1; then
+    real_home="$(dscl . -read "/Users/$USER" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+  fi
+
+  if [[ -z "$real_home" ]]; then
+    real_home="$HOME"
+  fi
+
+  printf "%s" "$real_home"
+}
+
+_dotfiles_fix_xauthority() {
+  emulate -L zsh
+
+  local real_home xauthority_source
+
+  [[ -n "${DISPLAY:-}" ]] || return 0
+
+  real_home="$(_dotfiles_real_home)"
+  xauthority_source="${real_home}/.Xauthority"
+
+  if [[ -z "${XAUTHORITY:-}" && -f "$xauthority_source" ]]; then
+    export XAUTHORITY="$xauthority_source"
+  fi
+}
+
+_dotfiles_fix_xauthority
+
 proxy_on() {
   export https_proxy=http://127.0.0.1:7897
   export http_proxy=http://127.0.0.1:7897
@@ -522,7 +557,6 @@ sshs() {
   emulate -L zsh
 
   local host="${1:-}"
-  local -a ssh_cmd
 
   if [[ -z "$host" ]]; then
     host="$(_sshfs_select_host)" || return 1
@@ -530,13 +564,7 @@ sshs() {
 
   [[ -z "$host" ]] && return 1
 
-  ssh_cmd=(ssh)
-
-  if _ssh_supports_x11_forwarding "$host"; then
-    ssh_cmd+=(-Y)
-  fi
-
-  "${ssh_cmd[@]}" "$host"
+  ssh -Y "$host"
 }
 
 sshx11check() {

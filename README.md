@@ -68,6 +68,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - On Ubuntu/Debian, `bootstrap.sh` configures NodeSource Node.js 22.x and installs `nodejs` from that source, which already provides `npm`. Do not run `apt install npm` separately.
 - npm-based CLI installs in `bootstrap.sh` try `https://registry.npmmirror.com` first and fall back to `https://registry.npmjs.org` if the mirror fails.
 - On macOS, `bootstrap.sh` installs `macFUSE`; the first use may still require approval in `System Settings -> Privacy & Security`.
+- `install.sh` and `bootstrap.sh` now also bridge `~/.codex-home/.Xauthority` to `~/.Xauthority`, and `zsh/.zshrc` auto-exports `XAUTHORITY` from the real user home when `DISPLAY` is present. This avoids common X11 auth failures for CLIs that run with an isolated `HOME`.
 
 ## Tool notes
 

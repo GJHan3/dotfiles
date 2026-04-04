@@ -6,6 +6,9 @@ DOTFILES_DIR="${0:A:h}"
 
 mkdir -p "$HOME/.config"
 mkdir -p "$HOME/.config/zsh/local"
+mkdir -p "$HOME/.codex-home"
+
+ln -sfn "$HOME/.Xauthority" "$HOME/.codex-home/.Xauthority"
 
 ln -sfn "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
 ln -sfn "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
