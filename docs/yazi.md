@@ -27,8 +27,6 @@ Current layout preference in this repository:
 - `g`: jump to the top
 - `G`: jump to the bottom
 - `g` `b`: open the hovered file in the system browser
-- `g` `c`: copy the selected files to a directory chosen through `fzf`
-- `g` `x`: move the selected files to a directory chosen through `fzf`
 - `M` `s`: open the SSHFS menu
 - `M` `m`: mount a host and jump to it
 - `M` `j`: jump to an existing mount
@@ -68,30 +66,6 @@ Typical move workflow:
 2. Press `x`.
 3. Navigate to the target directory.
 4. Press `p`.
-
-Targeted copy workflow:
-
-1. Select one or more files with `Space`.
-2. Press `g` then `c`.
-3. Starting from `~`, enter destination directories one level at a time.
-4. The copy runs immediately to the chosen path.
-
-Targeted move workflow:
-
-1. Select one or more files with `Space`.
-2. Press `g` then `x`.
-3. Starting from `~`, enter destination directories one level at a time.
-4. The move runs immediately to the chosen path.
-
-Notes about `g c`:
-
-- It calls the standalone helper script [config/yazi/ycopyto.sh](/Users/hanguangjiang/dotfiles/config/yazi/ycopyto.sh), so it does not need to start an interactive shell.
-- It starts from `~` and only scans one level at a time. Press `Enter` or `Right` on a child directory to continue deeper, `./` to use the current directory, and `../` or `Left` to go back up.
-- It also exposes shortcuts such as the current directory, `~/sshmnt`, and mounted SSHFS paths as `@ ...` entries so you can jump there directly.
-- You can also type an absolute path or `~/...` directly in `fzf`; the candidate list refreshes against that prefix as you type. If that path already exists, `Enter` jumps to it, and `Right` lets you keep drilling into the currently highlighted child entry.
-- `g c` copies, while `g x` moves.
-- Canceling the picker leaves the source files untouched.
-- The right preview pane shows the current destination directory contents before you confirm.
 
 ## Search
 
