@@ -189,6 +189,35 @@ y() {
   rm -f -- "$tmp"
 }
 
+hs() {
+  emulate -L zsh
+
+  local selection command
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "fzf is not installed"
+    return 1
+  fi
+
+  selection="$(
+    fc -rl 1 |
+      fzf \
+        --prompt="History> " \
+        --height=50% \
+        --reverse \
+        --border \
+        --no-sort \
+        --tiebreak=index \
+        --bind='tab:down,shift-tab:up' \
+        --header="Select a history entry and press Enter"
+  )"
+
+  [[ -z "$selection" ]] && return 0
+
+  command="${selection#*[[:space:]]}"
+  print -z -- "$command"
+}
+
 typeset -g SSHFS_MOUNT_ROOT="$HOME/sshmnt"
 typeset -g SSHFS_MOUNT_OPTIONS="defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user"
 

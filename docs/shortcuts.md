@@ -81,6 +81,12 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
   - `SSHFS_MOUNT_ROOT`
   - `SSHFS_MOUNT_OPTIONS`
 
+## Zsh
+
+基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的辅助函数：
+
+- `hs`: 用 `fzf` 浏览 shell history；选中后会把那条命令回填到下一行提示符，方便直接回车执行或先编辑再执行
+
 ## Neovim
 
 说明：
