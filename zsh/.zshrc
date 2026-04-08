@@ -214,7 +214,7 @@ hs() {
 
   [[ -z "$selection" ]] && return 0
 
-  command="${selection#*[[:space:]]}"
+  command="$(printf '%s\n' "$selection" | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//')"
   print -z -- "$command"
 }
 

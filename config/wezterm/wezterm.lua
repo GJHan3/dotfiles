@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
+local act = wezterm.action
 
 -- Disable the default behavior that can translate mouse wheel events into
 -- UpArrow/DownArrow in alternate screen contexts. Without this, scrolling can
@@ -40,6 +41,34 @@ config.colors = {
     "#d2b2ff",
     "#93e6db",
     "#f4f8ff",
+  },
+}
+
+config.keys = {
+  {
+    key = "LeftArrow",
+    mods = "CMD",
+    action = act.SendKey { key = "b", mods = "ALT" },
+  },
+  {
+    key = "RightArrow",
+    mods = "CMD",
+    action = act.SendKey { key = "f", mods = "ALT" },
+  },
+  {
+    key = "Backspace",
+    mods = "CMD",
+    action = act.SendKey { key = "w", mods = "CTRL" },
+  },
+  {
+    key = "a",
+    mods = "CMD",
+    action = act.SendKey { key = "a", mods = "CTRL" },
+  },
+  {
+    key = "e",
+    mods = "CMD",
+    action = act.SendKey { key = "e", mods = "CTRL" },
   },
 }
 
