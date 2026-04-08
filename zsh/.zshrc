@@ -28,6 +28,8 @@ case "$(uname -s)" in
     ;;
 esac
 
+autoload -Uz add-zsh-hook
+
 _dotfiles_real_home() {
   emulate -L zsh
 
@@ -73,6 +75,28 @@ _dotfiles_force_english_input() {
 }
 
 _dotfiles_force_english_input
+
+_dotfiles_reset_terminal_input_modes() {
+  emulate -L zsh
+
+  [[ -t 1 ]] || return 0
+
+  # Some remote programs leave mouse reporting enabled when SSH disconnects
+  # abruptly. Reset the common mouse-tracking modes before each prompt and
+  # after ssh exits so wheel events are not printed as raw escape sequences.
+  printf '\e[?1000l\e[?1002l\e[?1003l\e[?1005l\e[?1006l\e[?1015l'
+}
+
+add-zsh-hook precmd _dotfiles_reset_terminal_input_modes
+
+ssh() {
+  emulate -L zsh
+
+  command ssh "$@"
+  local status=$?
+  _dotfiles_reset_terminal_input_modes
+  return $status
+}
 
 export ZSH="${HOME}/.oh-my-zsh"
 ZSH_THEME=""

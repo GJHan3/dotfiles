@@ -96,6 +96,8 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 输入历史命令前缀时，会显示灰色的自动提示；按右方向键可接受整条建议
 - 命令行会启用基础语法高亮，常见命令、参数和错误输入会有不同颜色
 - `hs`: 用 `fzf` 浏览 shell history；选中后会把那条命令回填到下一行提示符，方便直接回车执行或先编辑再执行
+- shell 会在每次返回提示符时主动关闭残留的终端鼠标上报模式；如果 SSH 异常断线导致滚轮打印出 `64;...M` 这类字符，重新回到提示符后通常会自动恢复
+- 如果当前终端已经卡在异常鼠标模式，可手动执行 `printf '\e[?1000l\e[?1002l\e[?1003l\e[?1005l\e[?1006l\e[?1015l'` 立即恢复；必要时再执行 `reset`
 
 通过 [bootstrap.sh](../bootstrap.sh) 安装的 AI CLI 也会直接进入 shell `PATH`：
 
@@ -236,6 +238,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 - 前缀键是反引号 `` ` ``，按两次 `` ` `` 可发送原始前缀
 - `set -g mouse on`: 开启鼠标支持
+- `default-terminal` 使用 `tmux-256color`，减少现代终端能力声明和 `screen-256color` 之间的偏差
 - 状态栏保留少量科技风图标，并通过 [tmux/status-cpu.sh](../tmux/status-cpu.sh)
   和 [tmux/status-memory.sh](../tmux/status-memory.sh) 显示系统名、CPU 占用、内存用量、日期和时间
 - 主状态栏左侧显示 `🚀 <session>` 和 `🔥 pane <pane编号> <当前命令>`，窗口信息留给窗口列表本身展示
