@@ -135,6 +135,13 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - `gb`: 选择一个 buffer 跳转
 - `gB`: 选择一个 buffer 后直接关闭
 
+### Markdown
+
+仅在 `markdown` / `gitcommit` buffer 中生效：
+
+- `<leader>mp`: 打开 `render-markdown` 的侧边预览
+- `<leader>mt`: 切换当前 buffer 的 Markdown 渲染
+
 ### 代码预览
 
 - `gpd`: 预览 definition
