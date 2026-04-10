@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # vim别名
 alias vim="nvim"
 
@@ -795,3 +802,6 @@ xqallow() {
 if [[ "$DOTFILES_OS" == "macos" && -z "$SSH_CONNECTION" ]]; then
   export DISPLAY=:0
 fi
+
+# To customize prompt, run `p10k configure` or edit ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh.
+[[ ! -f ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh ]] || source ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh
