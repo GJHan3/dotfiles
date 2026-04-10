@@ -16,7 +16,15 @@ return {
           include_current_win = false, -- 排除当前窗口
           bo = {
             -- 排除这些 buffer 类型的窗口
-            filetype = { "neo-tree", "neo-tree-popup", "notify", "noice", "trouble" },
+            filetype = {
+              "neo-tree",
+              "neo-tree-popup",
+              "notify",
+              "noice",
+              "trouble",
+              "snacks_picker_preview",
+              "snacks_layout_box",
+            },
             buftype = { "quickfix" }, -- 移除 terminal，允许选择 Claude 终端
           },
         },

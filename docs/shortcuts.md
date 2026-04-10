@@ -102,6 +102,9 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 一般情况下 `<leader>` 仍然是 `Space`。
 - 除下面这些外，LazyVim 默认快捷键依然生效。
 - 长行默认会按窗口宽度软换行显示，不需要手动横向滚动。
+- 文档中的“项目根目录”通常指当前 Git 仓库的顶层目录；对这个仓库来说通常就是 `~/dotfiles`
+- 文档中的 `cwd` 是 current working directory，也就是当前工作目录；可在 Neovim 里用 `:pwd` 查看
+- `<leader>e` 和 `<leader>E` 都会打开 Explorer；前者以项目根目录为根，后者以当前工作目录 `cwd` 为根。如果当前 `cwd` 恰好就在项目根，两者看起来会一样。
 
 ### Git
 
@@ -115,8 +118,11 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 ### 搜索
 
+- `sw` 新手用法：把光标放在某个单词上，再按 `Space s w`，快速查看这个词在项目里的所有出现位置；适合查函数名、变量名、类名
 - `<leader>sg`: 用 `live_grep_args` 在项目根目录搜索
 - `<leader>sG`: 用 `live_grep_args` 在当前工作目录搜索
+- `sg` 新手用法：按 `Space s g` 后直接输入关键词，结果会实时刷新；如果只是想全文搜一个词，直接输入即可
+- `sg` 常用补充：输入 `"foo bar"` 可以搜精确短语；输入 `TODO --iglob *.lua` 可以只搜 Lua 文件；输入模式下按 `<C-q>` 可把结果送到 quickfix 并自动打开 Trouble
 - `Telescope` 结果面板里按 `<C-q>`: 发送结果到 quickfix，并打开 Trouble
 - `<leader>xf`: 聚焦到 Trouble / quickfix / Telescope 搜索结果窗口
 - `Trouble` 窗口里按 `<CR>`: 跳到目标，并优先复用普通编辑窗口
@@ -124,7 +130,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 ### 窗口
 
-- `gw`: 用 window-picker 选择并切换窗口
+- `gw`: 用 window-picker 选择并切换窗口；会保留文件树和输入窗口参与选择，但自动跳过预览窗、布局占位窗等纯临时窗口
 - `gW`: 用 flash 执行窗口跳转
 - `<C-w>v`: 智能垂直分屏，避免在特殊窗口里继续切分
 - `<C-w>s`: 智能水平分屏

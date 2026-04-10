@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 local act = wezterm.action
+local nerdfonts = wezterm.nerdfonts
 
 local function file_exists(path)
   local f = io.open(path, "rb")
@@ -39,6 +40,10 @@ end
 -- of scrolling terminal content.
 config.alternate_buffer_wheel_scroll_speed = 0
 config.font_size = 15.0
+config.use_fancy_tab_bar = false
+config.hide_tab_bar_if_only_one_tab = false
+config.tab_max_width = 32
+config.window_decorations = "TITLE | RESIZE"
 
 -- Built-in scheme: Tokyo Night Moon. It keeps the blue/cyan "tech" feel, but
 -- is softer than very deep black themes. The manual color overrides below lift
@@ -74,6 +79,30 @@ config.colors = {
     "#93e6db",
     "#f4f8ff",
   },
+  tab_bar = {
+    background = "#10151b",
+    active_tab = {
+      bg_color = "#a6557f",
+      fg_color = "#f4f8ff",
+      intensity = "Bold",
+    },
+    inactive_tab = {
+      bg_color = "#243140",
+      fg_color = "#9cb3c9",
+    },
+    inactive_tab_hover = {
+      bg_color = "#2d4154",
+      fg_color = "#d6dde8",
+    },
+    new_tab = {
+      bg_color = "#10151b",
+      fg_color = "#73daca",
+    },
+    new_tab_hover = {
+      bg_color = "#17303b",
+      fg_color = "#b8f2e6",
+    },
+  },
 }
 
 config.window_background_opacity = 1.0
@@ -104,6 +133,33 @@ if background_image then
     },
   }
 end
+
+wezterm.on("format-tab-title", function(tab, tabs, panes, config_, hover, max_width)
+  local title = tab.active_pane.title
+  local index = tab.tab_index + 1
+  local icon = tab.is_active and nerdfonts.md_star_four_points or nerdfonts.md_circle_small
+
+  title = wezterm.truncate_right(title, max_width - 8)
+
+  local bg = tab.is_active and "#a6557f" or hover and "#2d4154" or "#243140"
+  local fg = tab.is_active and "#f4f8ff" or hover and "#e4edf8" or "#9cb3c9"
+  local edge = tab.is_active and "#ff9ac1" or hover and "#6da6cf" or "#3d5368"
+  local icon_fg = tab.is_active and "#ffd173" or hover and "#8ff0ff" or "#73daca"
+
+  return {
+    { Background = { Color = edge } },
+    { Foreground = { Color = "#161b22" } },
+    { Text = "▌" },
+    { Background = { Color = bg } },
+    { Foreground = { Color = icon_fg } },
+    { Text = string.format(" %s ", icon) },
+    { Foreground = { Color = fg } },
+    { Text = string.format("%d:%s ", index, title) },
+    { Background = { Color = edge } },
+    { Foreground = { Color = "#161b22" } },
+    { Text = "▐" },
+  }
+end)
 
 config.keys = {
   {
