@@ -5,6 +5,9 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OH_MY_ZSH_DIR="${HOME}/.oh-my-zsh"
 P10K_DIR="${OH_MY_ZSH_DIR}/custom/themes/powerlevel10k"
+ZSH_CUSTOM_DIR="${OH_MY_ZSH_DIR}/custom"
+ZSH_AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM_DIR}/plugins/zsh-autosuggestions"
+ZSH_SYNTAX_HIGHLIGHTING_DIR="${ZSH_CUSTOM_DIR}/plugins/zsh-syntax-highlighting"
 INTERACTIVE=0
 FORCE_INSTALL=0
 NPM_REGISTRY="https://registry.npmmirror.com"
@@ -622,6 +625,11 @@ install_powerlevel10k() {
   clone_or_update_repo https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
 }
 
+install_zsh_plugins() {
+  clone_or_update_repo https://github.com/zsh-users/zsh-autosuggestions "$ZSH_AUTOSUGGESTIONS_DIR"
+  clone_or_update_repo https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_SYNTAX_HIGHLIGHTING_DIR"
+}
+
 install_meslo_fonts_macos() {
   if ! should_update_existing &&
     [[ -f "${HOME}/Library/Fonts/MesloLGS NF Regular.ttf" ]] &&
@@ -818,6 +826,7 @@ main() {
 
   install_oh_my_zsh
   install_powerlevel10k
+  install_zsh_plugins
 
   if [[ "$os" == "macos" ]]; then
     install_meslo_fonts_macos

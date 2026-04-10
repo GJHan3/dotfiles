@@ -56,6 +56,22 @@ _dotfiles_fix_xauthority() {
 
 _dotfiles_fix_xauthority
 
+export ZSH="${HOME}/.oh-my-zsh"
+ZSH_THEME=""
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+if [[ -r "${ZSH}/oh-my-zsh.sh" ]]; then
+  source "${ZSH}/oh-my-zsh.sh"
+fi
+
+if [[ -r "$HOME/.p10k.zsh" ]]; then
+  source "$HOME/.p10k.zsh"
+fi
+
 proxy_on() {
   export https_proxy=http://127.0.0.1:7897
   export http_proxy=http://127.0.0.1:7897

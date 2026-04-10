@@ -85,6 +85,8 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的辅助函数：
 
+- 输入历史命令前缀时，会显示灰色的自动提示；按右方向键可接受整条建议
+- 命令行会启用基础语法高亮，常见命令、参数和错误输入会有不同颜色
 - `hs`: 用 `fzf` 浏览 shell history；选中后会把那条命令回填到下一行提示符，方便直接回车执行或先编辑再执行
 
 通过 [bootstrap.sh](/Users/hanguangjiang/dotfiles/bootstrap.sh) 安装的 AI CLI 也会直接进入 shell `PATH`：
