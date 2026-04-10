@@ -105,7 +105,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 长行默认会按窗口宽度软换行显示，不需要手动横向滚动。
 - 文档中的“项目根目录”通常指当前 Git 仓库的顶层目录；对这个仓库来说通常就是 `~/dotfiles`
 - 文档中的 `cwd` 是 current working directory，也就是当前工作目录；可在 Neovim 里用 `:pwd` 查看
-- 在 macOS 上，如果安装了 `im-select`，启动 Neovim 时会默认切回英文输入法（`ABC`）
+- 在 macOS 上，如果安装了 `im-select`，启动 Neovim 时会默认切回英文输入法（`ABC`）；进入插入模式时会恢复上次使用的输入法，退出插入模式时再自动切回英文
 - `<leader>e` 和 `<leader>E` 都会打开 Explorer；前者以项目根目录为根，后者以当前工作目录 `cwd` 为根。如果当前 `cwd` 恰好就在项目根，两者看起来会一样。
 
 ### Git

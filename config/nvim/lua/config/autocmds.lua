@@ -40,13 +40,54 @@ local function force_english_input()
   vim.fn.system({ "im-select", "com.apple.keylayout.ABC" })
 end
 
+local english_input = "com.apple.keylayout.ABC"
+local last_insert_input = english_input
+
+local function current_input()
+  if vim.fn.has("mac") ~= 1 or vim.fn.executable("im-select") ~= 1 then
+    return nil
+  end
+
+  local result = vim.fn.system({ "im-select" })
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+
+  result = vim.trim(result)
+  return result ~= "" and result or nil
+end
+
+local function set_input(source)
+  if not source or vim.fn.has("mac") ~= 1 or vim.fn.executable("im-select") ~= 1 then
+    return
+  end
+
+  vim.fn.system({ "im-select", source })
+end
+
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
   callback = apply_ui_highlights,
 })
 
 vim.api.nvim_create_autocmd("VimEnter", {
-  callback = force_english_input,
+  callback = function()
+    force_english_input()
+    last_insert_input = current_input() or english_input
+  end,
+})
+
+vim.api.nvim_create_autocmd("InsertEnter", {
+  callback = function()
+    set_input(last_insert_input)
+  end,
+})
+
+vim.api.nvim_create_autocmd("InsertLeave", {
+  callback = function()
+    last_insert_input = current_input() or last_insert_input
+    set_input(english_input)
+  end,
 })
 
 -- 立即应用当前配色方案的设置
