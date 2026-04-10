@@ -18,6 +18,9 @@ local function apply_ui_highlights()
     "FoldColumn",
     "LineNr",
     "CursorLineNr",
+    "NeoTreeNormal",
+    "NeoTreeNormalNC",
+    "NeoTreeEndOfBuffer",
   }
 
   for _, group in ipairs(transparent_groups) do
