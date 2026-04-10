@@ -427,6 +427,16 @@ install_codex_cli() {
   fi
 }
 
+install_opencode_cli() {
+  if ! should_install_cmd opencode; then
+    return
+  fi
+
+  if ! install_npm_global_package "opencode-ai" "OpenCode CLI"; then
+    echo "Continuing without OpenCode CLI." >&2
+  fi
+}
+
 install_lark_cli() {
   if ! should_install_cmd lark-cli; then
     return
@@ -719,6 +729,19 @@ print_post_install_notes() {
       "npm i -g @openai/codex@latest"
   fi
 
+  if need_cmd opencode; then
+    print_status_header NEXT "OpenCode CLI"
+    print_command_hint "Run:" "opencode"
+    print_command_hint "Optional:" "opencode auth login"
+    printf "  Sign in with the model provider you want to use, then start a session.\n"
+  else
+    print_missing_command_warning \
+      "OpenCode CLI" \
+      "opencode" \
+      "bootstrap.sh could not install it automatically, so OpenCode terminal workflows stay unavailable until you install it manually." \
+      "npm i -g opencode-ai"
+  fi
+
   if need_cmd lark-cli; then
     print_status_header NEXT "Lark CLI"
     print_command_hint "Run:" "lark-cli config init --new"
@@ -803,6 +826,7 @@ main() {
   fi
 
   install_codex_cli
+  install_opencode_cli
   install_lark_cli
   install_cc_connect
   if need_cmd lark-cli; then

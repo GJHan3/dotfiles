@@ -87,6 +87,11 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 - `hs`: 用 `fzf` 浏览 shell history；选中后会把那条命令回填到下一行提示符，方便直接回车执行或先编辑再执行
 
+通过 [bootstrap.sh](/Users/hanguangjiang/dotfiles/bootstrap.sh) 安装的 AI CLI 也会直接进入 shell `PATH`：
+
+- `codex`: OpenAI Codex CLI
+- `opencode`: OpenCode CLI
+
 ## Neovim
 
 说明：
