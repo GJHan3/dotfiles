@@ -45,13 +45,14 @@ config.hide_tab_bar_if_only_one_tab = false
 config.tab_max_width = 32
 config.window_decorations = "TITLE | RESIZE"
 
--- Built-in scheme: Tokyo Night Moon. It keeps the blue/cyan "tech" feel, but
--- is softer than very deep black themes. The manual color overrides below lift
--- the background a bit further and increase ANSI contrast so syntax keywords,
--- prompts, and status colors remain easy to distinguish.
+-- 开启全局透明透视：即使应用设置了背景色，也会带有透明度
+config.text_background_opacity = 0.5
+config.window_background_opacity = 0.95
+
+-- Built-in scheme: Tokyo Night Moon.
 config.color_scheme = "Tokyo Night Moon"
 config.colors = {
-  background = "#20242a",
+  background = "#1e2030", -- 提亮背景基底颜色
   foreground = "#d6dde8",
   cursor_bg = "#8bd49c",
   cursor_border = "#8bd49c",
@@ -105,8 +106,8 @@ config.colors = {
   },
 }
 
-config.window_background_opacity = 1.0
-config.text_background_opacity = 1.0
+-- config.window_background_opacity = 1.0
+-- config.text_background_opacity = 1.0
 
 if background_image then
   config.background = {
@@ -125,11 +126,11 @@ if background_image then
     },
     {
       source = {
-        Color = "#15191f",
+        Color = "#1e2030", -- 与背景色同步提亮
       },
       width = "100%",
       height = "100%",
-      opacity = 0.82,
+      opacity = 0.65, -- 降低遮罩浓度，让背景图更亮
     },
   }
 end
