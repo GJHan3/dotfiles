@@ -44,3 +44,6 @@ vim.opt.number = true
 vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.breakindent = true
+
+-- Give leader mappings a bit more time so Space-based key sequences are less easy to miss.
+vim.opt.timeoutlen = 500
