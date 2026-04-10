@@ -85,6 +85,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的辅助函数：
 
+- 在 macOS 上，如果安装了 `im-select`，新的 shell 会默认切回英文输入法（`ABC`）
 - 输入历史命令前缀时，会显示灰色的自动提示；按右方向键可接受整条建议
 - 命令行会启用基础语法高亮，常见命令、参数和错误输入会有不同颜色
 - `hs`: 用 `fzf` 浏览 shell history；选中后会把那条命令回填到下一行提示符，方便直接回车执行或先编辑再执行
@@ -104,6 +105,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 长行默认会按窗口宽度软换行显示，不需要手动横向滚动。
 - 文档中的“项目根目录”通常指当前 Git 仓库的顶层目录；对这个仓库来说通常就是 `~/dotfiles`
 - 文档中的 `cwd` 是 current working directory，也就是当前工作目录；可在 Neovim 里用 `:pwd` 查看
+- 在 macOS 上，如果安装了 `im-select`，启动 Neovim 时会默认切回英文输入法（`ABC`）
 - `<leader>e` 和 `<leader>E` 都会打开 Explorer；前者以项目根目录为根，后者以当前工作目录 `cwd` 为根。如果当前 `cwd` 恰好就在项目根，两者看起来会一样。
 
 ### Git

@@ -536,7 +536,20 @@ install_packages_macos() {
 
   refresh_command_paths
 
+  install_im_select_macos "$brew_bin"
   install_sshfs_macos "$brew_bin"
+}
+
+install_im_select_macos() {
+  local brew_bin=$1
+
+  if ! should_install_cmd im-select; then
+    return
+  fi
+
+  "$brew_bin" tap daipeihust/tap
+  "$brew_bin" install im-select
+  refresh_command_paths
 }
 
 install_sshfs_macos() {

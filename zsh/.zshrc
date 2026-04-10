@@ -63,6 +63,17 @@ _dotfiles_fix_xauthority() {
 
 _dotfiles_fix_xauthority
 
+_dotfiles_force_english_input() {
+  emulate -L zsh
+
+  [[ "$DOTFILES_OS" == "macos" ]] || return 0
+  command -v im-select >/dev/null 2>&1 || return 0
+
+  im-select com.apple.keylayout.ABC >/dev/null 2>&1 || true
+}
+
+_dotfiles_force_english_input
+
 export ZSH="${HOME}/.oh-my-zsh"
 ZSH_THEME=""
 plugins=(

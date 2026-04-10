@@ -32,9 +32,21 @@ local function apply_ui_highlights()
   vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#008888", bg = "#1a1a1a" })
 end
 
+local function force_english_input()
+  if vim.fn.has("mac") ~= 1 or vim.fn.executable("im-select") ~= 1 then
+    return
+  end
+
+  vim.fn.system({ "im-select", "com.apple.keylayout.ABC" })
+end
+
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
   callback = apply_ui_highlights,
+})
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = force_english_input,
 })
 
 -- 立即应用当前配色方案的设置
