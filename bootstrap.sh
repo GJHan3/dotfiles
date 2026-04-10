@@ -529,6 +529,8 @@ install_packages_macos() {
   append_formula_if_missing node
   append_formula_if_missing stylua
   append_formula_if_missing yazi
+  append_formula_if_missing lynx
+  append_formula_if_missing imagemagick
 
   if (( ${#FORMULAE[@]} > 0 )); then
     "$brew_bin" install "${FORMULAE[@]}"
@@ -597,6 +599,10 @@ install_packages_ubuntu() {
   append_apt_package_if_missing software-properties-common
   append_apt_package_if_missing fontconfig
   append_apt_package_if_missing file
+  append_apt_package_if_missing lynx
+  append_apt_package_if_missing imagemagick
+  append_apt_package_if_missing ffmpegthumbnailer
+  append_apt_package_if_missing poppler-utils
 
   if (( ${#APT_PACKAGES[@]} > 0 )); then
     sudo apt-get update

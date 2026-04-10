@@ -1,17 +1,38 @@
 [mgr]
-ratio = [1, 2, 5]
+ratio = [1, 1, 8]
+
+[preview]
+max_width = 1600
+max_height = 1600
+
+[plugin]
+prepend_previewers = [
+  { mime = "text/html", run = "html-render" },
+]
 
 [opener]
 browser = [
-  { run = "open %s", orphan = true, desc = "Open in browser", for = "macos" },
+  { run = 'open "$@"', orphan = true, desc = "Open in browser", for = "macos" },
   { run = "xdg-open %s", orphan = true, desc = "Open in browser", for = "linux" },
 ]
 edit = [
   { run = 'nvim "$@"', block = true, for = "unix" },
 ]
+image = [
+  { run = 'open "%s"', orphan = true, desc = "Open image", for = "macos" },
+  { run = 'xdg-open "$@"', orphan = true, desc = "Open image", for = "linux" },
+]
+
+[[open.prepend_rules]]
+mime = "image/*"
+use = "image"
 
 [[open.prepend_rules]]
 url = "*.{html,htm}"
+use = [ "browser", "edit" ]
+
+[[open.prepend_rules]]
+mime = "text/html"
 use = [ "browser", "edit" ]
 
 [[open.prepend_rules]]
