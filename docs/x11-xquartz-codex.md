@@ -39,7 +39,9 @@ mkdir -p ~/.codex-home
 ln -sfn ~/.Xauthority ~/.codex-home/.Xauthority
 ```
 
-7. 对于任何会改写 `HOME` 的 CLI，本仓库的 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 现在会在检测到 `DISPLAY` 时，自动把 `XAUTHORITY` 指向真实用户家目录下的 `~/.Xauthority`。这能覆盖大多数“隔离 home 目录 + X11”场景；像 `codex` 这类明确使用 `~/.codex-home` 的工具，则再额外保留 `.Xauthority` 符号链接作为兜底。
+7. 对于任何会改写 `HOME` 的 CLI，本仓库的 [zsh/.zshrc](../zsh/.zshrc) 现在会在检测到 `DISPLAY` 时，
+自动把 `XAUTHORITY` 指向真实用户家目录下的 `~/.Xauthority`。这能覆盖大多数“隔离 home 目录 + X11”场景；
+像 `codex` 这类明确使用 `~/.codex-home` 的工具，则再额外保留 `.Xauthority` 符号链接作为兜底。
 
 远端检查可以直接执行：
 
@@ -51,15 +53,15 @@ sshx11check my-host
 sshexec my-host uname -a
 ```
 
-其中 `sshx11` 会把本地仓库里的 [setup-remote-x11.sh](/Users/hanguangjiang/dotfiles/scripts/setup-remote-x11.sh) 通过 SSH 发到远端执行，用来：
+其中 `sshx11` 会把本地仓库里的 [setup-remote-x11.sh](../scripts/setup-remote-x11.sh) 通过 SSH 发到远端执行，用来：
 
 - 安装 `xauth`
 - 把 `sshd_config` 里的 `X11Forwarding` 和 `X11UseLocalhost` 设为 `yes`
 - 幂等地把 `~/.codex-home/.Xauthority` 指到 `~/.Xauthority`
 - 自动重启 `sshd` 或 `ssh`
-- 先上传到远端临时脚本，再用带 TTY 的 SSH 会话执行，允许远端 `sudo` 正常读取密码
+- 先上传到远端临时脚本，再用带 TTY 的 SSH 会话执行，允许远端 `sudo`正常读取密码
 
-其中 `sshx11check` 会把本地仓库里的 [check-remote-x11.sh](/Users/hanguangjiang/dotfiles/scripts/check-remote-x11.sh) 通过 SSH 发到远端执行，用来检查：
+其中 `sshx11check` 会把本地仓库里的 [check-remote-x11.sh](../scripts/check-remote-x11.sh) 通过 SSH 发到远端执行，用来检查：
 
 - `xauth` 是否存在
 - `sshd_config` 是否包含 `X11Forwarding` / `X11UseLocalhost`
@@ -67,7 +69,8 @@ sshexec my-host uname -a
 
 ## Codex Authentication
 
-这次排查确认过一个额外坑点：远端 `codex` 进程的 `HOME` 可能不是用户真实家目录，而是类似 `~/.codex-home` 的隔离目录。此时如果 X11 cookie 只写在 `~/.Xauthority`，`codex` 访问 `DISPLAY` 时会报：
+这次排查确认过一个额外坑点：远端 `codex` 进程的 `HOME` 可能不是用户真实家目录，而是类似 `~/.codex-home` 的隔离目录。
+此时如果 X11 cookie 只写在 `~/.Xauthority`，`codex` 访问 `DISPLAY` 时会报：
 
 ```text
 X11 connection rejected because of wrong authentication
@@ -80,15 +83,17 @@ mkdir -p ~/.codex-home
 ln -sfn ~/.Xauthority ~/.codex-home/.Xauthority
 ```
 
-本仓库的 [install.sh](/Users/hanguangjiang/dotfiles/install.sh) 和 [bootstrap.sh](/Users/hanguangjiang/dotfiles/bootstrap.sh) 现在都会自动创建这个链接，避免新机器首次配置后再次踩到同一个问题。
+本仓库的 [install.sh](../install.sh) 和 [bootstrap.sh](../bootstrap.sh) 现在都会自动创建这个链接，
+避免新机器首次配置后再次踩到同一个问题。
 
-为了把修复泛化到更多工具，[zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 还会在带 `DISPLAY` 的 shell 里自动设置：
+为了把修复泛化到更多工具，[zsh/.zshrc](../zsh/.zshrc) 还会在带 `DISPLAY` 的 shell 里自动设置：
 
 ```sh
 XAUTHORITY=<真实用户家目录>/.Xauthority
 ```
 
-这样像 `claude`、`cc-connect`、自定义 wrapper 或其他把 `HOME` 改到临时目录的 CLI，只要继承了当前 shell 的环境，通常都能继续访问同一份 X11 cookie，而不需要逐个为工具单独配 `.Xauthority`。
+这样像 `claude`、`cc-connect`、自定义 wrapper 或其他把 `HOME` 改到临时目录的 CLI，
+只要继承了当前 shell 的环境，通常都能继续访问同一份 X11 cookie，而不需要逐个为工具单独配 `.Xauthority`。
 
 判断是不是这个问题，可以直接对比：
 

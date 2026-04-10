@@ -51,20 +51,24 @@ y ~/Downloads
 3. 切到目标目录。
 4. 按 `p`。
 
-补充说明见 [yazi.md](/Users/hanguangjiang/dotfiles/docs/yazi.md)。
+补充说明见 [yazi.md](yazi.md)。
 
-Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 复制或 `x` 剪切，切到目标目录后按 `p` 粘贴。这样行为和上游默认一致，也避免额外脚本带来的兼容性问题。
+Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 复制或 `x` 剪切，切到目标目录后按 `p` 粘贴。
+这样行为和上游默认一致，也避免额外脚本带来的兼容性问题。
 
 ## SSHFS Shell
 
-基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的快捷函数，可直接复用 `~/.ssh/config`：
+基于 [zsh/.zshrc](../zsh/.zshrc) 里的快捷函数，可直接复用 `~/.ssh/config`：
 
 - `sshhosts`: 列出 `~/.ssh/config` 里的可用 Host 别名
 - `sshs`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后默认执行 `ssh -Y <host>`
 - `sshexec`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后执行远端命令，例如 `sshexec devbox uname -a`
-- `sshx11`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后在远端自动安装 `xauth`、打开 `sshd_config` 里的 X11 forwarding、为 `~/.codex-home/.Xauthority` 建好到 `~/.Xauthority` 的链接，并重启 SSH 服务
+- `sshx11`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后在远端自动安装 `xauth`、
+  打开 `sshd_config` 里的 X11 forwarding、为 `~/.codex-home/.Xauthority` 建好到 `~/.Xauthority` 的链接，
+  并重启 SSH 服务
 - `sshx11check`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后把仓库里的远端 X11 检查脚本通过 SSH 发过去执行
-- `sshm`: 用 `fzf` 选择 Host，再逐级浏览远程目录；选中 `./` 确认当前目录，选中 `../` 返回上一级；如果目标本地目录已经挂载，则直接进入
+- `sshm`: 用 `fzf` 选择 Host，再逐级浏览远程目录；选中 `./` 确认当前目录，选中 `../` 返回上一级；
+  如果目标本地目录已经挂载，则直接进入
 - `sshj`: 用 `fzf` 在当前已挂载的 SSHFS 目录间跳转
 - `sshu`: 用 `fzf` 选择一个 `SSHFS_MOUNT_ROOT` 下的 SSHFS 挂载并卸载；卸载成功后会顺手删除空的本地挂载目录
 - `sshhome`: 进入 SSHFS 挂载根目录，默认是 `~/sshmnt`
@@ -75,22 +79,25 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 默认挂载参数是 `defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user`
 - `sshm` 会自动把本地挂载目录名设置成 Finder 里的卷名，避免显示成默认的 `macFUSE Volume 0 (sshfs)`
 - `sshs` 默认带 `-Y`；本地如果没有可用 X server，SSH 仍可登录，但远端图形程序通常无法正常显示
-- `sshx11` 当前会先把远端修复脚本上传到临时文件，再用带 TTY 的 SSH 会话执行它，便于 `sudo` 读取密码；它会尝试兼容 `apt-get`、`dnf`、`yum`、`zypper`、`apk`；如果远端当前还没有生成 `~/.Xauthority`，它会跳过 `.codex-home/.Xauthority` 链接并给出提示
-- `sshx11check` 只检查远端 `xauth`、`sshd_config` 里的 X11 相关项，以及 SSH 服务是否在运行；它不会自动改远端配置
+- `sshx11` 当前会先把远端修复脚本上传到临时文件，再用带 TTY 的 SSH 会话执行它，便于 `sudo` 读取密码；
+  它会尝试兼容 `apt-get`、`dnf`、`yum`、`zypper`、`apk`；如果远端当前还没有生成 `~/.Xauthority`，
+  它会跳过 `.codex-home/.Xauthority` 链接并给出提示
+- `sshx11check` 只检查远端 `xauth`、`sshd_config` 里的 X11 相关项，以及 SSH 服务是否在运行；
+  它不会自动改远端配置
 - 可通过环境变量覆盖：
   - `SSHFS_MOUNT_ROOT`
   - `SSHFS_MOUNT_OPTIONS`
 
 ## Zsh
 
-基于 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc) 里的辅助函数：
+基于 [zsh/.zshrc](../zsh/.zshrc) 里的辅助函数：
 
 - 在 macOS 上，如果安装了 `im-select`，新的 shell 会默认切回英文输入法（`ABC`）
 - 输入历史命令前缀时，会显示灰色的自动提示；按右方向键可接受整条建议
 - 命令行会启用基础语法高亮，常见命令、参数和错误输入会有不同颜色
 - `hs`: 用 `fzf` 浏览 shell history；选中后会把那条命令回填到下一行提示符，方便直接回车执行或先编辑再执行
 
-通过 [bootstrap.sh](/Users/hanguangjiang/dotfiles/bootstrap.sh) 安装的 AI CLI 也会直接进入 shell `PATH`：
+通过 [bootstrap.sh](../bootstrap.sh) 安装的 AI CLI 也会直接进入 shell `PATH`：
 
 - `codex`: OpenAI Codex CLI
 - `opencode`: OpenCode CLI
@@ -101,13 +108,15 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 - 当前配置基于 LazyVim。
 - 一般情况下 `<leader>` 仍然是 `Space`。
-- 除下面这些外，LazyVim 默认快捷键依然生效。
+- 除下面这些外，LazyVim 默认快捷键仍然生效。
 - 长行默认会按窗口宽度软换行显示，不需要手动横向滚动。
 - `<leader>` 相关按键当前使用 `timeoutlen=500`；如果按 `Space` 后停顿太久，后续组合键仍可能超时
 - 文档中的“项目根目录”通常指当前 Git 仓库的顶层目录；对这个仓库来说通常就是 `~/dotfiles`
 - 文档中的 `cwd` 是 current working directory，也就是当前工作目录；可在 Neovim 里用 `:pwd` 查看
-- 在 macOS 上，如果安装了 `im-select`，启动 Neovim 时会默认切回英文输入法（`ABC`）；进入插入模式时会恢复上次使用的输入法，退出插入模式时再自动切回英文
-- `<leader>e` 和 `<leader>E` 都会打开 Explorer；前者以项目根目录为根，后者以当前工作目录 `cwd` 为根。如果当前 `cwd` 恰好就在项目根，两者看起来会一样。
+- 在 macOS 上，如果安装了 `im-select`，启动 Neovim 时会默认切回英文输入法（`ABC`）；
+  进入插入模式时会恢复上次使用的输入法，退出插入模式时再自动切回英文
+- `<leader>e` 和 `<leader>E` 都会打开 Explorer；前者以项目根目录为根，后者以当前工作目录 `cwd` 为根。
+  如果当前 `cwd` 恰好就在项目根，两者看起来会一样。
 
 ### Git
 
@@ -121,11 +130,13 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 ### 搜索
 
-- `sw` 新手用法：把光标放在某个单词上，再按 `Space s w`，快速查看这个词在项目里的所有出现位置；适合查函数名、变量名、类名
+- `sw` 新手用法：把光标放在某个单词上，再按 `Space s w`，快速查看这个词在项目里的所有出现位置；
+  适合查函数名、变量名、类名
 - `<leader>sg`: 用 `live_grep_args` 在项目根目录搜索
 - `<leader>sG`: 用 `live_grep_args` 在当前工作目录搜索
 - `sg` 新手用法：按 `Space s g` 后直接输入关键词，结果会实时刷新；如果只是想全文搜一个词，直接输入即可
-- `sg` 常用补充：输入 `"foo bar"` 可以搜精确短语；输入 `TODO --iglob *.lua` 可以只搜 Lua 文件；输入模式下按 `<C-q>` 可把结果送到 quickfix 并自动打开 Trouble
+- `sg` 常用补充：输入 `"foo bar"` 可以搜精确短语；输入 `TODO --iglob *.lua` 可以只搜 Lua 文件；
+  输入模式下按 `<C-q>` 可把结果送到 quickfix 并自动打开 Trouble
 - `Telescope` 结果面板里按 `<C-q>`: 发送结果到 quickfix，并打开 Trouble
 - `<leader>xf`: 聚焦到 Trouble / quickfix / Telescope 搜索结果窗口
 - `Trouble` 窗口里按 `<CR>`: 跳到目标，并优先复用普通编辑窗口
@@ -192,11 +203,12 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 ## Tmux
 
-当前仓库里的 [tmux/.tmux.conf](/Users/hanguangjiang/dotfiles/tmux/.tmux.conf) 当前配置了：
+当前仓库里的 [tmux/.tmux.conf](../tmux/.tmux.conf) 当前配置了：
 
 - 前缀键是反引号 `` ` ``，按两次 `` ` `` 可发送原始前缀
 - `set -g mouse on`: 开启鼠标支持
-- 状态栏保留少量科技风图标，并通过 [tmux/status-cpu.sh](/Users/hanguangjiang/dotfiles/tmux/status-cpu.sh) 和 [tmux/status-memory.sh](/Users/hanguangjiang/dotfiles/tmux/status-memory.sh) 显示系统名、CPU 占用、内存用量、日期和时间
+- 状态栏保留少量科技风图标，并通过 [tmux/status-cpu.sh](../tmux/status-cpu.sh)
+  和 [tmux/status-memory.sh](../tmux/status-memory.sh) 显示系统名、CPU 占用、内存用量、日期和时间
 - 主状态栏左侧显示 `🚀 <session>` 和 `🔥 pane <pane编号> <当前命令>`，窗口信息留给窗口列表本身展示
 - 当前窗口格式为绿色背景的 `🎯 #I:#W`，非当前窗口为浅紫背景的 `#I:#W`
 - `set -g set-clipboard on`: 启用 OSC 52 剪贴板支持
@@ -230,7 +242,7 @@ OSC 52 快速检查：
 - 脚本会自动打印当前是否在 `tmux` / `SSH` 环境，并发送一个唯一 token 到 OSC 52 剪贴板通道
 - 最后只需要在本地终端外部粘贴一次，确认结果是否等于终端里显示的 `Expected value`
 
-Shell 辅助命令定义在 [zsh/.zshrc](/Users/hanguangjiang/dotfiles/zsh/.zshrc)：
+Shell 辅助命令定义在 [zsh/.zshrc](../zsh/.zshrc)：
 
 - `tn [name]`: 新建或切换到指定 tmux session；不带参数时会提示输入
 - `ts`: 用 `fzf` 选择并切换 / attach 到现有 tmux session

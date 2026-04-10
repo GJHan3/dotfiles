@@ -2,7 +2,8 @@
 
 This repository installs `yazi` and exposes a `y` shell wrapper from `zsh/.zshrc`.
 
-Use `y` instead of `yazi` when you want the shell to follow the last directory you visited after quitting.
+Use `y` instead of `yazi` when you want the shell to follow the last directory
+you visited after quitting.
 
 ```sh
 y
@@ -14,16 +15,20 @@ Current layout preference in this repository:
 
 - `[mgr].ratio = [1, 2, 5]`
 - This makes the preview pane wider than the current file list pane.
-- `theme.toml` uses the official `catppuccin-macchiato` flavor instead of the stock colors.
+- `theme.toml` uses the official `catppuccin-macchiato` flavor instead of the
+  stock colors.
 - Files are opened with `nvim` via a custom `edit` opener.
-- `*.html` and `*.htm` are opened in the system browser first, with `nvim` as a fallback opener.
-- `sshfs.yazi` is enabled. Press `M s` to open the SSHFS menu and mount hosts from `~/.ssh/config`.
+- `*.html` and `*.htm` are opened in the system browser first, with `nvim` as a
+  fallback opener.
+- `sshfs.yazi` is enabled. Press `M s` to open the SSHFS menu and mount hosts
+  from `~/.ssh/config`.
 
 ## Navigation
 
 - `j` / `k`: move cursor down or up
 - `h`: go to parent directory
-- `l`: enter directory, or open files with the configured opener (`nvim` by default, browser first for `html` / `htm`)
+- `l`: enter directory, or open files with the configured opener (`nvim` by
+  default, browser first for `html` / `htm`)
 - `g`: jump to the top
 - `G`: jump to the bottom
 - `g` `b`: open the hovered file in the system browser
@@ -42,9 +47,12 @@ Current layout preference in this repository:
 - `M` `h`: jump to the SSHFS mount home directory
 - `M` `c`: open `~/.ssh/config`
 - The `M s` menu remains available if you prefer a single entry point.
-- The plugin reads hosts from `~/.ssh/config` and can also keep Yazi-only custom hosts.
-- `bootstrap.sh` installs the required SSHFS dependency on both macOS and Ubuntu/Debian.
-- On macOS, the first mount may still require approval in `System Settings -> Privacy & Security` if macFUSE is blocked by the system.
+- The plugin reads hosts from `~/.ssh/config` and can also keep Yazi-only custom
+  hosts.
+- `bootstrap.sh` installs the required SSHFS dependency on both macOS and
+  Ubuntu/Debian.
+- On macOS, the first mount may still require approval in `System Settings ->
+  Privacy & Security` if macFUSE is blocked by the system.
 
 ## Selection
 
@@ -75,6 +83,8 @@ Typical move workflow:
 
 ## Notes
 
-- `bootstrap.sh` installs `yazi` and the SSHFS dependency on macOS and Ubuntu/Debian.
-- `install.sh` runs `ya pkg install` when `ya` is available, so Yazi plugins and flavors are deployed after linking.
+- `bootstrap.sh` installs `yazi` and the SSHFS dependency on macOS and
+  Ubuntu/Debian.
+- `install.sh` runs `ya pkg install` when `ya` is available, so Yazi plugins and
+  flavors are deployed after linking.
 - `yazi --version` checks whether the binary is available.

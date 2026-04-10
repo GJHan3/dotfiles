@@ -1,0 +1,8 @@
+WRN 2026-04-10T23:10:35.422 ?.13075    server_start:199: Failed to start server: operation not permitted: /var/folders/2p/mx8_ggfs0wl65416rrbdh6pm0000gn/T/nvim.hanguangjiang/FHITCT/nvim.13075.0
+WRN 2026-04-10T23:10:35.622 ?.13076    server_start:199: Failed to start server: operation not permitted: /var/folders/2p/mx8_ggfs0wl65416rrbdh6pm0000gn/T/nvim.hanguangjiang/nFy9xJ/nvim.13076.0
+WRN 2026-04-11T00:04:09.588 ?.21360    server_start:199: Failed to start server: operation not permitted: /var/folders/2p/mx8_ggfs0wl65416rrbdh6pm0000gn/T/nvim.hanguangjiang/V4wZu4/nvim.21360.0
+WRN 2026-04-11T00:04:10.662 ui.21359   tui_stop:654: TUI: timed out waiting for DA1 response
+WRN 2026-04-11T00:04:26.860 ?.21375    server_start:199: Failed to start server: operation not permitted: /var/folders/2p/mx8_ggfs0wl65416rrbdh6pm0000gn/T/nvim.hanguangjiang/n16Tcd/nvim.21375.0
+WRN 2026-04-11T00:05:03.794 ?.21488    server_start:199: Failed to start server: operation not permitted: /var/folders/2p/mx8_ggfs0wl65416rrbdh6pm0000gn/T/nvim.hanguangjiang/dOV3Lq/nvim.21488.0
+WRN 2026-04-11T00:05:04.876 ui.21486   tui_stop:654: TUI: timed out waiting for DA1 response
+WRN 2026-04-11T00:07:05.045 ?.21618    server_start:199: Failed to start server: operation not permitted: /var/folders/2p/mx8_ggfs0wl65416rrbdh6pm0000gn/T/nvim.hanguangjiang/KgQ4xH/nvim.21618.0

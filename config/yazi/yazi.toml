@@ -7,7 +7,7 @@ browser = [
   { run = "xdg-open %s", orphan = true, desc = "Open in browser", for = "linux" },
 ]
 edit = [
-  { run = "nvim %s", block = true, for = "unix" },
+  { run = 'nvim "$@"', block = true, for = "unix" },
 ]
 
 [[open.prepend_rules]]
