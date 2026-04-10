@@ -2,11 +2,43 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 local act = wezterm.action
 
+local function file_exists(path)
+  local f = io.open(path, "rb")
+  if f then
+    f:close()
+    return true
+  end
+  return false
+end
+
+local home = os.getenv("HOME") or ""
+local background_candidates = {
+  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.png",
+  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.jpg",
+  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.jpeg",
+  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.webp",
+  home .. "/Pictures/maplestory.png",
+  home .. "/Pictures/maplestory.jpg",
+  home .. "/Pictures/maplestory.jpeg",
+  home .. "/Pictures/MapleStory.png",
+  home .. "/Pictures/MapleStory.jpg",
+  home .. "/Pictures/MapleStory.jpeg",
+}
+
+local background_image
+for _, path in ipairs(background_candidates) do
+  if file_exists(path) then
+    background_image = path
+    break
+  end
+end
+
 -- Disable the default behavior that can translate mouse wheel events into
 -- UpArrow/DownArrow in alternate screen contexts. Without this, scrolling can
 -- show up in the shell as ^[[A/^[[B and trigger zsh history navigation instead
 -- of scrolling terminal content.
 config.alternate_buffer_wheel_scroll_speed = 0
+config.font_size = 15.0
 
 -- Built-in scheme: Tokyo Night Moon. It keeps the blue/cyan "tech" feel, but
 -- is softer than very deep black themes. The manual color overrides below lift
@@ -43,6 +75,35 @@ config.colors = {
     "#f4f8ff",
   },
 }
+
+config.window_background_opacity = 1.0
+config.text_background_opacity = 1.0
+
+if background_image then
+  config.background = {
+    {
+      source = {
+        File = background_image,
+      },
+      hsb = {
+        brightness = 0.08,
+      },
+      opacity = 1.0,
+      horizontal_align = "Center",
+      vertical_align = "Middle",
+      repeat_x = "NoRepeat",
+      repeat_y = "NoRepeat",
+    },
+    {
+      source = {
+        Color = "#15191f",
+      },
+      width = "100%",
+      height = "100%",
+      opacity = 0.82,
+    },
+  }
+end
 
 config.keys = {
   {
