@@ -7,23 +7,38 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
--- 设置窗口分隔符的颜色，使其更加明显
+local function apply_ui_highlights()
+  local transparent_groups = {
+    "Normal",
+    "NormalNC",
+    "NormalFloat",
+    "FloatBorder",
+    "SignColumn",
+    "EndOfBuffer",
+    "FoldColumn",
+    "LineNr",
+    "CursorLineNr",
+  }
+
+  for _, group in ipairs(transparent_groups) do
+    vim.api.nvim_set_hl(0, group, { bg = "NONE" })
+  end
+
+  -- 设置垂直分隔线的颜色为黄色
+  vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#ffaa00", bg = "NONE" })
+  -- 设置 winbar 的颜色 - 青色明亮
+  vim.api.nvim_set_hl(0, "WinBar", { fg = "#00ffff", bg = "#1a2a2a", bold = true })
+  -- 设置非当前窗口的 winbar 颜色 - 暗青色
+  vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#008888", bg = "#1a1a1a" })
+end
+
 vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "*",
-  callback = function()
-    -- 设置垂直分隔线的颜色为黄色
-    vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#ffaa00", bg = "NONE" })
-    -- 设置 winbar 的颜色 - 青色明亮
-    vim.api.nvim_set_hl(0, "WinBar", { fg = "#00ffff", bg = "#1a2a2a", bold = true })
-    -- 设置非当前窗口的 winbar 颜色 - 暗青色
-    vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#008888", bg = "#1a1a1a" })
-  end,
+  callback = apply_ui_highlights,
 })
 
 -- 立即应用当前配色方案的设置
-vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#ffaa00", bg = "NONE" })
-vim.api.nvim_set_hl(0, "WinBar", { fg = "#00ffff", bg = "#1a2a2a", bold = true })
-vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#008888", bg = "#1a1a1a" })
+apply_ui_highlights()
 
 local function is_git_terminal_buffer(buf)
   if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].buftype ~= "terminal" then
