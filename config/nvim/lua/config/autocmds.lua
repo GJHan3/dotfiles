@@ -33,6 +33,9 @@ local function apply_ui_highlights()
   vim.api.nvim_set_hl(0, "WinBar", { fg = "#00ffff", bg = "#1a2a2a", bold = true })
   -- 设置非当前窗口的 winbar 颜色 - 暗青色
   vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#008888", bg = "#1a1a1a" })
+  -- 设置可视模式选区为浅黄色
+  vim.api.nvim_set_hl(0, "Visual", { fg = "#1f2937", bg = "#fef3c7" })
+  vim.api.nvim_set_hl(0, "VisualNOS", { fg = "#1f2937", bg = "#fef3c7" })
 
   local git_signs = {
     GitSignsAdd = "#22c55e",
@@ -92,8 +95,14 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   callback = apply_ui_highlights,
 })
 
+vim.api.nvim_create_autocmd("User", {
+  pattern = { "VeryLazy", "TransparentClear" },
+  callback = apply_ui_highlights,
+})
+
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
+    apply_ui_highlights()
     force_english_input()
     last_insert_input = current_input() or english_input
   end,
