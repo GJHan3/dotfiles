@@ -93,6 +93,28 @@ vim.api.nvim_create_autocmd("InsertLeave", {
   end,
 })
 
+local external_file_change_group = vim.api.nvim_create_augroup("external_file_change", { clear = true })
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  group = external_file_change_group,
+  callback = function()
+    if vim.fn.mode():match("^[ciR]") then
+      return
+    end
+
+    vim.cmd("silent! checktime")
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  group = external_file_change_group,
+  callback = function(event)
+    local name = vim.api.nvim_buf_get_name(event.buf)
+    local label = name ~= "" and vim.fn.fnamemodify(name, ":~:.") or "buffer"
+    vim.notify("Reloaded external changes: " .. label, vim.log.levels.INFO)
+  end,
+})
+
 -- 立即应用当前配色方案的设置
 apply_ui_highlights()
 

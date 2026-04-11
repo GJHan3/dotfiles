@@ -45,5 +45,8 @@ vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.breakindent = true
 
+-- Automatically reload files changed outside Neovim when the buffer has no local edits.
+vim.opt.autoread = true
+
 -- Give leader mappings a bit more time so Space-based key sequences are less easy to miss.
 vim.opt.timeoutlen = 500
