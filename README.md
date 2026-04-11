@@ -37,7 +37,8 @@ to reinstall or refresh managed tools:
 `bootstrap.sh` can:
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,
-  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `lark-cli`, `cc-connect`
+  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `lark-cli`, `whiteboard-cli`,
+  `cc-connect`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
@@ -59,10 +60,10 @@ prints a `[WARN]` block so the missing command is obvious.
 
 Typical follow-up commands are `codex` or `codex login` for Codex CLI
 authentication, `lark-cli config init --new` and optional `lark-cli auth login`
-for Lark CLI setup, `cc-connect --help` to verify the installed command, and
-`proxy_on` if you want to enable the local proxy manually. Proxy is off by
-default. Bootstrap also runs `npx skills add larksuite/cli -g -y` for the
-Feishu/Lark CLI.
+for Lark CLI setup, `whiteboard-cli --help` to verify the whiteboard renderer,
+`cc-connect --help` to verify the installed command, and `proxy_on` if you want
+to enable the local proxy manually. Proxy is off by default. Bootstrap also
+runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
 
 After changing files under `config/nvim`, verify the config before committing:
 

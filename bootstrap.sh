@@ -450,6 +450,16 @@ install_lark_cli() {
   fi
 }
 
+install_lark_whiteboard_cli() {
+  if ! should_install_cmd whiteboard-cli; then
+    return
+  fi
+
+  if ! install_npm_global_package "@larksuite/whiteboard-cli@latest" "Lark Whiteboard CLI"; then
+    echo "Continuing without Lark Whiteboard CLI." >&2
+  fi
+}
+
 install_cc_connect() {
   if ! should_install_cmd cc-connect; then
     return
@@ -782,6 +792,18 @@ print_post_install_notes() {
       "npm i -g @larksuite/cli"
   fi
 
+  if need_cmd whiteboard-cli; then
+    print_status_header NEXT "Lark Whiteboard CLI"
+    print_command_hint "Run:" "whiteboard-cli --help"
+    printf "  Use it with lark-cli when you need Feishu/Lark whiteboard rendering.\n"
+  else
+    print_missing_command_warning \
+      "Lark Whiteboard CLI" \
+      "whiteboard-cli" \
+      "bootstrap.sh could not install it automatically, so lark-cli whiteboard rendering workflows are not ready on this machine." \
+      "npm i -g @larksuite/whiteboard-cli@latest"
+  fi
+
   if need_cmd cc-connect; then
     print_status_header NEXT "cc-connect"
     print_command_hint "Run:" "cc-connect --help"
@@ -856,6 +878,7 @@ main() {
   install_codex_cli
   install_opencode_cli
   install_lark_cli
+  install_lark_whiteboard_cli
   install_cc_connect
   if need_cmd lark-cli; then
     install_lark_skills
