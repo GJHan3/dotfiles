@@ -145,11 +145,15 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 ### Git
 
+- Git 管理的文件会在左侧 sign column 显示行级变更：新增为绿色竖线，修改为蓝色竖线，删除为红色横线类标记，未跟踪为黄色虚线；状态栏会显示当前文件增删改数量
 - `<leader>gg`: 打开 LazyGit
 - `<leader>gG`: 打开当前文件的 LazyGit 视图
 - `<leader>gl`: 在终端里查看最近 `git log`
 - `<leader>gr`: 在终端里查看最近 `git reflog`
 - `<leader>gd`: 调用 `gitsigns` 做 diff 对比
+- `]h` / `[h`: 跳到下一个 / 上一个 Git 变更块
+- `<leader>gp`: 预览当前 Git 变更块
+- `<leader>gb`: 切换当前行 Git blame 信息
 - `<leader>gq`: 关闭 diff，并清理相关历史窗口
 - `LazyGit` / `git log` / `git reflog` 退出后会自动关闭对应终端窗口，不需要再补一次 `q`
 

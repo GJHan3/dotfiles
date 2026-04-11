@@ -33,6 +33,25 @@ local function apply_ui_highlights()
   vim.api.nvim_set_hl(0, "WinBar", { fg = "#00ffff", bg = "#1a2a2a", bold = true })
   -- 设置非当前窗口的 winbar 颜色 - 暗青色
   vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#008888", bg = "#1a1a1a" })
+
+  local git_signs = {
+    GitSignsAdd = "#22c55e",
+    GitSignsChange = "#60a5fa",
+    GitSignsDelete = "#ef4444",
+    GitSignsChangedelete = "#f97316",
+    GitSignsTopdelete = "#ef4444",
+    GitSignsUntracked = "#f59e0b",
+    GitSignsStagedAdd = "#16a34a",
+    GitSignsStagedChange = "#3b82f6",
+    GitSignsStagedDelete = "#dc2626",
+    GitSignsStagedChangedelete = "#ea580c",
+    GitSignsStagedTopdelete = "#dc2626",
+    GitSignsStagedUntracked = "#d97706",
+  }
+
+  for group, fg in pairs(git_signs) do
+    vim.api.nvim_set_hl(0, group, { fg = fg, bg = "NONE" })
+  end
 end
 
 local function force_english_input()

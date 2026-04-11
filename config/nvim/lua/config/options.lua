@@ -39,6 +39,7 @@ vim.opt.fillchars = {
 -- 使用绝对行号而不是相对行号
 vim.opt.relativenumber = false
 vim.opt.number = true
+vim.opt.signcolumn = "yes"
 
 -- 长行默认按窗口宽度软换行，避免水平滚动阅读。
 vim.opt.wrap = true
