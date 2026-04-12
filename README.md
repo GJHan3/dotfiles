@@ -101,6 +101,8 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
 ## Tool notes
 
+- [docs/machine-specific.md](docs/machine-specific.md): machine-specific
+  zsh configuration (local aliases, paths, per-machine overrides)
 - [docs/yazi.md](docs/yazi.md): `yazi` launcher and
   common file-manager shortcuts
 - [docs/shortcuts.md](docs/shortcuts.md): shortcut
