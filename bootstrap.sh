@@ -460,16 +460,6 @@ install_lark_whiteboard_cli() {
   fi
 }
 
-install_cc_connect() {
-  if ! should_install_cmd cc-connect; then
-    return
-  fi
-
-  if ! install_npm_global_package "cc-connect" "cc-connect"; then
-    echo "Continuing without cc-connect." >&2
-  fi
-}
-
 ensure_codex_xauthority_bridge() {
   mkdir -p "${HOME}/.codex-home"
   ln -sfn "${HOME}/.Xauthority" "${HOME}/.codex-home/.Xauthority"
@@ -804,25 +794,6 @@ print_post_install_notes() {
       "npm i -g @larksuite/whiteboard-cli@latest"
   fi
 
-  if need_cmd cc-connect; then
-    print_status_header NEXT "cc-connect"
-    print_command_hint "Run:" "cc-connect --help"
-    printf "  Verify the command and review available setup options.\n"
-  else
-    print_missing_command_warning \
-      "cc-connect" \
-      "cc-connect" \
-      "bootstrap.sh could not install it automatically, so the Claude Code connection helper is not ready on this machine." \
-      "npm i -g cc-connect"
-  fi
-
-  if ! need_cmd claude; then
-    print_status_header WARN "ClaudeCode dependency missing"
-    printf "  Command not found: claude\n"
-    printf '  Your Neovim ClaudeCode plugin expects the `claude` command, so install it\n'
-    printf "  manually on machines where you want that workflow.\n"
-  fi
-
   if need_cmd sshfs; then
     print_status_header INFO "SSHFS for Yazi is ready"
     printf "  On macOS, if mounts are blocked, check:\n"
@@ -879,7 +850,6 @@ main() {
   install_opencode_cli
   install_lark_cli
   install_lark_whiteboard_cli
-  install_cc_connect
   if need_cmd lark-cli; then
     install_lark_skills
   fi

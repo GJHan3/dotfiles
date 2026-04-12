@@ -210,15 +210,6 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 预览窗口内 `q` 或 `<Esc>`: 关闭预览
 - `gitsigns` 打开的历史窗口里按 `q` 或 `<Esc>`: 关闭历史窗口
 
-### Claude Code
-
-- `<leader>ac`: 打开或关闭 Claude Code 终端
-- `<leader>af`: 聚焦到 Claude Code 终端
-- Visual 模式下 `<leader>as`: 发送选区到 Claude
-- `<leader>aa`: 把当前文件加入 Claude 上下文
-- `<leader>aD`: 接受 Claude 生成的 diff
-- `<leader>ad`: 拒绝 Claude 生成的 diff
-
 ### 终端
 
 - 终端插入模式下 `<Esc>`: 退回终端普通模式

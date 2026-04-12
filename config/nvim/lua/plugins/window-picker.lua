@@ -25,7 +25,7 @@ return {
               "snacks_picker_preview",
               "snacks_layout_box",
             },
-            buftype = { "quickfix" }, -- 移除 terminal，允许选择 Claude 终端
+            buftype = { "quickfix" },
           },
         },
         -- 高亮配置
