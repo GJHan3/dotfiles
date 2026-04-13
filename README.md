@@ -103,6 +103,8 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
 - [docs/machine-specific.md](docs/machine-specific.md): machine-specific
   zsh configuration (local aliases, paths, per-machine overrides)
+- [config/nvim/README.md](config/nvim/README.md): Neovim config layout and
+  maintenance rules
 - [docs/yazi.md](docs/yazi.md): `yazi` launcher and
   common file-manager shortcuts
 - [docs/shortcuts.md](docs/shortcuts.md): shortcut

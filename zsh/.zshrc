@@ -5,9 +5,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# vim别名
-alias vim="nvim"
-
+# Core environment.
 if [[ -f "$HOME/.config/zsh/path.zsh" ]]; then
   source "$HOME/.config/zsh/path.zsh"
 fi
@@ -16,6 +14,9 @@ if [[ -f "$HOME/.zsh.secrets" ]]; then
   source "$HOME/.zsh.secrets"
 fi
 
+alias vim="nvim"
+
+# Platform detection.
 case "$(uname -s)" in
   Darwin)
     export DOTFILES_OS="macos"
@@ -30,6 +31,7 @@ esac
 
 autoload -Uz add-zsh-hook
 
+# Startup repairs.
 _dotfiles_real_home() {
   emulate -L zsh
 
@@ -98,13 +100,15 @@ ssh() {
   return $ssh_status
 }
 
+# Shell framework and prompt.
 export ZSH="${HOME}/.oh-my-zsh"
-ZSH_THEME=""
+ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(
   git
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
 if [[ -r "${ZSH}/oh-my-zsh.sh" ]]; then
   source "${ZSH}/oh-my-zsh.sh"
@@ -114,6 +118,7 @@ if [[ -r "$HOME/.p10k.zsh" ]]; then
   source "$HOME/.p10k.zsh"
 fi
 
+# Network toggles.
 proxy_on() {
   export https_proxy=http://127.0.0.1:7897
   export http_proxy=http://127.0.0.1:7897
@@ -130,6 +135,7 @@ proxy_off() {
   echo "proxy off"
 }
 
+# SSH helpers.
 sshid() {
   emulate -L zsh
 
@@ -225,6 +231,7 @@ sshid() {
   echo "Added $alias_name to $config_file"
 }
 
+# Interactive tool wrappers.
 y() {
   emulate -L zsh
 
@@ -276,6 +283,7 @@ hs() {
   print -z -- "$command"
 }
 
+# SSH and SSHFS helpers.
 typeset -g SSHFS_MOUNT_ROOT="$HOME/sshmnt"
 typeset -g SSHFS_MOUNT_OPTIONS="defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user"
 
@@ -610,6 +618,7 @@ sshexec() {
   ssh "$host" "$@"
 }
 
+# X11 helpers.
 _ssh_x11_locally_available() {
   emulate -L zsh
 
@@ -704,6 +713,7 @@ sshx11() {
   ssh -tt "$host" "sh $remote_tmp_quoted; exit_code=\$?; rm -f $remote_tmp_quoted; exit \$exit_code"
 }
 
+# Tmux helpers.
 tn() {
   emulate -L zsh
 
@@ -808,26 +818,7 @@ tk() {
   fi
 }
 
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git)
-
-POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
-
-if [[ -d "$ZSH" ]]; then
-  source "$ZSH/oh-my-zsh.sh"
-fi
-
-if [[ -f "$HOME/.p10k.zsh" ]]; then
-  source "$HOME/.p10k.zsh"
-fi
-
-if [[ -d "$HOME/.config/zsh/local" ]]; then
-  for local_rc in "$HOME/.config/zsh/local"/*.zsh(N); do
-    source "$local_rc"
-  done
-fi
-
+# Terminal integrations.
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 xqallow() {
@@ -838,5 +829,9 @@ if [[ "$DOTFILES_OS" == "macos" && -z "$SSH_CONNECTION" ]]; then
   export DISPLAY=:0
 fi
 
-# To customize prompt, run `p10k configure` or edit ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh.
-[[ ! -f ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh ]] || source ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh
+# Local overrides.
+if [[ -d "$HOME/.config/zsh/local" ]]; then
+  for local_rc in "$HOME/.config/zsh/local"/*.zsh(N); do
+    source "$local_rc"
+  done
+fi

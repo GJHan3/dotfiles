@@ -29,8 +29,13 @@ macOS 与 Ubuntu/Debian，新增配置或脚本时不要只针对单一平台编
 除非脚本明确依赖 Bash 或 Zsh 特性，否则优先保持 Shell 写法兼容、清晰、可重复执行。脚本应延续现有
 防御式风格，例如 `set -euo pipefail`。涉及系统命令时，优先沿用仓库中已有的 macOS 与
 Ubuntu/Debian 分支判断，不要假设 Homebrew、apt、字体路径或二进制位置完全一致。
+`.zshrc` 的启动顺序维护在 `docs/machine-specific.md#zsh-startup-order`；修改时保持单线性加载流程，
+不要重复初始化 Oh My Zsh 或 Powerlevel10k，机器专属覆盖仍放在 `~/.config/zsh/local/*.zsh`。
 Neovim Lua 配置遵循 `config/nvim/stylua.toml`：2 空格缩进，120 列宽。
 插件文件名应与功能对应，例如 `lua/plugins/lualine.lua`、`lua/plugins/lazygit.lua`。
+Neovim 结构规则见 `config/nvim/README.md`：`lua/config/autocmds.lua` 只做索引，具体 autocmd
+放入 `lua/config/autocmds/` 的职责模块；事件创建的 buffer-local keymap 跟随对应 autocmd 模块；
+插件 spec 保持轻量，复杂组件或表格抽到 `lua/utils/`，避免在 `lua/config/` 与 `lua/plugins/` 重复定义同一行为。
 
 `bootstrap.sh` 的收尾提示属于实际工作流的一部分：对用户有后续动作要求的输出，
 应保留统一的状态前缀（如 `[NEXT]`、`[WARN]`、`[INFO]`、`[DONE]`），并对命令本身做 ANSI 高亮；

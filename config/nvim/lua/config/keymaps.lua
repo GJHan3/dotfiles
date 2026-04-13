@@ -84,19 +84,4 @@ vim.keymap.set("n", "<leader>wl", "<cmd>resize -5<cr>", { desc = "Decrease windo
 vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Balance window sizes" })
 vim.keymap.set("n", "<leader>wm", "<C-w>|<C-w>_", { desc = "Maximize current window" })
 
--- 终端模式配置
--- 使用 ESC 退出终端模式到普通模式
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
--- 在终端普通模式下按 q 关闭终端窗口
-vim.api.nvim_create_autocmd("TermOpen", {
-  pattern = "*",
-  callback = function()
-    local opts = { buffer = 0 }
-    -- 在终端的普通模式下，按 q 关闭窗口
-    vim.keymap.set("n", "q", "<cmd>close<cr>", vim.tbl_extend("force", opts, { desc = "Close terminal window" }))
-    -- 按 i 或 a 重新进入插入模式
-    vim.keymap.set("n", "i", "i", vim.tbl_extend("force", opts, { desc = "Enter insert mode" }))
-    vim.keymap.set("n", "a", "a", vim.tbl_extend("force", opts, { desc = "Enter insert mode" }))
-  end,
-})

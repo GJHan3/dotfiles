@@ -17,6 +17,23 @@ fi
 
 `install.sh` creates this directory during setup. The directory itself is not tracked by git.
 
+## Zsh startup order
+
+Keep `zsh/.zshrc` organized as a single, linear startup flow:
+
+1. Powerlevel10k instant prompt stays at the top.
+2. Core environment loads next: `~/.config/zsh/path.zsh`, then `~/.zsh.secrets`, then shared aliases.
+3. Platform detection sets `DOTFILES_OS` to `macos`, `linux`, or `unknown`.
+4. Startup repairs run before the shell framework: X11 `XAUTHORITY` fixup, macOS input-method reset, and terminal mouse-mode reset hooks.
+5. Oh My Zsh and Powerlevel10k are initialized exactly once. Shared plugins are declared in this block.
+6. Shared helper functions follow, grouped by purpose: proxy toggles, SSH, interactive wrappers, SSHFS, X11, and tmux.
+7. Terminal integrations run near the end, including iTerm2 shell integration and macOS `DISPLAY=:0` setup.
+8. `~/.config/zsh/local/*.zsh` files load last, so machine-specific aliases, environment variables, proxy settings, and PATH additions can override shared defaults.
+
+When editing `zsh/.zshrc`, do not add a second Oh My Zsh or Powerlevel10k initialization block.
+If a setting should only apply to one machine, put it under `~/.config/zsh/local/*.zsh`
+instead of the shared repo file.
+
 ## Adding config for the current machine
 
 ```sh
