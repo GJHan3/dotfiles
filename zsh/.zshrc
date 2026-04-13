@@ -840,3 +840,12 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh.
 [[ ! -f ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh ]] || source ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh
+
+# EPT Claude Code wrapper.
+# Keep EPT first so programs launched from zsh, including cc-connect, resolve
+# `claude` to ~/.ept/bin/claude instead of any npm-global Claude install.
+export PATH="$HOME/.ept/bin:$PATH" # EPT_PATH_MARK
+
+# Use the EPT-managed Claude wrapper directly. CLAUDE_PATH can force EPT/Claude
+# tooling back to ~/.npm-global/bin/claude, which is not desired for cc-connect.
+unset CLAUDE_PATH
