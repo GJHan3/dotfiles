@@ -93,9 +93,9 @@ ssh() {
   emulate -L zsh
 
   command ssh "$@"
-  local status=$?
+  local ssh_status=$?
   _dotfiles_reset_terminal_input_modes
-  return $status
+  return $ssh_status
 }
 
 export ZSH="${HOME}/.oh-my-zsh"
@@ -701,7 +701,7 @@ sshx11() {
     return 1
   fi
 
-  ssh -tt "$host" "sh $remote_tmp_quoted; status=\$?; rm -f $remote_tmp_quoted; exit \$status"
+  ssh -tt "$host" "sh $remote_tmp_quoted; exit_code=\$?; rm -f $remote_tmp_quoted; exit \$exit_code"
 }
 
 tn() {
