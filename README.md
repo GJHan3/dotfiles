@@ -36,6 +36,16 @@ to reinstall or refresh managed tools:
 ~/dotfiles/bootstrap.sh --force
 ```
 
+To refresh managed tools without relinking dotfiles or touching user config
+steps, run:
+
+```sh
+~/dotfiles/bootstrap.sh --update
+```
+
+This update mode reuses the normal tool install flow with refresh behavior, then
+exits before `install.sh` can replace any existing `~/.config` data.
+
 `bootstrap.sh` can:
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,

@@ -10,6 +10,7 @@ ZSH_AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM_DIR}/plugins/zsh-autosuggestions"
 ZSH_SYNTAX_HIGHLIGHTING_DIR="${ZSH_CUSTOM_DIR}/plugins/zsh-syntax-highlighting"
 INTERACTIVE=0
 FORCE_INSTALL=0
+UPDATE_ONLY=0
 NPM_REGISTRY="https://registry.npmmirror.com"
 NPM_FALLBACK_REGISTRY="https://registry.npmjs.org"
 NODESOURCE_NODE_MAJOR="22"
@@ -205,10 +206,11 @@ need_macos_pkg() {
 
 usage() {
   cat <<'EOF'
-Usage: ./bootstrap.sh [--force]
+Usage: ./bootstrap.sh [--force] [--update]
 
 Options:
   --force     Reinstall or update managed tools even if they already exist.
+  --update    Update managed tools only; skip dotfile relinking and user config steps.
   -h, --help  Show this help message.
 EOF
 }
@@ -217,6 +219,10 @@ parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --force)
+        FORCE_INSTALL=1
+        ;;
+      --update)
+        UPDATE_ONLY=1
         FORCE_INSTALL=1
         ;;
       -h|--help)
@@ -1050,6 +1056,11 @@ main() {
   ensure_npm_user_prefix
   os="$(detect_os)"
 
+  if [[ $UPDATE_ONLY -eq 1 ]]; then
+    print_status_header INFO "Updating managed tools only."
+    printf "  Dotfile relinking, Git identity setup, and default shell changes will be skipped.\n"
+  fi
+
   case "$os" in
     macos)
       install_packages_macos
@@ -1089,14 +1100,21 @@ main() {
     install_lark_skills
   fi
 
-  ensure_codex_xauthority_bridge
-  "${DOTFILES_DIR}/install.sh"
-  configure_git_identity
-  set_default_shell_to_zsh
+  if [[ $UPDATE_ONLY -eq 0 ]]; then
+    ensure_codex_xauthority_bridge
+    "${DOTFILES_DIR}/install.sh"
+    configure_git_identity
+    set_default_shell_to_zsh
+  fi
+
   print_post_install_notes
 
-  print_status_header DONE "Bootstrap complete."
-  print_status_header NEXT "Restart your terminal before using the updated shell environment."
+  if [[ $UPDATE_ONLY -eq 1 ]]; then
+    print_status_header DONE "Managed tools update complete."
+  else
+    print_status_header DONE "Bootstrap complete."
+    print_status_header NEXT "Restart your terminal before using the updated shell environment."
+  fi
 }
 
 main "$@"
