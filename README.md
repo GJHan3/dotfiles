@@ -80,6 +80,8 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
   interactive `zsh`. It auto-detects Homebrew/Linuxbrew and adds common
   user-level tool bins such as `~/.local/bin`, npm global bin, `pnpm`, `cargo`,
   `go`, and `bun`.
+- `~/.config/zsh/ept.zsh` is the shared EPT/Claude wrapper policy. It keeps
+  `~/.ept/bin` ahead of npm-global Claude installs and clears `CLAUDE_PATH`.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
@@ -118,6 +120,8 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - `~/.zprofile`
 - `~/.p10k.zsh`
 - `~/.wezterm.lua`
+- `~/.config/zsh/path.zsh`
+- `~/.config/zsh/ept.zsh`
 - `~/.tmux.conf`
 - `~/.config/tmux`
 - `~/.config/git`

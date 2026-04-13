@@ -22,7 +22,7 @@ fi
 Keep `zsh/.zshrc` organized as a single, linear startup flow:
 
 1. Powerlevel10k instant prompt stays at the top.
-2. Core environment loads next: `~/.config/zsh/path.zsh`, then `~/.zsh.secrets`, then shared aliases.
+2. Core environment loads next: `~/.config/zsh/path.zsh`, `~/.config/zsh/ept.zsh`, then `~/.zsh.secrets`, then shared aliases.
 3. Platform detection sets `DOTFILES_OS` to `macos`, `linux`, or `unknown`.
 4. Startup repairs run before the shell framework: X11 `XAUTHORITY` fixup, macOS input-method reset, and terminal mouse-mode reset hooks.
 5. Oh My Zsh and Powerlevel10k are initialized exactly once. Shared plugins are declared in this block.
@@ -49,10 +49,9 @@ Example contents:
 ```zsh
 # ~/.config/zsh/local/LX-MBA.zsh
 
-export PATH="/Users/hanguangjiang/.ept/bin:$PATH"
-alias claude="ept claude"
-alias codex="ept codex"
-alias opencode="ept opencode"
+export WORKSPACE="$HOME/work"
+alias work="cd $WORKSPACE"
+alias logs="cd $WORKSPACE/logs"
 ```
 
 Reload without restarting the shell:
@@ -67,6 +66,6 @@ source ~/.zshrc
   All `*.zsh` files in the directory are sourced in glob order.
 - For **private credentials** (API keys, tokens) use `~/.zsh.secrets` instead — same
   mechanism, dedicated file. See `.zsh.secrets.example` in the repo for a template.
-- The common/shared zsh config lives in `dotfiles/zsh/.zshrc` (symlinked to `~/.zshrc`)
-  and `dotfiles/config/zsh/path.zsh` (PATH management). Edit those for changes that
-  should apply to every machine.
+- The common/shared zsh config lives in `dotfiles/zsh/.zshrc` (symlinked to `~/.zshrc`),
+  `dotfiles/config/zsh/path.zsh` (PATH management), and `dotfiles/config/zsh/ept.zsh`
+  (EPT/Claude wrapper policy). Edit those for changes that should apply to every machine.

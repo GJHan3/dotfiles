@@ -30,7 +30,8 @@ macOS 与 Ubuntu/Debian，新增配置或脚本时不要只针对单一平台编
 防御式风格，例如 `set -euo pipefail`。涉及系统命令时，优先沿用仓库中已有的 macOS 与
 Ubuntu/Debian 分支判断，不要假设 Homebrew、apt、字体路径或二进制位置完全一致。
 `.zshrc` 的启动顺序维护在 `docs/machine-specific.md#zsh-startup-order`；修改时保持单线性加载流程，
-不要重复初始化 Oh My Zsh 或 Powerlevel10k，机器专属覆盖仍放在 `~/.config/zsh/local/*.zsh`。
+不要重复初始化 Oh My Zsh 或 Powerlevel10k；共享 PATH 逻辑放在 `config/zsh/path.zsh`，
+共享 EPT/Claude wrapper 逻辑放在 `config/zsh/ept.zsh`，机器专属覆盖仍放在 `~/.config/zsh/local/*.zsh`。
 Neovim Lua 配置遵循 `config/nvim/stylua.toml`：2 空格缩进，120 列宽。
 插件文件名应与功能对应，例如 `lua/plugins/lualine.lua`、`lua/plugins/lazygit.lua`。
 Neovim 结构规则见 `config/nvim/README.md`：`lua/config/autocmds.lua` 只做索引，具体 autocmd

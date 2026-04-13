@@ -15,6 +15,7 @@ ln -sfn "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
 ln -sfn "$DOTFILES_DIR/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
 ln -sfn "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
 ln -sfn "$DOTFILES_DIR/config/zsh/path.zsh" "$HOME/.config/zsh/path.zsh"
+ln -sfn "$DOTFILES_DIR/config/zsh/ept.zsh" "$HOME/.config/zsh/ept.zsh"
 ln -sfn "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 ln -sfn "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
 if [[ -e "$HOME/.config/git" && ! -L "$HOME/.config/git" ]]; then
