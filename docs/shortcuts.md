@@ -233,8 +233,9 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - 状态栏保留少量科技风图标，并通过 [tmux/status-cpu.sh](../tmux/status-cpu.sh)
   和 [tmux/status-memory.sh](../tmux/status-memory.sh) 显示系统名、CPU 占用、内存用量、日期和时间
 - 主状态栏左侧显示 `🚀 <session>` 和 `🔥 pane <pane编号> <当前命令>`，窗口信息留给窗口列表本身展示
-- 当前窗口格式为绿色背景的 `🎯 #I:#W`，非当前窗口为浅紫背景的 `#I:#W`
+- 当前窗口格式为更亮的浅紫背景 `🎯 #I:#W`，非当前窗口为淡紫背景 `#I:#W`
 - `set -g set-clipboard on`: 启用 OSC 52 剪贴板支持
+- 鼠标点击窗口标签会切换窗口；点击左侧 session 名会打开放大的 session / window 树选择器
 - `prefix + S`: 打开放大的 session / window 树选择器
 - `prefix + C-s`: 用 `fzf` 选择 session
 - `prefix + L`: 切回上一个 session
