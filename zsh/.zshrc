@@ -839,3 +839,6 @@ if [[ -d "$HOME/.config/zsh/local" ]]; then
     source "$local_rc"
   done
 fi
+
+# To customize prompt, run `p10k configure` or edit ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh.
+[[ ! -f ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh ]] || source ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh
