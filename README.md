@@ -10,6 +10,8 @@ This repository stores personal shell and editor configuration for this machine.
 - `config/nvim/`: Neovim config
 - `config/wezterm/wezterm.lua`: WezTerm config
 - `config/yazi/`: Yazi file manager config
+- `bin/claude`: Claude Code wrapper that sends version checks to native Claude
+  and normal sessions through EPT
 - `bootstrap.sh`: install dependencies and shell tooling on a new machine
 - `install.sh`: relink managed files into `$HOME` and `~/.config`
 
@@ -82,6 +84,9 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
   `go`, and `bun`.
 - `~/.config/zsh/ept.zsh` is the shared EPT/Claude wrapper policy. It keeps
   `~/.ept/bin` ahead of npm-global Claude installs and clears `CLAUDE_PATH`.
+- `~/bin/claude` is linked from `bin/claude`. It routes `--version`/`-v` directly
+  to native Claude Code and routes normal sessions through `~/.ept/bin/ept`.
+  Set `CLAUDE_NATIVE_PATH` on machines where Claude lives in a different path.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
@@ -105,6 +110,8 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
 - [docs/machine-specific.md](docs/machine-specific.md): machine-specific
   zsh configuration (local aliases, paths, per-machine overrides)
+- [docs/claude-ept-cc-connect.md](docs/claude-ept-cc-connect.md): notes on
+  safe Claude/EPT wrappers for `cc-connect` and npm cache recursion recovery
 - [config/nvim/README.md](config/nvim/README.md): Neovim config layout and
   maintenance rules
 - [docs/yazi.md](docs/yazi.md): `yazi` launcher and
@@ -122,6 +129,7 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - `~/.wezterm.lua`
 - `~/.config/zsh/path.zsh`
 - `~/.config/zsh/ept.zsh`
+- `~/bin/claude`
 - `~/.tmux.conf`
 - `~/.config/tmux`
 - `~/.config/git`

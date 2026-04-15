@@ -7,6 +7,7 @@ DOTFILES_DIR="${0:A:h}"
 mkdir -p "$HOME/.config"
 mkdir -p "$HOME/.config/zsh/local"
 mkdir -p "$HOME/.codex-home"
+mkdir -p "$HOME/bin"
 
 ln -sfn "$HOME/.Xauthority" "$HOME/.codex-home/.Xauthority"
 
@@ -16,6 +17,7 @@ ln -sfn "$DOTFILES_DIR/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
 ln -sfn "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
 ln -sfn "$DOTFILES_DIR/config/zsh/path.zsh" "$HOME/.config/zsh/path.zsh"
 ln -sfn "$DOTFILES_DIR/config/zsh/ept.zsh" "$HOME/.config/zsh/ept.zsh"
+ln -sfn "$DOTFILES_DIR/bin/claude" "$HOME/bin/claude"
 ln -sfn "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 ln -sfn "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
 if [[ -e "$HOME/.config/git" && ! -L "$HOME/.config/git" ]]; then

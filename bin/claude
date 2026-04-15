@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+find_native_claude() {
+  local candidate
+
+  if [[ -n "${CLAUDE_NATIVE_PATH:-}" && -x "$CLAUDE_NATIVE_PATH" ]]; then
+    printf '%s\n' "$CLAUDE_NATIVE_PATH"
+    return 0
+  fi
+
+  local candidates=(
+    "$HOME/.local/share/fnm/node-versions/v20.20.1/installation/bin/claude"
+    "$HOME/.local/share/fnm/node-versions/v18.20.8/installation/bin/claude"
+    "$HOME/.npm-global/bin/claude"
+  )
+
+  for candidate in "${candidates[@]}"; do
+    if [[ -x "$candidate" && ! "$candidate" -ef "$0" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+claude_path="$(find_native_claude)" || {
+  echo "claude executable not found; install @anthropic-ai/claude-code first" >&2
+  echo "or set CLAUDE_NATIVE_PATH to the native Claude Code executable" >&2
+  exit 127
+}
+
+if [[ "${1:-}" == "--version" || "${1:-}" == "-v" ]]; then
+  exec "$claude_path" "$@"
+fi
+
+if [[ ! -x "$HOME/.ept/bin/ept" ]]; then
+  echo "ept executable not found at $HOME/.ept/bin/ept" >&2
+  exit 127
+fi
+
+export CLAUDE_PATH="$claude_path"
+export PATH="$(dirname "$claude_path"):$PATH"
+exec "$HOME/.ept/bin/ept" claude "$@"
