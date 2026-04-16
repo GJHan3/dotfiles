@@ -39,8 +39,8 @@ to reinstall or refresh managed tools:
 `bootstrap.sh` can:
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,
-  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `opencode`, `lark-cli`, and
-  `whiteboard-cli`
+  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `opencode`, `cc-connect`,
+  `lark-cli`, and `whiteboard-cli`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place

@@ -536,6 +536,30 @@ install_opencode_cli() {
   install_or_repair_npm_cli opencode "opencode-ai" "OpenCode CLI" --version
 }
 
+install_cc_connect_cli() {
+  if [[ $FORCE_INSTALL -eq 0 ]] && command_runs cc-connect --help; then
+    return
+  fi
+
+  if need_cmd cc-connect; then
+    print_warning \
+      "cc-connect needs reinstall" \
+      "The command exists but failed its health check, so bootstrap will reinstall cc-connect under ~/.npm-global."
+  fi
+
+  if install_npm_global_package "cc-connect@latest" "cc-connect" cc-connect --help; then
+    return
+  fi
+
+  print_warning \
+    "cc-connect fallback" \
+    "The cc-connect package did not pass its health check, so bootstrap will try @chenhg5/cc-connect@latest."
+
+  if ! install_npm_global_package "@chenhg5/cc-connect@latest" "cc-connect" cc-connect --help; then
+    echo "Continuing without cc-connect." >&2
+  fi
+}
+
 install_lark_cli() {
   install_or_repair_npm_cli lark-cli "@larksuite/cli" "Lark CLI" --version
 }
@@ -862,6 +886,18 @@ print_post_install_notes() {
       "npm i -g opencode-ai"
   fi
 
+  if command_runs cc-connect --help; then
+    print_status_header NEXT "cc-connect"
+    print_command_hint "Run:" "cc-connect --help"
+    printf "  Configure projects and chat integrations before starting the relay.\n"
+  else
+    print_missing_command_warning \
+      "cc-connect" \
+      "cc-connect" \
+      "bootstrap.sh could not install it automatically, so chat relay workflows are not available yet." \
+      "npm i -g cc-connect@latest"
+  fi
+
   if command_runs lark-cli --version; then
     print_status_header NEXT "Lark CLI"
     print_command_hint "Run:" "lark-cli config init --new"
@@ -944,6 +980,7 @@ main() {
 
   install_codex_cli
   install_opencode_cli
+  install_cc_connect_cli
   install_lark_cli
   install_lark_whiteboard_cli
   if command_runs lark-cli --version; then
