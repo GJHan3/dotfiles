@@ -39,8 +39,8 @@ to reinstall or refresh managed tools:
 `bootstrap.sh` can:
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,
-  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `lark-cli`, `whiteboard-cli`,
-  `cc-connect`
+  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `opencode`, `lark-cli`, and
+  `whiteboard-cli`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
@@ -92,9 +92,13 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
 - On Ubuntu/Debian, `bootstrap.sh` configures NodeSource Node.js 22.x and
   installs `nodejs` from that source, which already provides `npm`. Do not run
-  `apt install npm` separately.
+  `apt install npm` separately. If NodeSource setup fails, bootstrap warns and
+  falls back to the distro `nodejs` package for the rest of the run.
 - npm-based CLI installs in `bootstrap.sh` try `https://registry.npmmirror.com`
-  first and fall back to `https://registry.npmjs.org` if the mirror fails.
+  first and fall back to `https://registry.npmjs.org` if the mirror fails or if
+  a command health check such as `codex --version` fails after installation.
+  Global npm packages are installed under `~/.npm-global` to avoid sudo-owned
+  `/usr/local` installs and missing optional native dependency problems.
 - On macOS, `bootstrap.sh` installs `macFUSE`; the first use may still require
   approval in `System Settings -> Privacy & Security`.
 - On macOS, if you want remote X11 forwarding such as `ssh -Y`, `sshx11`, or

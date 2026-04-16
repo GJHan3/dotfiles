@@ -13,6 +13,7 @@ FORCE_INSTALL=0
 NPM_REGISTRY="https://registry.npmmirror.com"
 NPM_FALLBACK_REGISTRY="https://registry.npmjs.org"
 NODESOURCE_NODE_MAJOR="22"
+MIN_NODE_MAJOR="20"
 NODESOURCE_KEYRING="/usr/share/keyrings/nodesource.gpg"
 NODESOURCE_SOURCE_FILE="/etc/apt/sources.list.d/nodesource.sources"
 MACFUSE_CASK="macfuse"
@@ -79,6 +80,14 @@ print_missing_command_warning() {
   fi
 }
 
+print_warning() {
+  local title=$1
+  local detail=$2
+
+  print_status_header WARN "$title"
+  printf "  %s\n" "$detail"
+}
+
 need_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
@@ -94,6 +103,30 @@ prepend_path_if_dir() {
     *":${dir}:"*) ;;
     *) PATH="${dir}:${PATH}" ;;
   esac
+}
+
+ensure_npm_user_prefix() {
+  local npm_prefix
+
+  if ! need_cmd npm; then
+    return
+  fi
+
+  mkdir -p "${HOME}/.npm-global"
+  export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
+  npm_prefix="$(npm config get prefix 2>/dev/null || true)"
+  if [[ -z "$npm_prefix" ]] || [[ "$npm_prefix" == "undefined" ]]; then
+    npm_prefix=""
+  fi
+
+  case "$npm_prefix" in
+    "${HOME}/.npm-global") ;;
+    *)
+      npm config set prefix "${HOME}/.npm-global" 2>/dev/null || true
+      ;;
+  esac
+
+  prepend_path_if_dir "${HOME}/.npm-global/bin"
 }
 
 refresh_command_paths() {
@@ -220,7 +253,7 @@ install_nodesource_ubuntu() {
   source_url="https://deb.nodesource.com/node_${NODESOURCE_NODE_MAJOR}.x"
 
   sudo apt-get update
-  sudo apt-get install -y ca-certificates gnupg
+  sudo apt-get install -y ca-certificates curl gnupg
   sudo mkdir -p "$(dirname "$NODESOURCE_KEYRING")" "$(dirname "$NODESOURCE_SOURCE_FILE")"
   curl -fsSL "$key_url" | sudo gpg --dearmor --yes -o "$NODESOURCE_KEYRING"
   sudo chmod 0644 "$NODESOURCE_KEYRING"
@@ -233,6 +266,46 @@ Components: main
 Architectures: ${arch}
 Signed-By: ${NODESOURCE_KEYRING}
 EOF
+
+  sudo apt-get update
+  sudo apt-get remove -y npm libnode-dev 2>/dev/null || true
+  sudo apt-get install -y nodejs
+}
+
+ensure_nodesource_ubuntu() {
+  if install_nodesource_ubuntu; then
+    return
+  fi
+
+  print_warning \
+    "NodeSource setup failed" \
+    "Falling back to the distro nodejs package for this run. npm-based CLI installs may be skipped if npm is unavailable or too old."
+}
+
+check_node_runtime() {
+  local node_version node_major
+
+  if ! need_cmd node; then
+    print_warning "Node.js missing" "npm-based CLI installs require Node.js ${MIN_NODE_MAJOR}+."
+    return 1
+  fi
+
+  node_version="$(node -v 2>/dev/null || true)"
+  node_major="${node_version#v}"
+  node_major="${node_major%%.*}"
+
+  if [[ ! "$node_major" =~ ^[0-9]+$ ]] || (( node_major < MIN_NODE_MAJOR )); then
+    print_warning \
+      "Node.js version is too old" \
+      "Detected ${node_version:-unknown}; npm-based CLI installs require Node.js ${MIN_NODE_MAJOR}+."
+    return 1
+  fi
+
+  if (( node_major != NODESOURCE_NODE_MAJOR )); then
+    print_warning \
+      "Node.js version differs from bootstrap target" \
+      "Detected ${node_version}; bootstrap targets Node.js ${NODESOURCE_NODE_MAJOR}.x on Ubuntu/Debian."
+  fi
 }
 
 install_neovim_ubuntu() {
@@ -385,14 +458,17 @@ run_npm_global_install() {
   local package=$1
   local registry=$2
 
-  npm i -g "$package" --registry="$registry"
+  npm i -g "$package" --include=optional --omit=dev --registry="$registry"
 }
 
 install_npm_global_package() {
   local package=$1
   local label=$2
   local registry
+  shift 2
+  local -a health_check=("$@")
 
+  ensure_npm_user_prefix
   refresh_command_paths
 
   if ! need_cmd npm; then
@@ -400,64 +476,67 @@ install_npm_global_package() {
     return 1
   fi
 
+  check_node_runtime || return 1
+
   for registry in "$NPM_REGISTRY" "$NPM_FALLBACK_REGISTRY"; do
     if run_npm_global_install "$package" "$registry"; then
       refresh_command_paths
-      return 0
-    fi
-  done
-
-  if need_cmd sudo; then
-    for registry in "$NPM_REGISTRY" "$NPM_FALLBACK_REGISTRY"; do
-      if sudo npm i -g "$package" --registry="$registry"; then
-        refresh_command_paths
+      if (( ${#health_check[@]} == 0 )) || command_runs "${health_check[@]}"; then
         return 0
       fi
-    done
-  fi
+      print_warning \
+        "${label} health check failed" \
+        "npm install succeeded from ${registry}, but the command still does not run. Trying the next registry."
+    fi
+  done
 
   echo "Failed to install ${label} with npm." >&2
   return 1
 }
 
-install_codex_cli() {
-  if ! should_install_cmd codex; then
+command_runs() {
+  local cmd=$1
+  shift
+
+  need_cmd "$cmd" && "$cmd" "$@" >/dev/null 2>&1
+}
+
+install_or_repair_npm_cli() {
+  local cmd=$1
+  local package=$2
+  local label=$3
+  shift 3
+  local -a health_args=("$@")
+
+  if [[ $FORCE_INSTALL -eq 0 ]] && command_runs "$cmd" "${health_args[@]}"; then
     return
   fi
 
-  if ! install_npm_global_package "@openai/codex@latest" "Codex CLI"; then
-    echo "Continuing without Codex CLI." >&2
+  if need_cmd "$cmd"; then
+    print_warning \
+      "${label} needs reinstall" \
+      "The command exists but failed its health check, so bootstrap will reinstall ${package} under ~/.npm-global."
   fi
+
+  if ! install_npm_global_package "$package" "$label" "$cmd" "${health_args[@]}"; then
+    echo "Continuing without ${label}." >&2
+  fi
+}
+
+install_codex_cli() {
+  install_or_repair_npm_cli codex "@openai/codex@latest" "Codex CLI" --version
 }
 
 install_opencode_cli() {
-  if ! should_install_cmd opencode; then
-    return
-  fi
-
-  if ! install_npm_global_package "opencode-ai" "OpenCode CLI"; then
-    echo "Continuing without OpenCode CLI." >&2
-  fi
+  install_or_repair_npm_cli opencode "opencode-ai" "OpenCode CLI" --version
 }
 
 install_lark_cli() {
-  if ! should_install_cmd lark-cli; then
-    return
-  fi
-
-  if ! install_npm_global_package "@larksuite/cli" "Lark CLI"; then
-    echo "Continuing without Lark CLI." >&2
-  fi
+  install_or_repair_npm_cli lark-cli "@larksuite/cli" "Lark CLI" --version
 }
 
 install_lark_whiteboard_cli() {
-  if ! should_install_cmd whiteboard-cli; then
-    return
-  fi
-
-  if ! install_npm_global_package "@larksuite/whiteboard-cli@latest" "Lark Whiteboard CLI"; then
-    echo "Continuing without Lark Whiteboard CLI." >&2
-  fi
+  install_or_repair_npm_cli whiteboard-cli "@larksuite/whiteboard-cli@latest" "Lark Whiteboard CLI" --help
 }
 
 ensure_codex_xauthority_bridge() {
@@ -582,7 +661,7 @@ install_packages_ubuntu() {
   local -a APT_PACKAGES=()
 
   remove_stale_lazygit_ppa
-  install_nodesource_ubuntu
+  ensure_nodesource_ubuntu
 
   append_apt_package_if_missing git
   append_apt_package_if_missing zsh
@@ -615,11 +694,20 @@ install_packages_ubuntu() {
     sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
   fi
 
-  install_neovim_ubuntu
-  install_lazygit_ubuntu
-  install_stylua_ubuntu
-  install_yazi_ubuntu
+  run_optional_step "Neovim" install_neovim_ubuntu
+  run_optional_step "LazyGit" install_lazygit_ubuntu
+  run_optional_step "StyLua" install_stylua_ubuntu
+  run_optional_step "Yazi" install_yazi_ubuntu
 
+}
+
+run_optional_step() {
+  local title=$1
+  shift
+
+  if ! "$@"; then
+    print_warning "${title} install skipped" "The installer failed; bootstrap will continue so the rest of the dotfiles can still be linked."
+  fi
 }
 
 clone_or_update_repo() {
@@ -688,7 +776,7 @@ install_meslo_fonts_ubuntu() {
 }
 
 set_default_shell_to_zsh() {
-  local zsh_path
+  local zsh_path reply
   zsh_path="$(command -v zsh)"
 
   if [[ "${SHELL:-}" == "$zsh_path" ]]; then
@@ -698,7 +786,7 @@ set_default_shell_to_zsh() {
   if [[ $INTERACTIVE -eq 1 ]]; then
     printf "Set default shell to %s? [Y/n] " "$zsh_path"
     read -r reply
-    reply=""
+    reply="${reply:-Y}"
     if [[ "$reply" =~ ^[Yy]$ ]]; then
       chsh -s "$zsh_path" || true
     fi
@@ -743,7 +831,7 @@ configure_git_identity() {
 }
 
 print_post_install_notes() {
-  if need_cmd codex; then
+  if command_runs codex --version; then
     print_status_header NEXT "Codex CLI"
     print_command_hint "Run:" "codex"
     print_command_hint "Or:" "codex login"
@@ -756,7 +844,7 @@ print_post_install_notes() {
       "npm i -g @openai/codex@latest"
   fi
 
-  if need_cmd opencode; then
+  if command_runs opencode --version; then
     print_status_header NEXT "OpenCode CLI"
     print_command_hint "Run:" "opencode"
     print_command_hint "Optional:" "opencode auth login"
@@ -769,7 +857,7 @@ print_post_install_notes() {
       "npm i -g opencode-ai"
   fi
 
-  if need_cmd lark-cli; then
+  if command_runs lark-cli --version; then
     print_status_header NEXT "Lark CLI"
     print_command_hint "Run:" "lark-cli config init --new"
     print_command_hint "Optional:" "lark-cli auth login"
@@ -782,7 +870,7 @@ print_post_install_notes() {
       "npm i -g @larksuite/cli"
   fi
 
-  if need_cmd whiteboard-cli; then
+  if command_runs whiteboard-cli --help; then
     print_status_header NEXT "Lark Whiteboard CLI"
     print_command_hint "Run:" "whiteboard-cli --help"
     printf "  Use it with lark-cli when you need Feishu/Lark whiteboard rendering.\n"
@@ -817,14 +905,17 @@ main() {
   parse_args "$@"
   setup_colors
   refresh_command_paths
+  ensure_npm_user_prefix
   os="$(detect_os)"
 
   case "$os" in
     macos)
       install_packages_macos
+      ensure_npm_user_prefix
       ;;
     ubuntu)
       install_packages_ubuntu
+      ensure_npm_user_prefix
       ;;
     unsupported-linux)
       echo "Only Ubuntu/Debian Linux is supported by bootstrap.sh." >&2
@@ -841,16 +932,16 @@ main() {
   install_zsh_plugins
 
   if [[ "$os" == "macos" ]]; then
-    install_meslo_fonts_macos
+    run_optional_step "Meslo font" install_meslo_fonts_macos
   else
-    install_meslo_fonts_ubuntu
+    run_optional_step "Meslo font" install_meslo_fonts_ubuntu
   fi
 
   install_codex_cli
   install_opencode_cli
   install_lark_cli
   install_lark_whiteboard_cli
-  if need_cmd lark-cli; then
+  if command_runs lark-cli --version; then
     install_lark_skills
   fi
 
