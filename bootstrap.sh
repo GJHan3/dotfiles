@@ -106,7 +106,7 @@ prepend_path_if_dir() {
 }
 
 ensure_npm_user_prefix() {
-  local npm_prefix
+  local npm_prefix npm_registry
 
   if ! need_cmd npm; then
     return
@@ -125,6 +125,11 @@ ensure_npm_user_prefix() {
       npm config set prefix "${HOME}/.npm-global" 2>/dev/null || true
       ;;
   esac
+
+  npm_registry="$(npm config get registry 2>/dev/null || true)"
+  if [[ -z "$npm_registry" || "$npm_registry" == "undefined" || "$npm_registry" == "$NPM_FALLBACK_REGISTRY/" || "$npm_registry" == "$NPM_FALLBACK_REGISTRY" ]]; then
+    npm config set registry "$NPM_REGISTRY" 2>/dev/null || true
+  fi
 
   prepend_path_if_dir "${HOME}/.npm-global/bin"
 }

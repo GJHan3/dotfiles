@@ -94,9 +94,10 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
   installs `nodejs` from that source, which already provides `npm`. Do not run
   `apt install npm` separately. If NodeSource setup fails, bootstrap warns and
   falls back to the distro `nodejs` package for the rest of the run.
-- npm-based CLI installs in `bootstrap.sh` try `https://registry.npmmirror.com`
-  first and fall back to `https://registry.npmjs.org` if the mirror fails or if
-  a command health check such as `codex --version` fails after installation.
+- `bootstrap.sh` sets the user npm registry to `https://registry.npmmirror.com`
+  when npm is still using the official default registry. npm-based CLI installs
+  still fall back to `https://registry.npmjs.org` if the mirror fails or if a
+  command health check such as `codex --version` fails after installation.
   Global npm packages are installed under `~/.npm-global` to avoid sudo-owned
   `/usr/local` installs and missing optional native dependency problems.
 - On macOS, `bootstrap.sh` installs `macFUSE`; the first use may still require
