@@ -77,6 +77,39 @@ nvim --headless -i NONE '+qa'
 
 Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
+## Tailscale usage
+
+After bootstrap installs Tailscale, join your tailnet:
+
+```sh
+sudo tailscale up
+```
+
+On macOS, open the app and sign in instead:
+
+```sh
+open -a Tailscale
+```
+
+Useful daily commands:
+
+```sh
+tailscale status
+tailscale ip -4
+sudo tailscale down
+```
+
+From another device in the same tailnet, connect to this machine with its
+Tailscale IP or MagicDNS name:
+
+```sh
+ssh user@100.x.y.z
+ssh user@machine-name
+```
+
+Only configure subnet routes when you need access to the whole LAN behind this
+machine, not just this machine itself.
+
 ## Cross-platform notes
 
 - `~/.config/zsh/path.zsh` is the shared PATH policy for both login and
