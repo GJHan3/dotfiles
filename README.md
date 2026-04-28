@@ -98,8 +98,10 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
   when npm is still using the official default registry. npm-based CLI installs
   still fall back to `https://registry.npmjs.org` if the mirror fails or if a
   command health check such as `codex --version` fails after installation.
-  Global npm packages are installed under `~/.npm-global` to avoid sudo-owned
-  `/usr/local` installs and missing optional native dependency problems.
+  Bootstrap updates npm itself with `npm@latest` before installing npm-based CLI
+  tools. Global npm packages are installed under `~/.npm-global` to avoid
+  sudo-owned `/usr/local` installs and missing optional native dependency
+  problems.
 - On macOS, `bootstrap.sh` installs `macFUSE`; the first use may still require
   approval in `System Settings -> Privacy & Security`.
 - On macOS, if you want remote X11 forwarding such as `ssh -Y`, `sshx11`, or

@@ -532,8 +532,14 @@ install_codex_cli() {
   install_or_repair_npm_cli codex "@openai/codex@latest" "Codex CLI" --version
 }
 
+install_latest_npm() {
+  if ! install_npm_global_package "npm@latest" "npm" npm --version; then
+    echo "Continuing with the existing npm." >&2
+  fi
+}
+
 install_opencode_cli() {
-  install_or_repair_npm_cli opencode "opencode-ai" "OpenCode CLI" --version
+  install_or_repair_npm_cli opencode "opencode-ai@latest" "OpenCode CLI" --version
 }
 
 install_cc_connect_cli() {
@@ -561,7 +567,7 @@ install_cc_connect_cli() {
 }
 
 install_lark_cli() {
-  install_or_repair_npm_cli lark-cli "@larksuite/cli" "Lark CLI" --version
+  install_or_repair_npm_cli lark-cli "@larksuite/cli@latest" "Lark CLI" --version
 }
 
 install_lark_whiteboard_cli() {
@@ -883,7 +889,7 @@ print_post_install_notes() {
       "OpenCode CLI" \
       "opencode" \
       "bootstrap.sh could not install it automatically, so OpenCode terminal workflows stay unavailable until you install it manually." \
-      "npm i -g opencode-ai"
+      "npm i -g opencode-ai@latest"
   fi
 
   if command_runs cc-connect --help; then
@@ -908,7 +914,7 @@ print_post_install_notes() {
       "Lark CLI" \
       "lark-cli" \
       "bootstrap.sh could not install it automatically, so Feishu/Lark command workflows will not work yet." \
-      "npm i -g @larksuite/cli"
+      "npm i -g @larksuite/cli@latest"
   fi
 
   if command_runs whiteboard-cli --help; then
@@ -978,6 +984,7 @@ main() {
     run_optional_step "Meslo font" install_meslo_fonts_ubuntu
   fi
 
+  install_latest_npm
   install_codex_cli
   install_opencode_cli
   install_cc_connect_cli
