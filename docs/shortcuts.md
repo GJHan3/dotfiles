@@ -158,6 +158,11 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 - `]h` / `[h`: 跳到下一个 / 上一个 Git 变更块
 - `<leader>gp`: 预览当前 Git 变更块
 - `<leader>gb`: 切换当前行 Git blame 信息
+- `]x` / `[x`: 跳到下一个 / 上一个 Git 合并冲突块
+- `<leader>gco`: 解决当前冲突，保留 ours / current change
+- `<leader>gct`: 解决当前冲突，保留 theirs / incoming change
+- `<leader>gcb`: 解决当前冲突，同时保留 ours 和 theirs
+- `<leader>gc0`: 解决当前冲突，两边都不保留
 - `<leader>gq`: 关闭 diff，并清理相关历史窗口
 - `LazyGit` / `git log` / `git reflog` 退出后会自动关闭对应终端窗口，不需要再补一次 `q`
 
