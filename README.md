@@ -39,8 +39,8 @@ to reinstall or refresh managed tools:
 `bootstrap.sh` can:
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,
-  `stylua`, `yazi`, `sshfs`, `node`, `codex`, `opencode`, `cc-connect`,
-  `lark-cli`, and `whiteboard-cli`
+  `stylua`, `yazi`, `sshfs`, `tailscale`, `node`, `codex`, `opencode`,
+  `cc-connect`, `lark-cli`, and `whiteboard-cli`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
@@ -63,9 +63,10 @@ prints a `[WARN]` block so the missing command is obvious.
 Typical follow-up commands are `codex` or `codex login` for Codex CLI
 authentication, `lark-cli config init --new` and optional `lark-cli auth login`
 for Lark CLI setup, `whiteboard-cli --help` to verify the whiteboard renderer,
-`cc-connect --help` to verify the installed command, and `proxy_on` if you want
-to enable the local proxy manually. Proxy is off by default. Bootstrap also
-runs `npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
+`cc-connect --help` to verify the installed command, `sudo tailscale up` or
+`open -a Tailscale` to join the tailnet, and `proxy_on` if you want to enable
+the local proxy manually. Proxy is off by default. Bootstrap also runs
+`npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
 
 After changing files under `config/nvim`, verify the config before committing:
 
@@ -90,6 +91,11 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
+- For private network access, `bootstrap.sh` installs Tailscale from the
+  official stable package source: the standalone macOS package on macOS, and the
+  official Tailscale apt repository on Ubuntu/Debian. It does not authenticate
+  automatically; run `sudo tailscale up` on Linux, or open the Tailscale app on
+  macOS, then sign in.
 - On Ubuntu/Debian, `bootstrap.sh` configures NodeSource Node.js 22.x and
   installs `nodejs` from that source, which already provides `npm`. Do not run
   `apt install npm` separately. If NodeSource setup fails, bootstrap warns and

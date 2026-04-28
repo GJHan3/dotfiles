@@ -16,6 +16,9 @@ NODESOURCE_NODE_MAJOR="22"
 MIN_NODE_MAJOR="20"
 NODESOURCE_KEYRING="/usr/share/keyrings/nodesource.gpg"
 NODESOURCE_SOURCE_FILE="/etc/apt/sources.list.d/nodesource.sources"
+TAILSCALE_STABLE_URL="https://pkgs.tailscale.com/stable"
+TAILSCALE_KEYRING="/usr/share/keyrings/tailscale-archive-keyring.gpg"
+TAILSCALE_SOURCE_FILE="/etc/apt/sources.list.d/tailscale.list"
 MACFUSE_CASK="macfuse"
 SSHFS_MACOS_VERSION="3.7.5"
 SSHFS_MACOS_URL="https://github.com/libfuse/sshfs/releases/download/sshfs-${SSHFS_MACOS_VERSION}/sshfs-${SSHFS_MACOS_VERSION}.pkg"
@@ -287,6 +290,38 @@ ensure_nodesource_ubuntu() {
     "Falling back to the distro nodejs package for this run. npm-based CLI installs may be skipped if npm is unavailable or too old."
 }
 
+ensure_tailscale_apt_repository() {
+  local distro_id distro_codename
+
+  if [[ $FORCE_INSTALL -eq 0 ]] && [[ -f "$TAILSCALE_SOURCE_FILE" ]] && [[ -f "$TAILSCALE_KEYRING" ]]; then
+    return
+  fi
+
+  if [[ ! -r /etc/os-release ]]; then
+    print_warning "Tailscale setup skipped" "Could not read /etc/os-release to select the Tailscale apt repository."
+    return 1
+  fi
+
+  . /etc/os-release
+  distro_id="${ID:-}"
+  distro_codename="${VERSION_CODENAME:-}"
+
+  if [[ "$distro_id" != "ubuntu" && "$distro_id" != "debian" ]]; then
+    print_warning "Tailscale setup skipped" "Unsupported Linux distribution for the managed Tailscale apt repository: ${distro_id:-unknown}."
+    return 1
+  fi
+
+  if [[ -z "$distro_codename" ]]; then
+    print_warning "Tailscale setup skipped" "Could not detect the Ubuntu/Debian codename for the Tailscale apt repository."
+    return 1
+  fi
+
+  sudo mkdir -p "$(dirname "$TAILSCALE_KEYRING")" "$(dirname "$TAILSCALE_SOURCE_FILE")"
+  curl -fsSL "${TAILSCALE_STABLE_URL}/${distro_id}/${distro_codename}.noarmor.gpg" | sudo tee "$TAILSCALE_KEYRING" >/dev/null
+  sudo chmod 0644 "$TAILSCALE_KEYRING"
+  curl -fsSL "${TAILSCALE_STABLE_URL}/${distro_id}/${distro_codename}.tailscale-keyring.list" | sudo tee "$TAILSCALE_SOURCE_FILE" >/dev/null
+}
+
 check_node_runtime() {
   local node_version node_major
 
@@ -457,6 +492,36 @@ install_stylua_ubuntu() {
   unzip -q "$tmp_archive" -d "$tmp_dir"
 
   sudo install "$tmp_dir/stylua" /usr/local/bin/stylua
+}
+
+install_tailscale_macos() {
+  local pkg_href pkg_url pkg_name tmp_pkg
+
+  if [[ $FORCE_INSTALL -eq 0 ]] && [[ -d /Applications/Tailscale.app ]]; then
+    return
+  fi
+
+  pkg_href="$(
+    curl -fsSL "${TAILSCALE_STABLE_URL}/" |
+      sed -n 's/.*href="\([^"]*Tailscale-[^"]*-macos\.pkg\)".*/\1/p' |
+      head -n 1
+  )"
+
+  if [[ -z "$pkg_href" ]]; then
+    echo "Failed to detect latest Tailscale macOS package." >&2
+    return 1
+  fi
+
+  case "$pkg_href" in
+    http*) pkg_url="$pkg_href" ;;
+    *) pkg_url="${TAILSCALE_STABLE_URL}/${pkg_href}" ;;
+  esac
+
+  pkg_name="${pkg_url##*/}"
+  tmp_pkg="/tmp/${pkg_name}"
+
+  curl -fL "$pkg_url" -o "$tmp_pkg"
+  sudo installer -pkg "$tmp_pkg" -target /
 }
 
 run_npm_global_install() {
@@ -654,6 +719,7 @@ install_packages_macos() {
 
   install_im_select_macos "$brew_bin"
   install_sshfs_macos "$brew_bin"
+  install_tailscale_macos
 }
 
 install_im_select_macos() {
@@ -693,10 +759,14 @@ install_sshfs_macos() {
 }
 
 install_packages_ubuntu() {
+  local can_install_tailscale=0
   local -a APT_PACKAGES=()
 
   remove_stale_lazygit_ppa
   ensure_nodesource_ubuntu
+  if ensure_tailscale_apt_repository; then
+    can_install_tailscale=1
+  fi
 
   append_apt_package_if_missing git
   append_apt_package_if_missing zsh
@@ -717,10 +787,17 @@ install_packages_ubuntu() {
   append_apt_package_if_missing imagemagick
   append_apt_package_if_missing ffmpegthumbnailer
   append_apt_package_if_missing poppler-utils
+  if (( can_install_tailscale == 1 )); then
+    append_apt_package_if_missing tailscale
+  fi
 
   if (( ${#APT_PACKAGES[@]} > 0 )); then
     sudo apt-get update
     sudo apt-get install -y "${APT_PACKAGES[@]}"
+  fi
+
+  if need_cmd systemctl && need_cmd tailscale; then
+    sudo systemctl enable --now tailscaled 2>/dev/null || true
   fi
 
   refresh_command_paths
@@ -934,6 +1011,24 @@ print_post_install_notes() {
     printf "  On macOS, if mounts are blocked, check:\n"
     printf "    System Settings -> Privacy & Security\n"
     printf "  Allow macFUSE if macOS asks for approval.\n"
+  fi
+
+  if need_cmd tailscale || [[ -d /Applications/Tailscale.app ]]; then
+    print_status_header NEXT "Tailscale"
+    if need_cmd tailscale; then
+      print_command_hint "Run:" "sudo tailscale up"
+      print_command_hint "Check IP:" "tailscale ip -4"
+    else
+      print_command_hint "Open:" "open -a Tailscale"
+    fi
+    printf "  Sign in, then use the Tailscale IP or MagicDNS name from your other devices.\n"
+    printf "  To expose the whole LAN from Linux later, read Tailscale's subnet router guide before enabling routes.\n"
+  else
+    print_missing_command_warning \
+      "Tailscale" \
+      "tailscale" \
+      "bootstrap.sh could not install it automatically, so private network access is not available yet." \
+      "https://tailscale.com/download"
   fi
 
   print_status_header INFO "Font"
