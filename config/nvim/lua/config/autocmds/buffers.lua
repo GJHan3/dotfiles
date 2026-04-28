@@ -1,13 +1,24 @@
 local external_file_change_group = vim.api.nvim_create_augroup("external_file_change", { clear = true })
 
+local function check_external_file_changes()
+  if vim.fn.mode():match("^[ciR]") then
+    return
+  end
+
+  vim.cmd("silent! checktime")
+end
+
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
   group = external_file_change_group,
-  callback = function()
-    if vim.fn.mode():match("^[ciR]") then
-      return
-    end
+  callback = check_external_file_changes,
+})
 
-    vim.cmd("silent! checktime")
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = external_file_change_group,
+  callback = function()
+    vim.fn.timer_start(1000, function()
+      vim.schedule(check_external_file_changes)
+    end, { ["repeat"] = -1 })
   end,
 })
 
