@@ -1021,13 +1021,21 @@ print_post_install_notes() {
 
   if need_cmd tailscale || [[ -d /Applications/Tailscale.app ]]; then
     print_status_header NEXT "Tailscale"
-    if need_cmd tailscale; then
-      print_command_hint "Run:" "sudo tailscale up"
-      print_command_hint "Check IP:" "tailscale ip -4"
-    else
+    if [[ $OS_TYPE == "macos" ]]; then
       print_command_hint "Open:" "open -a Tailscale"
+      printf "  Sign in from the macOS app and allow the VPN/network extension if prompted.\n"
+      if need_cmd tailscale; then
+        print_command_hint "List devices:" "tailscale status"
+        print_command_hint "Check this IP:" "tailscale ip -4"
+      fi
+    elif need_cmd tailscale; then
+      print_command_hint "Join tailnet:" "sudo tailscale up"
+      print_command_hint "List devices:" "tailscale status"
+      print_command_hint "Check this IP:" "tailscale ip -4"
     fi
-    printf "  Sign in, then use the Tailscale IP or MagicDNS name from your other devices.\n"
+    print_command_hint "SSH example:" "ssh <user>@<tailscale-ip-or-magicdns-name>"
+    print_command_hint "Check SSH port:" "nc -vz <tailscale-ip> 22"
+    printf "  If ping works but SSH hangs, verify sshd is running on the target and that port 22 is reachable.\n"
     printf "  To expose the whole LAN from Linux later, read Tailscale's subnet router guide before enabling routes.\n"
   else
     print_missing_command_warning \

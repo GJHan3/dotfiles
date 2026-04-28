@@ -73,10 +73,11 @@ prints a `[WARN]` block so the missing command is obvious.
 Typical follow-up commands are `codex` or `codex login` for Codex CLI
 authentication, `lark-cli config init --new` and optional `lark-cli auth login`
 for Lark CLI setup, `whiteboard-cli --help` to verify the whiteboard renderer,
-`cc-connect --help` to verify the installed command, `sudo tailscale up` or
-`open -a Tailscale` to join the tailnet, and `proxy_on` if you want to enable
-the local proxy manually. Proxy is off by default. Bootstrap also runs
-`npx skills add larksuite/cli -g -y` for the Feishu/Lark CLI.
+`cc-connect --help` to verify the installed command, `sudo tailscale up` on
+Linux or `open -a Tailscale` on macOS to join the tailnet, `tailscale status` to
+list devices, and `proxy_on` if you want to enable the local proxy manually.
+Proxy is off by default. Bootstrap also installs the Feishu/Lark CLI skill with
+`npx skills add larksuite/cli -g -y`.
 
 After changing files under `config/nvim`, verify the config before committing:
 
@@ -89,19 +90,23 @@ Private secrets should live in `~/.zsh.secrets` and should not be committed.
 
 ## Tailscale usage
 
-After bootstrap installs Tailscale, join your tailnet:
+After bootstrap installs Tailscale, authenticate the machine before expecting
+other tailnet devices to see it.
+
+On Ubuntu/Debian, start Tailscale and sign in from the browser prompt:
 
 ```sh
 sudo tailscale up
 ```
 
-On macOS, open the app and sign in instead:
+On macOS, open the app, sign in, and approve the VPN/network extension if macOS
+asks for permission:
 
 ```sh
 open -a Tailscale
 ```
 
-Useful daily commands:
+Useful daily commands after login:
 
 ```sh
 tailscale status
@@ -109,12 +114,40 @@ tailscale ip -4
 sudo tailscale down
 ```
 
-From another device in the same tailnet, connect to this machine with its
-Tailscale IP or MagicDNS name:
+Use `tailscale status` to find machines in the tailnet. The first column is the
+Tailscale IP, the second column is the MagicDNS machine name, and the OS column
+helps identify Linux/macOS targets:
+
+```text
+100.98.107.124  yellow-pc  user@  linux  idle
+```
+
+From another device in the same tailnet, connect with the target machine's
+system username and either its Tailscale IP or MagicDNS name:
 
 ```sh
-ssh user@100.x.y.z
-ssh user@machine-name
+ssh hanguangjiang@100.98.107.124
+ssh hanguangjiang@yellow-pc
+```
+
+If ping works but SSH appears to hang, first check whether port 22 is reachable:
+
+```sh
+nc -vz 100.98.107.124 22
+```
+
+If the port is reachable, inspect the SSH handshake:
+
+```sh
+ssh -vvv hanguangjiang@100.98.107.124
+```
+
+If the port is refused or times out, fix the target Linux machine's SSH service:
+
+```sh
+sudo systemctl status ssh
+sudo systemctl enable --now ssh
+sudo ss -lntp | grep ':22'
 ```
 
 Only configure subnet routes when you need access to the whole LAN behind this
