@@ -164,6 +164,31 @@ end)
 
 config.keys = {
   {
+    key = "PageUp",
+    mods = "SHIFT",
+    action = act.ScrollByPage(-1),
+  },
+  {
+    key = "PageDown",
+    mods = "SHIFT",
+    action = act.ScrollByPage(1),
+  },
+  {
+    key = "UpArrow",
+    mods = "CMD",
+    action = act.ScrollByLine(-3),
+  },
+  {
+    key = "DownArrow",
+    mods = "CMD",
+    action = act.ScrollByLine(3),
+  },
+  {
+    key = "x",
+    mods = "CMD|SHIFT",
+    action = act.ActivateCopyMode,
+  },
+  {
     key = "LeftArrow",
     mods = "CMD",
     action = act.SendKey { key = "b", mods = "ALT" },
