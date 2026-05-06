@@ -1,8 +1,10 @@
-# EPT Claude Code wrapper.
-# Keep EPT first so programs launched from zsh, including cc-connect, resolve
-# `claude` to ~/.ept/bin/claude instead of any npm-global Claude install.
+# EPT-backed AI CLI wrappers.
+# Keep EPT shims first, then repo-managed wrappers in ~/bin before npm-global
+# installs such as the native Claude Code and OpenCode packages.
+add_path_front "$HOME/bin"
 add_path_front "$HOME/.ept/bin"
 
-# Use the EPT-managed Claude wrapper directly. CLAUDE_PATH can force EPT/Claude
-# tooling back to ~/.npm-global/bin/claude, which is not desired for cc-connect.
+# Wrapper-local path overrides are set by ~/bin/claude and ~/bin/opencode.
+# Clear stale shell exports so EPT tooling does not bind to old native installs.
 unset CLAUDE_PATH
+unset OPENCODE_PATH

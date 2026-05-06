@@ -10,7 +10,10 @@ This repository stores personal shell and editor configuration for this machine.
 - `config/nvim/`: Neovim config
 - `config/wezterm/wezterm.lua`: WezTerm config
 - `config/yazi/`: Yazi file manager config
+- `bin/clipimg`: clipboard image saver for macOS, Wayland, and X11
 - `bin/claude`: Claude Code wrapper that sends version checks to native Claude
+  and normal sessions through EPT
+- `bin/opencode`: OpenCode wrapper that sends version checks to native OpenCode
   and normal sessions through EPT
 - `bootstrap.sh`: install dependencies and shell tooling on a new machine
 - `install.sh`: relink managed files into `$HOME` and `~/.config`
@@ -67,12 +70,13 @@ After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`.
 Actionable follow-up items are printed with status prefixes such as `[NEXT]`,
 `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI
 emphasis in interactive terminals. If npm-based CLI tools such as `codex`,
-`lark-cli`, or `cc-connect` are still missing after bootstrap, the script now
-prints a `[WARN]` block so the missing command is obvious.
+`lark-cli`, `opencode`, or `cc-connect` are still missing after bootstrap, the
+script now prints a `[WARN]` block so the missing command is obvious.
 
 Typical follow-up commands are `codex` or `codex login` for Codex CLI
 authentication, `lark-cli config init --new` and optional `lark-cli auth login`
 for Lark CLI setup, `whiteboard-cli --help` to verify the whiteboard renderer,
+`opencode` or `opencode auth login` for OpenCode,
 `cc-connect --help` to verify the installed command, `sudo tailscale up` on
 Linux or `open -a Tailscale` on macOS to join the tailnet, `tailscale status` to
 list devices, and `proxy_on` if you want to enable the local proxy manually.
@@ -159,11 +163,16 @@ machine, not just this machine itself.
   interactive `zsh`. It auto-detects Homebrew/Linuxbrew and adds common
   user-level tool bins such as `~/.local/bin`, npm global bin, `pnpm`, `cargo`,
   `go`, and `bun`.
-- `~/.config/zsh/ept.zsh` is the shared EPT/Claude wrapper policy. It keeps
-  `~/.ept/bin` ahead of npm-global Claude installs and clears `CLAUDE_PATH`.
+- `~/.config/zsh/ept.zsh` is the shared EPT wrapper policy. It keeps
+  `~/.ept/bin` and repo-managed wrappers ahead of npm-global native installs,
+  then clears stale wrapper path overrides.
 - `~/bin/claude` is linked from `bin/claude`. It routes `--version`/`-v` directly
   to native Claude Code and routes normal sessions through `~/.ept/bin/ept`.
   Set `CLAUDE_NATIVE_PATH` on machines where Claude lives in a different path.
+- `~/bin/opencode` is linked from `bin/opencode`. It routes `--version`/`-v`
+  directly to native OpenCode and routes normal sessions through
+  `~/.ept/bin/ept`. Set `OPENCODE_NATIVE_PATH` on machines where OpenCode lives
+  in a different path.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
@@ -219,6 +228,8 @@ machine, not just this machine itself.
 - `~/.config/zsh/path.zsh`
 - `~/.config/zsh/ept.zsh`
 - `~/bin/claude`
+- `~/bin/clipimg`
+- `~/bin/opencode`
 - `~/.tmux.conf`
 - `~/.config/tmux`
 - `~/.config/git`

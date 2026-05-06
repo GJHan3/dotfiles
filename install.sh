@@ -18,6 +18,8 @@ ln -sfn "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
 ln -sfn "$DOTFILES_DIR/config/zsh/path.zsh" "$HOME/.config/zsh/path.zsh"
 ln -sfn "$DOTFILES_DIR/config/zsh/ept.zsh" "$HOME/.config/zsh/ept.zsh"
 ln -sfn "$DOTFILES_DIR/bin/claude" "$HOME/bin/claude"
+ln -sfn "$DOTFILES_DIR/bin/clipimg" "$HOME/bin/clipimg"
+ln -sfn "$DOTFILES_DIR/bin/opencode" "$HOME/bin/opencode"
 ln -sfn "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 ln -sfn "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
 if [[ -e "$HOME/.config/git" && ! -L "$HOME/.config/git" ]]; then

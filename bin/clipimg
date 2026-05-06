@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  echo "Usage: clipimg [path|dir/]" >&2
+}
+
+save_clipboard_image() {
+  local output_path="$1"
+
+  if [[ "$(uname -s)" == "Darwin" ]] && command -v pngpaste >/dev/null 2>&1; then
+    pngpaste "$output_path"
+    return 0
+  fi
+
+  if [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v wl-paste >/dev/null 2>&1; then
+    wl-paste --no-newline --type image/png >"$output_path"
+    return 0
+  fi
+
+  if [[ -n "${DISPLAY:-}" ]] && command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -t image/png -o >"$output_path"
+    return 0
+  fi
+
+  if command -v wl-paste >/dev/null 2>&1; then
+    wl-paste --no-newline --type image/png >"$output_path"
+    return 0
+  fi
+
+  if command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -t image/png -o >"$output_path"
+    return 0
+  fi
+
+  if command -v pngpaste >/dev/null 2>&1; then
+    pngpaste "$output_path"
+    return 0
+  fi
+
+  echo "clipboard image tool not found; install pngpaste, wl-paste, or xclip" >&2
+  return 127
+}
+
+default_name="clipboard-$(date +%Y%m%d-%H%M%S).png"
+
+if (( $# > 1 )); then
+  usage
+  exit 1
+fi
+
+target="${1:-$default_name}"
+
+if [[ "$target" == */ || -d "$target" ]]; then
+  target="${target%/}/$default_name"
+fi
+
+if [[ "$(basename "$target")" != *.* ]]; then
+  target="${target}.png"
+fi
+
+target_dir="$(dirname "$target")"
+mkdir -p -- "$target_dir"
+
+target_dir="$(cd "$target_dir" && pwd)"
+target_path="$target_dir/$(basename "$target")"
+
+tmp_path="$(mktemp "$target_dir/.clipimg.XXXXXX")"
+
+cleanup() {
+  rm -f -- "$tmp_path"
+}
+
+trap cleanup EXIT
+
+save_clipboard_image "$tmp_path"
+
+if [[ ! -s "$tmp_path" ]]; then
+  echo "clipboard does not contain a readable image" >&2
+  exit 1
+fi
+
+mv -f -- "$tmp_path" "$target_path"
+trap - EXIT
+
+printf '%s\n' "$target_path"

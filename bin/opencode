@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+find_native_opencode() {
+  local candidate
+
+  if [[ -n "${OPENCODE_NATIVE_PATH:-}" && -x "$OPENCODE_NATIVE_PATH" ]]; then
+    printf '%s\n' "$OPENCODE_NATIVE_PATH"
+    return 0
+  fi
+
+  local candidates=(
+    "$HOME/.npm-global/bin/opencode"
+    "$HOME/.local/share/fnm/node-versions"/*/installation/bin/opencode
+    "/opt/homebrew/bin/opencode"
+    "/usr/local/bin/opencode"
+  )
+
+  for candidate in "${candidates[@]}"; do
+    if [[ -x "$candidate" && ! "$candidate" -ef "$0" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+opencode_path="$(find_native_opencode)" || {
+  echo "opencode executable not found; install opencode-ai first" >&2
+  echo "or set OPENCODE_NATIVE_PATH to the native OpenCode executable" >&2
+  exit 127
+}
+
+if [[ "${1:-}" == "--version" || "${1:-}" == "-v" ]]; then
+  exec "$opencode_path" "$@"
+fi
+
+if [[ ! -x "$HOME/.ept/bin/ept" ]]; then
+  echo "ept executable not found at $HOME/.ept/bin/ept" >&2
+  exit 127
+fi
+
+export OPENCODE_PATH="$opencode_path"
+export PATH="$(dirname "$opencode_path"):$PATH"
+exec "$HOME/.ept/bin/ept" opencode "$@"
