@@ -842,3 +842,5 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh.
 [[ ! -f ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh ]] || source ~/.oh-my-zsh/custom/themes/powerlevel10k/config/p10k-lean.zsh
+
+export PATH="/Users/hanguangjiang/.ept/bin:$PATH" # EPT_PATH_MARK

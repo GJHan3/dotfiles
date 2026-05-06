@@ -1021,7 +1021,7 @@ print_post_install_notes() {
 
   if need_cmd tailscale || [[ -d /Applications/Tailscale.app ]]; then
     print_status_header NEXT "Tailscale"
-    if [[ $OS_TYPE == "macos" ]]; then
+    if [[ "$(detect_os)" == "macos" ]]; then
       print_command_hint "Open:" "open -a Tailscale"
       printf "  Sign in from the macOS app and allow the VPN/network extension if prompted.\n"
       if need_cmd tailscale; then
