@@ -613,6 +613,10 @@ install_opencode_cli() {
   install_or_repair_npm_cli opencode "opencode-ai@latest" "OpenCode CLI" --version
 }
 
+install_claude_cli() {
+  install_or_repair_npm_cli claude "@anthropic-ai/claude-code@latest" "Claude Code CLI" --version
+}
+
 install_cc_connect_cli() {
   if [[ $FORCE_INSTALL -eq 0 ]] && command_runs cc-connect --help; then
     return
@@ -975,6 +979,18 @@ print_post_install_notes() {
       "npm i -g opencode-ai@latest"
   fi
 
+  if command_runs claude --version; then
+    print_status_header NEXT "Claude Code CLI"
+    print_command_hint "Run:" "claude"
+    printf "  Sign in with your Anthropic account when prompted, then start a session.\n"
+  else
+    print_missing_command_warning \
+      "Claude Code CLI" \
+      "claude" \
+      "bootstrap.sh could not install it automatically, so Claude Code terminal workflows stay unavailable until you install it manually." \
+      "npm i -g @anthropic-ai/claude-code@latest"
+  fi
+
   if command_runs cc-connect --help; then
     print_status_header NEXT "cc-connect"
     print_command_hint "Run:" "cc-connect --help"
@@ -1101,6 +1117,7 @@ main() {
   install_latest_npm
   install_codex_cli
   install_opencode_cli
+  install_claude_cli
   install_cc_connect_cli
   install_lark_cli
   install_lark_whiteboard_cli
