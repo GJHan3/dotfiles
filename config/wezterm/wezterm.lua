@@ -203,6 +203,17 @@ config.keys = {
     mods = "CMD",
     action = act.SendKey { key = "w", mods = "CTRL" },
   },
+  -- Move tab left/right
+  {
+    key = "LeftArrow",
+    mods = "CMD|SHIFT",
+    action = act.MoveTabRelative(-1),
+  },
+  {
+    key = "RightArrow",
+    mods = "CMD|SHIFT",
+    action = act.MoveTabRelative(1),
+  },
   {
     key = "a",
     mods = "CMD",
