@@ -76,8 +76,9 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 默认行为：
 
 - 默认挂载根目录是 `~/sshmnt`
-- 默认挂载参数是 `defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user`
-- `sshm` 会自动把本地挂载目录名设置成 Finder 里的卷名，避免显示成默认的 `macFUSE Volume 0 (sshfs)`
+- macOS 默认挂载参数是 `defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user`
+- Linux 默认挂载参数是 `reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user`
+- macOS 上 `sshm` 会自动把本地挂载目录名设置成 Finder 里的卷名，避免显示成默认的 `macFUSE Volume 0 (sshfs)`
 - `sshs` 默认带 `-Y`；本地如果没有可用 X server，SSH 仍可登录，但远端图形程序通常无法正常显示
 - `sshx11` 当前会先把远端修复脚本上传到临时文件，再用带 TTY 的 SSH 会话执行它，便于 `sudo` 读取密码；
   它会尝试兼容 `apt-get`、`dnf`、`yum`、`zypper`、`apk`；如果远端当前还没有生成 `~/.Xauthority`，

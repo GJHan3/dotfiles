@@ -288,8 +288,16 @@ hs() {
 }
 
 # SSH and SSHFS helpers.
-typeset -g SSHFS_MOUNT_ROOT="$HOME/sshmnt"
-typeset -g SSHFS_MOUNT_OPTIONS="defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user"
+typeset -g SSHFS_MOUNT_ROOT="${SSHFS_MOUNT_ROOT:-$HOME/sshmnt}"
+if [[ -z "${SSHFS_MOUNT_OPTIONS:-}" ]]; then
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    typeset -g SSHFS_MOUNT_OPTIONS="defer_permissions,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user"
+  else
+    typeset -g SSHFS_MOUNT_OPTIONS="reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,idmap=user"
+  fi
+else
+  typeset -g SSHFS_MOUNT_OPTIONS
+fi
 
 sshhosts() {
   emulate -L zsh
@@ -468,6 +476,7 @@ sshm() {
   local local_path="${3:-}"
   local volume_name=""
   local mount_cmd=()
+  local sshfs_options=""
   local remote_home=""
 
   if ! command -v sshfs >/dev/null 2>&1; then
@@ -507,7 +516,14 @@ sshm() {
   mkdir -p "$local_path" 2>/dev/null || true
 
   volume_name="${local_path:t}"
-  mount_cmd=(sshfs "${host}:${remote_path}" "$local_path" -o "${SSHFS_MOUNT_OPTIONS},volname=${volume_name}")
+  sshfs_options="$SSHFS_MOUNT_OPTIONS"
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    sshfs_options="${sshfs_options:+${sshfs_options},}volname=${volume_name}"
+  fi
+  mount_cmd=(sshfs "${host}:${remote_path}" "$local_path")
+  if [[ -n "$sshfs_options" ]]; then
+    mount_cmd+=(-o "$sshfs_options")
+  fi
   if [[ ! -w "$local_path" ]]; then
     mount_cmd=(sudo "${mount_cmd[@]}")
   fi
