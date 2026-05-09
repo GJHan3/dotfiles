@@ -35,11 +35,10 @@ if [[ "${1:-}" == "--version" || "${1:-}" == "-v" ]]; then
   exec "$claude_path" "$@"
 fi
 
-if [[ ! -x "$HOME/.ept/bin/ept" ]]; then
-  echo "ept executable not found at $HOME/.ept/bin/ept" >&2
-  exit 127
+if [[ -x "$HOME/.ept/bin/ept" ]]; then
+  export CLAUDE_PATH="$claude_path"
+  export PATH="$(dirname "$claude_path"):$PATH"
+  exec "$HOME/.ept/bin/ept" claude "$@"
 fi
 
-export CLAUDE_PATH="$claude_path"
-export PATH="$(dirname "$claude_path"):$PATH"
-exec "$HOME/.ept/bin/ept" claude "$@"
+exec "$claude_path" "$@"
