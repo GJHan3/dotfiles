@@ -23,9 +23,6 @@ return {
         right_pad = 1,
         language_pad = 1,
         style = "full",
-        language_config = {
-          mermaid = { sign = "󰚔 ", border = "thick" },
-        },
       },
       bullet = {
         icons = { "•", "◦", "▪", "▫" },
