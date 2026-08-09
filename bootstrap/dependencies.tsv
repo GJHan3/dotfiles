@@ -1,0 +1,17 @@
+# tool|dependencies
+npm|node
+codex|node,npm
+opencode|node,npm
+claude|node,npm
+cc-connect|node,npm
+lark-cli|node,npm
+whiteboard-cli|node,npm
+lark-skills|node,npm
+sshfs|glib,meson,ninja,pkgconf
+shell-framework|git
+fonts|curl
+neovim|curl
+lazygit|curl
+stylua|curl,unzip
+yazi|curl,unzip
+tailscale|curl

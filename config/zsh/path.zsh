@@ -2,9 +2,16 @@ typeset -gU path PATH
 
 add_path_front() {
   local dir="$1"
+  local entry
+  local -a updated_path=("$dir")
 
   [[ -d "$dir" ]] || return
-  path=("$dir" $path)
+
+  for entry in "${path[@]}"; do
+    [[ -n "$entry" && "$entry" != "$dir" ]] && updated_path+=("$entry")
+  done
+
+  path=("${updated_path[@]}")
 }
 
 load_homebrew_shellenv() {
@@ -30,18 +37,11 @@ load_homebrew_shellenv() {
   esac
 }
 
-load_npm_global_bin() {
-  local npm_prefix
-
-  command -v npm >/dev/null 2>&1 || return
-
-  npm_prefix="$(npm config get prefix 2>/dev/null)"
-  [[ -n "$npm_prefix" && "$npm_prefix" != "undefined" ]] || return
-
-  add_path_front "$npm_prefix/bin"
-}
-
 load_homebrew_shellenv
+
+if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  add_path_front "$HOMEBREW_PREFIX/opt/curl/bin"
+fi
 
 add_path_front "$HOME/.local/bin"
 add_path_front "$HOME/bin"
@@ -50,5 +50,3 @@ add_path_front "$HOME/.local/share/pnpm"
 add_path_front "$HOME/.cargo/bin"
 add_path_front "$HOME/go/bin"
 add_path_front "$HOME/.bun/bin"
-
-load_npm_global_bin

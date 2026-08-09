@@ -13,9 +13,13 @@ This repository stores personal shell and editor configuration for this machine.
 - `bin/clipimg`: clipboard image saver for macOS, Wayland, and X11
 - `bin/claude`: Claude Code wrapper that sends version checks to native Claude
   and normal sessions through EPT
-- `bin/opencode`: OpenCode wrapper that sends version checks to native OpenCode
-  and normal sessions through EPT
-- `bootstrap.sh`: install dependencies and shell tooling on a new machine
+- `bootstrap.sh`: stable entry point for installing and updating managed tools
+- `bootstrap/tools.tsv`: declarative software manifest shared by both platforms
+- `bootstrap/dependencies.tsv`: dependency expansion used by targeted installs
+- `bootstrap/lib/`: argument parsing, selection, status output, and manifest helpers
+- `bootstrap/platforms/`: Homebrew and Ubuntu/Debian package-manager adapters
+- `bootstrap/installers/` and `bootstrap/custom/`: npm installer and special hooks
+- `bootstrap/tests/smoke.sh`: side-effect-free architecture and platform-plan tests
 - `install.sh`: relink managed files into `$HOME` and `~/.config`
 
 ## Usage
@@ -48,6 +52,32 @@ steps, run:
 
 This update mode reuses the normal tool install flow with refresh behavior, then
 exits before `install.sh` can replace any existing `~/.config` data.
+On macOS, it upgrades outdated managed Homebrew formulae instead of asking
+Homebrew to reinstall formulae that are already current. Node.js is also upgraded
+when its unversioned Homebrew formula is outdated, because npm-based tools depend
+on a supported runtime. npm CLIs are installed from the official registry first,
+verified from `~/.npm-global/bin`, and then exposed ahead of older global installs.
+For npm 12+, lifecycle scripts are permitted only for the exact manifest package
+being installed; bootstrap does not enable arbitrary global install scripts.
+
+The bootstrap entry point also supports inspecting and narrowing the manifest:
+
+```sh
+./bootstrap.sh --list
+./bootstrap.sh --dry-run
+./bootstrap.sh --only node,npm,codex
+./bootstrap.sh --update --skip tailscale,sshfs
+BOOTSTRAP_OS_OVERRIDE=ubuntu ./bootstrap.sh --dry-run
+```
+
+`--only` accepts manifest names, automatically includes Node.js and npm for an
+npm CLI, and implies `--update --force`. `--skip` always wins over an implicit
+dependency. `BOOTSTRAP_OS_OVERRIDE` is accepted only in dry-run mode, so the
+other platform's plan can be checked without changing the host system.
+
+Independent tool failures are collected instead of stopping later installers.
+The final summary returns a non-zero status and lists failed tool names; `[DONE]`
+is printed only when every selected installer completed successfully.
 
 `bootstrap.sh` can:
 
@@ -60,10 +90,25 @@ exits before `install.sh` can replace any existing `~/.config` data.
 - optionally configure global Git identity
 - optionally switch the default shell to `zsh`
 
+Standard Homebrew, apt, and npm software is declared in `bootstrap/tools.tsv`,
+with targeted-install dependencies in `bootstrap/dependencies.tsv`.
+Adding a regular package usually requires one manifest row per supported
+platform; installers that need release-API discovery, repository setup, casks,
+or source builds live as small hooks under `bootstrap/custom/`.
+
+After changing the installation architecture, run:
+
+```sh
+./bootstrap/tests/smoke.sh
+```
+
 For Yazi's `sshfs.yazi` workflow, `bootstrap.sh` also installs the platform SSHFS
 dependency:
 
-- macOS: installs `macFUSE` and the official `SSHFS.pkg`
+- macOS: upgrades `macFUSE`, installs the newest official `SSHFS.pkg` when one is
+  published, and otherwise builds the newest SSHFS release from source; the
+  source build is installed under `~/.local`, and the resolved release is
+  recorded under `~/.local/state/dotfiles-bootstrap/`
 - Ubuntu/Debian: installs the `sshfs` package
 
 After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`.
@@ -164,15 +209,13 @@ machine, not just this machine itself.
   user-level tool bins such as `~/.local/bin`, npm global bin, `pnpm`, `cargo`,
   `go`, and `bun`.
 - `~/.config/zsh/ept.zsh` is the shared EPT wrapper policy. It keeps
-  `~/.ept/bin` and repo-managed wrappers ahead of npm-global native installs,
+  `~/.ept/bin` and the repo-managed Claude wrapper ahead of npm-global native installs,
   then clears stale wrapper path overrides.
 - `~/bin/claude` is linked from `bin/claude`. It routes `--version`/`-v` directly
   to native Claude Code and routes normal sessions through `~/.ept/bin/ept`.
   Set `CLAUDE_NATIVE_PATH` on machines where Claude lives in a different path.
-- `~/bin/opencode` is linked from `bin/opencode`. It routes `--version`/`-v`
-  directly to native OpenCode and routes normal sessions through
-  `~/.ept/bin/ept`. Set `OPENCODE_NATIVE_PATH` on machines where OpenCode lives
-  in a different path.
+- OpenCode runs directly from the current `opencode-ai` package installed under
+  `~/.npm-global`; it does not use a repo-managed wrapper.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
 - Private environment variables can go in `~/.zsh.secrets`.
 - `bootstrap.sh` supports macOS and Ubuntu/Debian.
@@ -181,14 +224,16 @@ machine, not just this machine itself.
   official Tailscale apt repository on Ubuntu/Debian. It does not authenticate
   automatically; run `sudo tailscale up` on Linux, or open the Tailscale app on
   macOS, then sign in.
-- On Ubuntu/Debian, `bootstrap.sh` configures NodeSource Node.js 22.x and
-  installs `nodejs` from that source, which already provides `npm`. Do not run
+- On Ubuntu/Debian, `bootstrap.sh` resolves the newest current Node.js major from
+  the official Node.js release index, configures that NodeSource channel, and
+  installs `nodejs` from it. The package already provides `npm`; do not run
   `apt install npm` separately. If NodeSource setup fails, bootstrap warns and
   falls back to the distro `nodejs` package for the rest of the run.
 - `bootstrap.sh` sets the user npm registry to `https://registry.npmmirror.com`
-  when npm is still using the official default registry. npm-based CLI installs
-  still fall back to `https://registry.npmjs.org` if the mirror fails or if a
-  command health check such as `codex --version` fails after installation.
+  when npm is still using the official default registry. Managed npm CLI updates
+  use `https://registry.npmjs.org` first so `@latest` resolves authoritatively,
+  then fall back to the mirror if the official registry is unavailable or a
+  package health check fails.
   Bootstrap updates npm itself with `npm@latest` before installing npm-based CLI
   tools. Global npm packages are installed under `~/.npm-global` to avoid
   sudo-owned `/usr/local` installs and missing optional native dependency
@@ -229,7 +274,6 @@ machine, not just this machine itself.
 - `~/.config/zsh/ept.zsh`
 - `~/bin/claude`
 - `~/bin/clipimg`
-- `~/bin/opencode`
 - `~/.tmux.conf`
 - `~/.config/tmux`
 - `~/.config/git`

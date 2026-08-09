@@ -10,9 +10,10 @@ find_native_claude() {
   fi
 
   local candidates=(
-    "$HOME/.local/share/fnm/node-versions/v20.20.1/installation/bin/claude"
-    "$HOME/.local/share/fnm/node-versions/v18.20.8/installation/bin/claude"
     "$HOME/.npm-global/bin/claude"
+    "$HOME/.local/share/fnm/node-versions"/*/installation/bin/claude
+    "/opt/homebrew/bin/claude"
+    "/usr/local/bin/claude"
   )
 
   for candidate in "${candidates[@]}"; do

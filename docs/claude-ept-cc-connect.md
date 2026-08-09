@@ -85,9 +85,10 @@ Minimal example:
 set -euo pipefail
 
 for claude_path in \
-  "$HOME/.local/share/fnm/node-versions/v20.20.1/installation/bin/claude" \
-  "$HOME/.local/share/fnm/node-versions/v18.20.8/installation/bin/claude" \
-  "$HOME/.npm-global/bin/claude"; do
+  "$HOME/.npm-global/bin/claude" \
+  "$HOME/.local/share/fnm/node-versions"/*/installation/bin/claude \
+  /opt/homebrew/bin/claude \
+  /usr/local/bin/claude; do
   if [[ -x "$claude_path" ]]; then
     if [[ "${1:-}" == "--version" || "${1:-}" == "-v" ]]; then
       exec "$claude_path" "$@"
@@ -141,7 +142,8 @@ If the system is already in a bad state:
 
 ```sh
 mv ~/.npm/_cacache ~/.npm/_cacache.corrupt-YYYYMMDD-HHMM
-mv ~/.local/share/fnm/node-versions/v20.20.1/installation/lib/node_modules/@anthropic-ai \
+claude_node_version=vXX.YY.ZZ
+mv "$HOME/.local/share/fnm/node-versions/${claude_node_version}/installation/lib/node_modules/@anthropic-ai" \
   ~/.cache/npm-repair-backups/anthropic-ai.corrupt-YYYYMMDD-HHMM
 ```
 

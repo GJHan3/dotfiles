@@ -19,7 +19,9 @@ ln -sfn "$DOTFILES_DIR/config/zsh/path.zsh" "$HOME/.config/zsh/path.zsh"
 ln -sfn "$DOTFILES_DIR/config/zsh/ept.zsh" "$HOME/.config/zsh/ept.zsh"
 ln -sfn "$DOTFILES_DIR/bin/claude" "$HOME/bin/claude"
 ln -sfn "$DOTFILES_DIR/bin/clipimg" "$HOME/bin/clipimg"
-ln -sfn "$DOTFILES_DIR/bin/opencode" "$HOME/bin/opencode"
+if [[ -L "$HOME/bin/opencode" ]] && [[ "$(readlink "$HOME/bin/opencode")" == "$DOTFILES_DIR/bin/opencode" ]]; then
+  rm -f "$HOME/bin/opencode"
+fi
 ln -sfn "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 ln -sfn "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
 if [[ -e "$HOME/.config/git" && ! -L "$HOME/.config/git" ]]; then

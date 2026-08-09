@@ -1,0 +1,58 @@
+# name|kind|package|command|health_args|platform|label|fallback
+git|brew|git|git|--version|macos|Git|
+zsh|brew|zsh|zsh|--version|macos|Zsh|
+tmux|brew|tmux|tmux|-V|macos|Tmux|
+neovim|brew|neovim|nvim|--version|macos|Neovim|
+curl|brew|curl|curl|--version|macos|curl|
+fzf|brew|fzf|fzf|--version|macos|fzf|
+ripgrep|brew|ripgrep|rg|--version|macos|ripgrep|
+fd|brew|fd|fd|--version|macos|fd|
+lazygit|brew|lazygit|lazygit|--version|macos|LazyGit|
+node|brew|node|node|--version|macos|Node.js|
+stylua|brew|stylua|stylua|--version|macos|StyLua|
+yazi|brew|yazi|yazi|--version|macos|Yazi|
+lynx|brew|lynx|lynx|--version|macos|Lynx|
+imagemagick|brew|imagemagick|magick|--version|macos|ImageMagick|
+glib|brew|glib|pkg-config|--version|macos|GLib build dependency|
+meson|brew|meson|meson|--version|macos|Meson|
+ninja|brew|ninja|ninja|--version|macos|Ninja|
+pkgconf|brew|pkgconf|pkg-config|--version|macos|pkgconf|
+
+git|apt|git|git|--version|ubuntu|Git|
+zsh|apt|zsh|zsh|--version|ubuntu|Zsh|
+tmux|apt|tmux|tmux|-V|ubuntu|Tmux|
+curl|apt|curl|curl|--version|ubuntu|curl|
+fzf|apt|fzf|fzf|--version|ubuntu|fzf|
+ripgrep|apt|ripgrep|rg|--version|ubuntu|ripgrep|
+fd|apt|fd-find|fd|--version|ubuntu|fd|
+xclip|apt|xclip|xclip|-version|ubuntu|xclip|
+build-essential|apt|build-essential|cc|--version|ubuntu|Build tools|
+unzip|apt|unzip|unzip|-v|ubuntu|unzip|
+sshfs|apt|sshfs|sshfs|--version|ubuntu|SSHFS|
+software-properties-common|apt|software-properties-common|add-apt-repository|--help|ubuntu|APT repository tools|
+fontconfig|apt|fontconfig|fc-cache|--version|ubuntu|Fontconfig|
+file|apt|file|file|--version|ubuntu|file|
+lynx|apt|lynx|lynx|--version|ubuntu|Lynx|
+imagemagick|apt|imagemagick|convert|--version|ubuntu|ImageMagick|
+ffmpegthumbnailer|apt|ffmpegthumbnailer|ffmpegthumbnailer|-h|ubuntu|FFmpeg thumbnailer|
+poppler|apt|poppler-utils|pdftoppm|-v|ubuntu|Poppler utilities|
+
+npm|npm|npm@latest|npm|--version|all|npm|
+codex|npm|@openai/codex@latest|codex|--version|all|Codex CLI|
+opencode|npm|opencode-ai@latest|opencode|--version|all|OpenCode CLI|
+claude|npm|@anthropic-ai/claude-code@latest|claude|--version|all|Claude Code CLI|
+cc-connect|npm|cc-connect@latest|cc-connect|--help|all|cc-connect|@chenhg5/cc-connect@latest
+lark-cli|npm|@larksuite/cli@latest|lark-cli|--version|all|Lark CLI|
+whiteboard-cli|npm|@larksuite/whiteboard-cli@latest|whiteboard-cli|--help|all|Lark Whiteboard CLI|
+
+node|custom|nodesource-current|node|--version|ubuntu|Node.js latest current|
+neovim|custom|github-release|nvim|--version|ubuntu|Neovim stable|
+lazygit|custom|github-release|lazygit|--version|ubuntu|LazyGit latest|
+stylua|custom|github-release|stylua|--version|ubuntu|StyLua latest|
+yazi|custom|github-release|yazi|--version|ubuntu|Yazi latest|
+tailscale|custom|official-package|tailscale|status|all|Tailscale latest|
+sshfs|custom|github-release|sshfs|--version|macos|SSHFS latest and macFUSE|
+im-select|custom|homebrew-tap|im-select||macos|im-select latest|
+shell-framework|custom|git-repositories|zsh||all|Oh My Zsh, Powerlevel10k and plugins|
+fonts|custom|github-assets|fc-cache||all|MesloLGS NF fonts|
+lark-skills|custom|npx-skills|npx|--version|all|Lark skills|
