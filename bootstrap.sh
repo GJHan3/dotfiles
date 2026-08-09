@@ -23,6 +23,9 @@ SKIP_TOOLS=""
 CURRENT_OS=""
 INSTALL_FAILURE_COUNT=0
 INSTALL_FAILURE_MESSAGES=()
+SUDO_SESSION_STARTED=0
+SUDO_KEEPALIVE_PID=""
+SUDO_KEEPALIVE_INTERVAL_SECONDS=50
 
 NPM_MIRROR_REGISTRY="https://registry.npmmirror.com"
 NPM_OFFICIAL_REGISTRY="https://registry.npmjs.org"
@@ -131,5 +134,6 @@ main() {
 }
 
 if [[ "${BOOTSTRAP_SOURCE_ONLY:-0}" -eq 0 ]]; then
+  trap stop_sudo_session EXIT
   main "$@"
 fi

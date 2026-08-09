@@ -21,7 +21,7 @@ install_packages_ubuntu() {
   local -a APT_PACKAGES=()
 
   if tool_selected lazygit && [[ -f /etc/apt/sources.list.d/lazygit-team-ubuntu-release-jammy.list ]]; then
-    sudo rm -f /etc/apt/sources.list.d/lazygit-team-ubuntu-release-jammy.list
+    run_sudo rm -f /etc/apt/sources.list.d/lazygit-team-ubuntu-release-jammy.list
   fi
   ensure_nodesource_ubuntu
   if tool_selected node && should_install_apt_package nodejs; then
@@ -40,23 +40,26 @@ install_packages_ubuntu() {
   fi
 
   if (( ${#APT_PACKAGES[@]} > 0 )); then
-    if ! sudo apt-get update; then
+    if ! run_sudo apt-get update; then
       print_warning "APT update failed" "Continuing with existing package metadata; latest versions cannot be guaranteed."
       record_install_failure apt "package metadata update failed"
     fi
     for package in "${APT_PACKAGES[@]}"; do
-      if ! sudo apt-get install -y "$package"; then
+      if ! run_sudo apt-get install -y "$package"; then
         print_warning "APT package install failed" "Continuing after ${package} failed."
         record_install_failure "$package" "apt install failed"
       fi
     done
   fi
   if tool_selected tailscale && need_cmd systemctl && need_cmd tailscale; then
-    sudo systemctl enable --now tailscaled 2>/dev/null || true
+    if ! systemctl is-enabled --quiet tailscaled 2>/dev/null || ! systemctl is-active --quiet tailscaled 2>/dev/null; then
+      run_sudo systemctl enable --now tailscaled 2>/dev/null || true
+    fi
   fi
   refresh_command_paths
   if tool_selected fd && ! need_cmd fd && [[ -x /usr/bin/fdfind ]]; then
-    sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
+    mkdir -p "${HOME}/.local/bin" || return 1
+    ln -sfn /usr/bin/fdfind "${HOME}/.local/bin/fd" || return 1
   fi
   run_ubuntu_release_installers
 }

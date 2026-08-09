@@ -31,6 +31,7 @@ install_nodesource_ubuntu() {
   arch="$(dpkg --print-architecture)"
   key_url="https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key"
   source_url="https://deb.nodesource.com/node_${NODE_TARGET_MAJOR}.x"
+  ensure_sudo_session || return 1
   sudo apt-get update || return 1
   sudo apt-get install -y ca-certificates curl gnupg || return 1
   sudo mkdir -p "$(dirname "$NODESOURCE_KEYRING")" "$(dirname "$NODESOURCE_SOURCE_FILE")" || return 1

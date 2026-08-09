@@ -22,7 +22,7 @@ install_latest_sshfs_macos() {
   if curl -fsIL "$pkg_url" >/dev/null 2>&1; then
     archive_path="/tmp/sshfs-${version}.pkg"
     curl -fL "$pkg_url" -o "$archive_path" || return 1
-    sudo /usr/sbin/installer -pkg "$archive_path" -target / || return 1
+    run_sudo /usr/sbin/installer -pkg "$archive_path" -target / || return 1
     mkdir -p "$(dirname "$SSHFS_VERSION_FILE")" || return 1
     printf '%s\n' "$version" > "$SSHFS_VERSION_FILE" || return 1
     return 0
@@ -58,11 +58,23 @@ install_sshfs_macos() {
   local brew_bin=$1 macfuse_dmg mount_point macfuse_failed=0
   tool_selected sshfs || return 0
   if ! "$brew_bin" list --cask "$MACFUSE_CASK" >/dev/null 2>&1; then
-    "$brew_bin" install --cask "$MACFUSE_CASK" || macfuse_failed=1
+    if ensure_sudo_session; then
+      "$brew_bin" install --cask "$MACFUSE_CASK" || macfuse_failed=1
+    else
+      macfuse_failed=1
+    fi
   elif ! need_macos_pkg io.macfuse.installer.components.core; then
-    "$brew_bin" reinstall --cask "$MACFUSE_CASK" || macfuse_failed=1
+    if ensure_sudo_session; then
+      "$brew_bin" reinstall --cask "$MACFUSE_CASK" || macfuse_failed=1
+    else
+      macfuse_failed=1
+    fi
   elif [[ -n "$("$brew_bin" outdated --cask --greedy --quiet "$MACFUSE_CASK" 2>/dev/null)" ]]; then
-    "$brew_bin" upgrade --cask --greedy "$MACFUSE_CASK" || macfuse_failed=1
+    if ensure_sudo_session; then
+      "$brew_bin" upgrade --cask --greedy "$MACFUSE_CASK" || macfuse_failed=1
+    else
+      macfuse_failed=1
+    fi
   fi
   if (( macfuse_failed == 1 )); then
     print_warning "macFUSE update failed" "Continuing with the installed macFUSE libraries so SSHFS can still be updated under ~/.local."

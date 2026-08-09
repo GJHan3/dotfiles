@@ -15,11 +15,12 @@ install_neovim_ubuntu() {
   esac
   download_url="https://github.com/neovim/neovim/releases/download/stable/${archive_name}"
   tmp_archive="/tmp/${archive_name}"
-  install_dir="/opt/nvim-linux-${arch}"
+  install_dir="${HOME}/.local/opt/nvim-linux-${arch}"
   curl -fL "$download_url" -o "$tmp_archive" || return 1
-  sudo rm -rf "$install_dir" || return 1
-  sudo tar -C /opt -xzf "$tmp_archive" || return 1
-  sudo ln -sf "${install_dir}/bin/nvim" /usr/local/bin/nvim || return 1
+  rm -rf "$install_dir" || return 1
+  mkdir -p "${HOME}/.local/opt" "${HOME}/.local/bin" || return 1
+  tar -C "${HOME}/.local/opt" -xzf "$tmp_archive" || return 1
+  ln -sfn "${install_dir}/bin/nvim" "${HOME}/.local/bin/nvim" || return 1
 }
 
 install_lazygit_ubuntu() {
@@ -40,7 +41,8 @@ install_lazygit_ubuntu() {
   rm -rf "$tmp_dir" || return 1
   mkdir -p "$tmp_dir" || return 1
   tar -C "$tmp_dir" -xzf "$tmp_archive" lazygit || return 1
-  sudo install "$tmp_dir/lazygit" /usr/local/bin/lazygit || return 1
+  mkdir -p "${HOME}/.local/bin" || return 1
+  install -m 0755 "$tmp_dir/lazygit" "${HOME}/.local/bin/lazygit" || return 1
 }
 
 install_yazi_ubuntu() {
@@ -60,8 +62,9 @@ install_yazi_ubuntu() {
   rm -rf "$tmp_dir" || return 1
   mkdir -p "$tmp_dir" || return 1
   unzip -q "$tmp_archive" -d "$tmp_dir" || return 1
-  sudo install "$tmp_dir"/yazi-*/yazi /usr/local/bin/yazi || return 1
-  sudo install "$tmp_dir"/yazi-*/ya /usr/local/bin/ya || return 1
+  mkdir -p "${HOME}/.local/bin" || return 1
+  install -m 0755 "$tmp_dir"/yazi-*/yazi "${HOME}/.local/bin/yazi" || return 1
+  install -m 0755 "$tmp_dir"/yazi-*/ya "${HOME}/.local/bin/ya" || return 1
 }
 
 install_stylua_ubuntu() {
@@ -81,5 +84,6 @@ install_stylua_ubuntu() {
   rm -rf "$tmp_dir" || return 1
   mkdir -p "$tmp_dir" || return 1
   unzip -q "$tmp_archive" -d "$tmp_dir" || return 1
-  sudo install "$tmp_dir/stylua" /usr/local/bin/stylua || return 1
+  mkdir -p "${HOME}/.local/bin" || return 1
+  install -m 0755 "$tmp_dir/stylua" "${HOME}/.local/bin/stylua" || return 1
 }

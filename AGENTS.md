@@ -64,6 +64,11 @@ Ubuntu/Debian 分支判断，不要假设 Homebrew、apt、字体路径或二进
   必须汇总失败并返回非零状态；不能在缺少已选软件时仍打印无条件成功的 `[DONE]`。
 - 传给 `run_optional_step` 的函数会处于 Bash 条件上下文，不能只依赖 `set -e`；下载、解压、构建和
   安装等关键命令必须显式使用 `|| return 1`，多项独立操作则累计失败后返回非零状态。
+- 需要管理员权限的单条命令使用 `run_sudo`；包含多个 `sudo` 或管道右侧必须直接调用 `sudo` 的连续
+  安装步骤，应先调用 `ensure_sudo_session`。认证只在首次真实需要时发生，由入口的 EXIT trap 调用
+  `stop_sudo_session` 停止保活并清除缓存；不要自行保存、管道传递密码或新增宽泛的 NOPASSWD 规则。
+- 可独立运行的用户级二进制优先安装到 `~/.local/bin`（大型目录放 `~/.local/opt`），并利用现有 PATH
+  加载；只有包管理器、系统服务、内核/网络扩展或必须写入系统目录的操作才申请管理员权限。
 - 所有模块保持 macOS 系统 Bash 3.2 兼容，不使用关联数组、`mapfile` 或 Bash 4+ 专属语法。
 
 `.zshrc` 的启动顺序维护在 `docs/machine-specific.md#zsh-startup-order`；修改时保持单线性加载流程，
@@ -90,7 +95,8 @@ Neovim 结构规则见 `config/nvim/README.md`：`lua/config/autocmds.lua` 只�
 
 修改 `bootstrap/` 或 `bootstrap.sh` 时，除上述 Bash 语法检查外，至少执行：
 
-- `./bootstrap/tests/smoke.sh`：统一验证清单结构、依赖展开、过滤、Node 最新主版本解析和失败状态。
+- `./bootstrap/tests/smoke.sh`：统一验证清单结构、依赖展开、过滤、Node 最新主版本解析、单次 sudo
+  会话和失败状态。
 - `./bootstrap.sh --list`：确认清单能完整解析且新增名称可用于筛选。
 - `./bootstrap.sh --dry-run --only <改动的软件名>`：检查本机平台选择和隐式依赖。
 - `BOOTSTRAP_OS_OVERRIDE=ubuntu ./bootstrap.sh --dry-run --only <改动的软件名>` 与对应的

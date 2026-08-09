@@ -17,6 +17,7 @@ ensure_tailscale_apt_repository() {
     print_warning "Tailscale setup skipped" "Could not select a supported Ubuntu/Debian repository."
     return 1
   fi
+  ensure_sudo_session || return 1
   sudo mkdir -p "$(dirname "$TAILSCALE_KEYRING")" "$(dirname "$TAILSCALE_SOURCE_FILE")" || return 1
   curl -fsSL "${TAILSCALE_STABLE_URL}/${distro_id}/${distro_codename}.noarmor.gpg" | sudo tee "$TAILSCALE_KEYRING" >/dev/null || return 1
   sudo chmod 0644 "$TAILSCALE_KEYRING" || return 1
@@ -40,5 +41,5 @@ install_tailscale_macos() {
   fi
   tmp_pkg="/tmp/${pkg_name}"
   curl -fL "$pkg_url" -o "$tmp_pkg" || return 1
-  sudo installer -pkg "$tmp_pkg" -target / || return 1
+  run_sudo installer -pkg "$tmp_pkg" -target / || return 1
 }

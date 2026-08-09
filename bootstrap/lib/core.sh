@@ -43,6 +43,49 @@ print_warning() {
   printf "  %s\n" "$2"
 }
 
+ensure_sudo_session() {
+  if (( SUDO_SESSION_STARTED == 1 )); then
+    return 0
+  fi
+  if ! need_cmd sudo; then
+    print_warning "Administrator access unavailable" "sudo is required for this selected system-level operation."
+    return 1
+  fi
+
+  print_status_header INFO "Administrator access"
+  printf '  Authenticate once; bootstrap will keep this sudo session active only until it exits.\n'
+  if ! sudo -v; then
+    print_warning "Administrator authentication failed" "The selected system-level operation cannot continue."
+    return 1
+  fi
+
+  SUDO_SESSION_STARTED=1
+  (
+    while sudo -n -v >/dev/null 2>&1; do
+      sleep "$SUDO_KEEPALIVE_INTERVAL_SECONDS"
+    done
+  ) &
+  SUDO_KEEPALIVE_PID=$!
+}
+
+run_sudo() {
+  ensure_sudo_session || return 1
+  sudo "$@"
+}
+
+stop_sudo_session() {
+  local session_pid=${SUDO_KEEPALIVE_PID:-}
+  if [[ -n "$session_pid" ]]; then
+    kill "$session_pid" >/dev/null 2>&1 || true
+    wait "$session_pid" 2>/dev/null || true
+    SUDO_KEEPALIVE_PID=""
+  fi
+  if (( ${SUDO_SESSION_STARTED:-0} == 1 )); then
+    sudo -k >/dev/null 2>&1 || true
+    SUDO_SESSION_STARTED=0
+  fi
+}
+
 record_install_failure() {
   local title=$1 detail=$2
   INSTALL_FAILURE_MESSAGES[$INSTALL_FAILURE_COUNT]="${title}: ${detail}"

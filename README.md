@@ -79,6 +79,12 @@ Independent tool failures are collected instead of stopping later installers.
 The final summary returns a non-zero status and lists failed tool names; `[DONE]`
 is printed only when every selected installer completed successfully.
 
+System-level operations authenticate lazily with `sudo`: bootstrap asks only
+when the first selected operation actually needs administrator access, refreshes
+that credential while the script is running, and invalidates it on exit. It does
+not store or pipe the password. macOS can still show separate, unavoidable
+System Settings confirmations for macFUSE and Tailscale extensions.
+
 `bootstrap.sh` can:
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,
@@ -109,7 +115,9 @@ dependency:
   published, and otherwise builds the newest SSHFS release from source; the
   source build is installed under `~/.local`, and the resolved release is
   recorded under `~/.local/state/dotfiles-bootstrap/`
-- Ubuntu/Debian: installs the `sshfs` package
+- Ubuntu/Debian: installs the `sshfs` package; standalone Neovim, LazyGit, Yazi,
+  and StyLua release binaries are installed under `~/.local` to avoid unnecessary
+  writes to `/opt` and `/usr/local`
 
 After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`.
 Actionable follow-up items are printed with status prefixes such as `[NEXT]`,

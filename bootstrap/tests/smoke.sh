@@ -79,6 +79,21 @@ NODE_RELEASE_INDEX="file://${TEST_TMP_DIR}/node-index.json"
 resolve_node_target_major
 [[ "$NODE_TARGET_MAJOR" == 30 ]] || fail "latest Node.js major parser returned ${NODE_TARGET_MAJOR}"
 
+sudo() {
+  printf '%s\n' "$*" >> "${TEST_TMP_DIR}/sudo-calls.txt"
+}
+SUDO_SESSION_STARTED=0
+SUDO_KEEPALIVE_PID=""
+SUDO_KEEPALIVE_INTERVAL_SECONDS=1
+ensure_sudo_session > /dev/null
+ensure_sudo_session > /dev/null
+[[ $SUDO_SESSION_STARTED -eq 1 ]] || fail "sudo session did not start"
+[[ "$(grep -c '^-v$' "${TEST_TMP_DIR}/sudo-calls.txt")" -eq 1 ]] || fail "sudo authenticated more than once"
+stop_sudo_session
+[[ $SUDO_SESSION_STARTED -eq 0 ]] || fail "sudo session did not stop"
+assert_contains "${TEST_TMP_DIR}/sudo-calls.txt" '^-k$'
+unset -f sudo
+
 INSTALL_FAILURE_COUNT=0
 INSTALL_FAILURE_MESSAGES=()
 run_optional_step "expected failure" false

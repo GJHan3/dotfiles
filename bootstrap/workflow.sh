@@ -63,7 +63,11 @@ set_default_shell_to_zsh() {
     printf 'Set default shell to %s? [Y/n] ' "$zsh_path"
     read -r reply
     reply=${reply:-Y}
-    [[ "$reply" =~ ^[Yy]$ ]] && chsh -s "$zsh_path" || true
+    if [[ "$reply" =~ ^[Yy]$ ]]; then
+      if ! run_sudo chsh -s "$zsh_path" "$USER"; then
+        print_warning "Default shell unchanged" "Could not set the default shell to ${zsh_path}."
+      fi
+    fi
   fi
 }
 

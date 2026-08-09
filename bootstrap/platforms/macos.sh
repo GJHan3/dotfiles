@@ -4,6 +4,7 @@ install_homebrew() {
   need_cmd brew && return 0
   local installer
   installer="$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || return 1
+  ensure_sudo_session || return 1
   /bin/bash -c "$installer"
 }
 
