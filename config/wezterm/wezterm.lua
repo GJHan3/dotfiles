@@ -3,35 +3,12 @@ local config = wezterm.config_builder()
 local act = wezterm.action
 local nerdfonts = wezterm.nerdfonts
 
-local function file_exists(path)
-  local f = io.open(path, "rb")
-  if f then
-    f:close()
-    return true
-  end
-  return false
-end
-
-local home = os.getenv("HOME") or ""
-local background_candidates = {
-  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.png",
-  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.jpg",
-  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.jpeg",
-  home .. "/dotfiles/config/wezterm/backgrounds/maplestory.webp",
-  home .. "/Pictures/maplestory.png",
-  home .. "/Pictures/maplestory.jpg",
-  home .. "/Pictures/maplestory.jpeg",
-  home .. "/Pictures/MapleStory.png",
-  home .. "/Pictures/MapleStory.jpg",
-  home .. "/Pictures/MapleStory.jpeg",
+local font_fallback = {
+  { family = "JetBrains Mono", weight = "Medium" },
+  "Symbols Nerd Font Mono",
 }
-
-local background_image
-for _, path in ipairs(background_candidates) do
-  if file_exists(path) then
-    background_image = path
-    break
-  end
+if wezterm.target_triple:find("apple%-darwin") then
+  table.insert(font_fallback, { family = "Hiragino Sans GB", weight = "Light" })
 end
 
 -- Disable the default behavior that can translate mouse wheel events into
@@ -39,20 +16,22 @@ end
 -- show up in the shell as ^[[A/^[[B and trigger zsh history navigation instead
 -- of scrolling terminal content.
 config.alternate_buffer_wheel_scroll_speed = 0
+config.font = wezterm.font_with_fallback(font_fallback)
 config.font_size = 15.0
+config.line_height = 1.05
 config.use_fancy_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = false
 config.tab_max_width = 32
 config.window_decorations = "TITLE | RESIZE"
 
--- 开启全局透明透视：即使应用设置了背景色，也会带有透明度
-config.text_background_opacity = 0.5
-config.window_background_opacity = 0.95
+-- Keep the terminal background fully opaque so the configured color is stable.
+config.text_background_opacity = 1.0
+config.window_background_opacity = 1.0
 
 -- Built-in scheme: Tokyo Night Moon.
 config.color_scheme = "Tokyo Night Moon"
 config.colors = {
-  background = "#1e2030", -- 提亮背景基底颜色
+  background = "#1e2030",
   foreground = "#d6dde8",
   cursor_bg = "#8bd49c",
   cursor_border = "#8bd49c",
@@ -105,35 +84,6 @@ config.colors = {
     },
   },
 }
-
--- config.window_background_opacity = 1.0
--- config.text_background_opacity = 1.0
-
-if background_image then
-  config.background = {
-    {
-      source = {
-        File = background_image,
-      },
-      hsb = {
-        brightness = 0.08,
-      },
-      opacity = 1.0,
-      horizontal_align = "Center",
-      vertical_align = "Middle",
-      repeat_x = "NoRepeat",
-      repeat_y = "NoRepeat",
-    },
-    {
-      source = {
-        Color = "#1e2030", -- 与背景色同步提亮
-      },
-      width = "100%",
-      height = "100%",
-      opacity = 0.65, -- 降低遮罩浓度，让背景图更亮
-    },
-  }
-end
 
 wezterm.on("format-tab-title", function(tab, tabs, panes, config_, hover, max_width)
   local title = tab.active_pane.title
