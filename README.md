@@ -84,6 +84,10 @@ when the first selected operation actually needs administrator access, refreshes
 that credential while the script is running, and invalidates it on exit. It does
 not store or pipe the password. macOS can still show separate, unavoidable
 System Settings confirmations for macFUSE and Tailscale extensions.
+On macOS, the installed Tailscale version is read from the app plist with
+`plutil`, with the system package receipt as a fallback. An already-current app
+is not reinstalled, including during `--update`, and a pkg install is accepted
+only after its installed version matches the resolved stable release.
 
 `bootstrap.sh` can:
 

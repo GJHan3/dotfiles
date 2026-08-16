@@ -24,6 +24,20 @@ ensure_tailscale_apt_repository() {
   curl -fsSL "${TAILSCALE_STABLE_URL}/${distro_id}/${distro_codename}.tailscale-keyring.list" | sudo tee "$TAILSCALE_SOURCE_FILE" >/dev/null || return 1
 }
 
+installed_tailscale_macos_version() {
+  local app_plist=/Applications/Tailscale.app/Contents/Info.plist installed_version
+
+  installed_version=""
+  if [[ -r "$app_plist" ]] && need_cmd plutil; then
+    installed_version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_plist" 2>/dev/null || true)"
+  fi
+  if [[ ! "$installed_version" =~ ^[0-9]+(\.[0-9]+)*$ ]] && need_cmd pkgutil; then
+    installed_version="$(pkgutil --pkg-info com.tailscale.ipn.macsys 2>/dev/null | sed -n 's/^version: //p')"
+  fi
+  [[ "$installed_version" =~ ^[0-9]+(\.[0-9]+)*$ ]] || return 1
+  printf '%s\n' "$installed_version"
+}
+
 install_tailscale_macos() {
   local pkg_href pkg_url pkg_name latest_version installed_version tmp_pkg
   tool_selected tailscale || return 0
@@ -35,11 +49,17 @@ install_tailscale_macos() {
   esac
   pkg_name=${pkg_url##*/}
   latest_version="$(printf '%s' "$pkg_name" | sed -n 's/^Tailscale-\([0-9][0-9.]*\)-macos\.pkg$/\1/p')"
-  installed_version="$(defaults read /Applications/Tailscale.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || true)"
-  if [[ $FORCE_INSTALL -eq 0 && -n "$latest_version" && "$installed_version" == "$latest_version" ]]; then
+  [[ "$latest_version" =~ ^[0-9]+(\.[0-9]+)*$ ]] || { echo "Failed to parse the latest Tailscale macOS version." >&2; return 1; }
+  installed_version="$(installed_tailscale_macos_version || true)"
+  if [[ "$installed_version" == "$latest_version" ]]; then
     return 0
   fi
   tmp_pkg="/tmp/${pkg_name}"
   curl -fL "$pkg_url" -o "$tmp_pkg" || return 1
   run_sudo installer -pkg "$tmp_pkg" -target / || return 1
+  installed_version="$(installed_tailscale_macos_version || true)"
+  if [[ "$installed_version" != "$latest_version" ]]; then
+    echo "Tailscale installer completed, but version ${latest_version} was not detected afterward." >&2
+    return 1
+  fi
 }

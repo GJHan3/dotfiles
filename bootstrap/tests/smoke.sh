@@ -79,6 +79,22 @@ NODE_RELEASE_INDEX="file://${TEST_TMP_DIR}/node-index.json"
 resolve_node_target_major
 [[ "$NODE_TARGET_MAJOR" == 30 ]] || fail "latest Node.js major parser returned ${NODE_TARGET_MAJOR}"
 
+plutil() {
+  printf '9.8.7\n'
+}
+pkgutil() {
+  fail "pkgutil fallback ran even though plutil succeeded"
+}
+[[ "$(installed_tailscale_macos_version)" == 9.8.7 ]] || fail "Tailscale plist version detection failed"
+plutil() {
+  return 1
+}
+pkgutil() {
+  printf 'package-id: com.tailscale.ipn.macsys\nversion: 8.7.6\n'
+}
+[[ "$(installed_tailscale_macos_version)" == 8.7.6 ]] || fail "Tailscale receipt version fallback failed"
+unset -f plutil pkgutil
+
 sudo() {
   printf '%s\n' "$*" >> "${TEST_TMP_DIR}/sudo-calls.txt"
 }
