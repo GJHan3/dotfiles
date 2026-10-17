@@ -6,6 +6,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # Core environment.
+typeset -g DOTFILES_REPO_DIR="${${(%):-%x}:A:h:h}"
+
 if [[ -f "$HOME/.config/zsh/path.zsh" ]]; then
   source "$HOME/.config/zsh/path.zsh"
 fi
@@ -683,7 +685,7 @@ sshx11check() {
   emulate -L zsh
 
   local host="${1:-}"
-  local script_path="$HOME/dotfiles/scripts/check-remote-x11.sh"
+  local script_path="$DOTFILES_REPO_DIR/scripts/check-remote-x11.sh"
 
   if [[ -z "$host" ]]; then
     host="$(_sshfs_select_host)" || return 1
@@ -703,7 +705,7 @@ sshx11() {
   emulate -L zsh
 
   local host="${1:-}"
-  local script_path="$HOME/dotfiles/scripts/setup-remote-x11.sh"
+  local script_path="$DOTFILES_REPO_DIR/scripts/setup-remote-x11.sh"
   local remote_tmp=""
   local remote_tmp_quoted=""
 
@@ -838,7 +840,7 @@ tk() {
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 xqallow() {
-  "$HOME/dotfiles/scripts/xquartz-allow-localhost.sh" "$@"
+  "$DOTFILES_REPO_DIR/scripts/xquartz-allow-localhost.sh" "$@"
 }
 
 if [[ "$DOTFILES_OS" == "macos" && -z "$SSH_CONNECTION" ]]; then

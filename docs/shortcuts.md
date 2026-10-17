@@ -59,6 +59,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 ## SSHFS Shell
 
 基于 [zsh/.zshrc](../zsh/.zshrc) 里的快捷函数，可直接复用 `~/.ssh/config`：
+X11 辅助脚本从当前加载的 dotfiles 仓库目录定位，因此仓库无需固定放在 `~/dotfiles`。
 
 - `sshhosts`: 列出 `~/.ssh/config` 里的可用 Host 别名
 - `sshs`: 用 `fzf` 选择一个 Host，或显式传入 Host，然后默认执行 `ssh -Y <host>`
