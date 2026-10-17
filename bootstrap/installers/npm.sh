@@ -50,13 +50,6 @@ run_npm_global_install() {
     --registry="$registry"
 }
 
-repair_claude_native_binary() {
-  local package_dir="${HOME}/.npm-global/lib/node_modules/@anthropic-ai/claude-code"
-  [[ -f "$package_dir/install.cjs" ]] || return 1
-  print_warning "Claude Code command failed" "Retrying its bundled postinstall script."
-  node "$package_dir/install.cjs"
-}
-
 install_npm_global_package() {
   local package=$1 label=$2 command=$3 health=${4:-} registry installed_cmd
   local -a health_args=()
@@ -76,11 +69,6 @@ install_npm_global_package() {
       installed_cmd="${HOME}/.npm-global/bin/${command}"
       if [[ -x "$installed_cmd" ]] && "$installed_cmd" "${health_args[@]}" >/dev/null 2>&1; then
         return 0
-      fi
-      if [[ "$package" == @anthropic-ai/claude-code@* ]] && repair_claude_native_binary; then
-        if [[ -x "$installed_cmd" ]] && "$installed_cmd" "${health_args[@]}" >/dev/null 2>&1; then
-          return 0
-        fi
       fi
       print_warning "${label} health check failed" "npm install succeeded from ${registry}, but ${installed_cmd} still does not run. Trying the next registry."
     fi
