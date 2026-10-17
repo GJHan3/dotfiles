@@ -18,12 +18,12 @@ fail() {
 
 assert_contains() {
   local file=$1 pattern=$2
-  grep -Eq "$pattern" "$file" || fail "${file} does not contain ${pattern}"
+  grep -Eq -- "$pattern" "$file" || fail "${file} does not contain ${pattern}"
 }
 
 assert_not_contains() {
   local file=$1 pattern=$2
-  if grep -Eq "$pattern" "$file"; then
+  if grep -Eq -- "$pattern" "$file"; then
     fail "${file} unexpectedly contains ${pattern}"
   fi
 }
@@ -109,6 +109,41 @@ stop_sudo_session
 [[ $SUDO_SESSION_STARTED -eq 0 ]] || fail "sudo session did not stop"
 assert_contains "${TEST_TMP_DIR}/sudo-calls.txt" '^-k$'
 unset -f sudo
+
+npm() {
+  printf '%s\n' "$*" > "${TEST_TMP_DIR}/npm-install.txt"
+}
+run_npm_global_install '@anthropic-ai/claude-code@latest' "$NPM_OFFICIAL_REGISTRY"
+assert_contains "${TEST_TMP_DIR}/npm-install.txt" '--include=optional'
+assert_contains "${TEST_TMP_DIR}/npm-install.txt" '--allow-scripts=@anthropic-ai/claude-code'
+unset -f npm
+
+original_home=$HOME
+HOME="${TEST_TMP_DIR}/home"
+claude_package_dir="${HOME}/.npm-global/lib/node_modules/@anthropic-ai/claude-code"
+mkdir -p "$claude_package_dir" "${HOME}/.npm-global/bin"
+: > "$claude_package_dir/install.cjs"
+cat > "${HOME}/.npm-global/bin/claude" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+chmod +x "${HOME}/.npm-global/bin/claude"
+ensure_npm_user_prefix() { :; }
+refresh_command_paths() { :; }
+check_node_runtime() { :; }
+run_npm_global_install() { :; }
+node() {
+  printf '%s\n' "$1" > "${TEST_TMP_DIR}/claude-postinstall.txt"
+  cat > "${HOME}/.npm-global/bin/claude" <<'EOF'
+#!/bin/sh
+echo '2.1.302 (Claude Code)'
+EOF
+  chmod +x "${HOME}/.npm-global/bin/claude"
+}
+install_npm_global_package '@anthropic-ai/claude-code@latest' 'Claude Code CLI' claude --version > /dev/null || fail "Claude postinstall recovery failed"
+assert_contains "${TEST_TMP_DIR}/claude-postinstall.txt" '/install\.cjs$'
+HOME=$original_home
+unset -f ensure_npm_user_prefix refresh_command_paths check_node_runtime run_npm_global_install node
 
 INSTALL_FAILURE_COUNT=0
 INSTALL_FAILURE_MESSAGES=()

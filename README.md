@@ -59,6 +59,10 @@ on a supported runtime. npm CLIs are installed from the official registry first,
 verified from `~/.npm-global/bin`, and then exposed ahead of older global installs.
 For npm 12+, lifecycle scripts are permitted only for the exact manifest package
 being installed; bootstrap does not enable arbitrary global install scripts.
+If npm leaves Claude Code's placeholder command in place, bootstrap retries the
+package's postinstall script and verifies `claude --version` before reporting
+success. An older root-owned npm install needs a one-time ownership fix outside
+bootstrap before it can be updated as the current user.
 
 The bootstrap entry point also supports inspecting and narrowing the manifest:
 
