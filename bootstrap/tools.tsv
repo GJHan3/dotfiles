@@ -41,7 +41,6 @@ npm|npm|npm@latest|npm|--version|all|npm|
 codex|npm|@openai/codex@latest|codex|--version|all|Codex CLI|
 opencode|npm|opencode-ai@latest|opencode|--version|all|OpenCode CLI|
 claude|npm|@anthropic-ai/claude-code@latest|claude|--version|all|Claude Code CLI|
-cc-connect|npm|cc-connect@latest|cc-connect|--help|all|cc-connect|@chenhg5/cc-connect@latest
 lark-cli|npm|@larksuite/cli@latest|lark-cli|--version|all|Lark CLI|
 whiteboard-cli|npm|@larksuite/whiteboard-cli@latest|whiteboard-cli|--help|all|Lark Whiteboard CLI|
 

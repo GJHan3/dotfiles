@@ -117,13 +117,6 @@ print_post_install_notes() {
   else
     print_missing_command_warning "Claude Code CLI" claude "Claude Code is unavailable until it is installed." "npm i -g @anthropic-ai/claude-code@latest"
   fi
-  if command_runs cc-connect --help; then
-    print_status_header NEXT cc-connect
-    print_command_hint "Run:" "cc-connect --help"
-    printf '  Configure projects and chat integrations before starting the relay.\n'
-  else
-    print_missing_command_warning cc-connect cc-connect "Chat relay workflows are unavailable until it is installed." "npm i -g cc-connect@latest"
-  fi
   if command_runs lark-cli --version; then
     print_status_header NEXT "Lark CLI"
     print_command_hint "Run:" "lark-cli config init --new"

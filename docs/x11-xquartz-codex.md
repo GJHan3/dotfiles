@@ -92,7 +92,7 @@ ln -sfn ~/.Xauthority ~/.codex-home/.Xauthority
 XAUTHORITY=<真实用户家目录>/.Xauthority
 ```
 
-这样像 `claude`、`cc-connect`、自定义 wrapper 或其他把 `HOME` 改到临时目录的 CLI，
+这样像 `claude`、自定义 wrapper 或其他把 `HOME` 改到临时目录的 CLI，
 只要继承了当前 shell 的环境，通常都能继续访问同一份 X11 cookie，而不需要逐个为工具单独配 `.Xauthority`。
 
 判断是不是这个问题，可以直接对比：

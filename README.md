@@ -91,7 +91,7 @@ only after its installed version matches the resolved stable release.
 
 - install `git`, `zsh`, `tmux`, `neovim`, `ripgrep`, `fd`, `fzf`, `lazygit`,
   `stylua`, `yazi`, `sshfs`, `tailscale`, `node`, `codex`, `opencode`, `claude`,
-  `cc-connect`, `lark-cli`, and `whiteboard-cli`
+  `lark-cli`, and `whiteboard-cli`
 - install `oh-my-zsh` and `powerlevel10k`
 - install Meslo Nerd Font
 - relink dotfiles into place
@@ -125,15 +125,14 @@ After bootstrap, follow the highlighted terminal prompts from `bootstrap.sh`.
 Actionable follow-up items are printed with status prefixes such as `[NEXT]`,
 `[WARN]`, `[INFO]`, and `[DONE]`, and the command text itself is shown with ANSI
 emphasis in interactive terminals. If npm-based CLI tools such as `codex`,
-`lark-cli`, `opencode`, `claude`, or `cc-connect` are still missing after bootstrap, the
+`lark-cli`, `opencode`, or `claude` are still missing after bootstrap, the
 script now prints a `[WARN]` block so the missing command is obvious.
 
 Typical follow-up commands are `codex` or `codex login` for Codex CLI
 authentication, `lark-cli config init --new` and optional `lark-cli auth login`
 for Lark CLI setup, `whiteboard-cli --help` to verify the whiteboard renderer,
 `opencode` or `opencode auth login` for OpenCode, `claude` for Claude Code,
-`cc-connect --help` to verify the installed command, `sudo tailscale up` on
-Linux or `open -a Tailscale` on macOS to join the tailnet, `tailscale status` to
+`sudo tailscale up` on Linux or `open -a Tailscale` on macOS to join the tailnet, `tailscale status` to
 list devices, and `proxy_on` if you want to enable the local proxy manually.
 Proxy is off by default. Bootstrap also installs the Feishu/Lark CLI skill with
 `npx skills add larksuite/cli -g -y`.

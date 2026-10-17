@@ -107,8 +107,6 @@ X11 辅助脚本从当前加载的 dotfiles 仓库目录定位，因此仓库无
 - `codex`: OpenAI Codex CLI
 - `opencode`: 直接运行 `~/.npm-global` 中安装的最新版 OpenCode CLI
 - `claude`: 直接运行 `~/.npm-global` 中安装的 Claude Code CLI
-- `cc-connect`: chat relay for connecting Claude Code and other local agents to
-  supported chat platforms
 
 ## Neovim
 
