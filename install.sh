@@ -16,12 +16,6 @@ ln -sfn "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
 ln -sfn "$DOTFILES_DIR/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
 ln -sfn "$DOTFILES_DIR/config/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
 ln -sfn "$DOTFILES_DIR/config/zsh/path.zsh" "$HOME/.config/zsh/path.zsh"
-if [[ -L "$HOME/.config/zsh/ept.zsh" ]] && [[ "$(readlink "$HOME/.config/zsh/ept.zsh")" == "$DOTFILES_DIR/config/zsh/ept.zsh" ]]; then
-  rm -f "$HOME/.config/zsh/ept.zsh"
-fi
-if [[ -L "$HOME/bin/claude" ]] && [[ "$(readlink "$HOME/bin/claude")" == "$DOTFILES_DIR/bin/claude" ]]; then
-  rm -f "$HOME/bin/claude"
-fi
 ln -sfn "$DOTFILES_DIR/bin/clipimg" "$HOME/bin/clipimg"
 if [[ -L "$HOME/bin/opencode" ]] && [[ "$(readlink "$HOME/bin/opencode")" == "$DOTFILES_DIR/bin/opencode" ]]; then
   rm -f "$HOME/bin/opencode"
