@@ -11,8 +11,6 @@ This repository stores personal shell and editor configuration for this machine.
 - `config/wezterm/wezterm.lua`: WezTerm config
 - `config/yazi/`: Yazi file manager config
 - `bin/clipimg`: clipboard image saver for macOS, Wayland, and X11
-- `bin/claude`: Claude Code wrapper that sends version checks to native Claude
-  and normal sessions through EPT
 - `bootstrap.sh`: stable entry point for installing and updating managed tools
 - `bootstrap/tools.tsv`: declarative software manifest shared by both platforms
 - `bootstrap/dependencies.tsv`: dependency expansion used by targeted installs
@@ -220,12 +218,7 @@ machine, not just this machine itself.
   interactive `zsh`. It auto-detects Homebrew/Linuxbrew and adds common
   user-level tool bins such as `~/.local/bin`, npm global bin, `pnpm`, `cargo`,
   `go`, and `bun`.
-- `~/.config/zsh/ept.zsh` is the shared EPT wrapper policy. It keeps
-  `~/.ept/bin` and the repo-managed Claude wrapper ahead of npm-global native installs,
-  then clears stale wrapper path overrides.
-- `~/bin/claude` is linked from `bin/claude`. It routes `--version`/`-v` directly
-  to native Claude Code and routes normal sessions through `~/.ept/bin/ept`.
-  Set `CLAUDE_NATIVE_PATH` on machines where Claude lives in a different path.
+- Claude Code runs directly from the npm package installed under `~/.npm-global`.
 - OpenCode runs directly from the current `opencode-ai` package installed under
   `~/.npm-global`; it does not use a repo-managed wrapper.
 - Machine-specific overrides can go in `~/.config/zsh/local/*.zsh`.
@@ -265,8 +258,6 @@ machine, not just this machine itself.
 
 - [docs/machine-specific.md](docs/machine-specific.md): machine-specific
   zsh configuration (local aliases, paths, per-machine overrides)
-- [docs/claude-ept-cc-connect.md](docs/claude-ept-cc-connect.md): notes on
-  safe Claude/EPT wrappers for `cc-connect` and npm cache recursion recovery
 - [config/nvim/README.md](config/nvim/README.md): Neovim config layout and
   maintenance rules
 - [docs/yazi.md](docs/yazi.md): `yazi` launcher and
@@ -283,8 +274,6 @@ machine, not just this machine itself.
 - `~/.p10k.zsh`
 - `~/.wezterm.lua`
 - `~/.config/zsh/path.zsh`
-- `~/.config/zsh/ept.zsh`
-- `~/bin/claude`
 - `~/bin/clipimg`
 - `~/.tmux.conf`
 - `~/.config/tmux`

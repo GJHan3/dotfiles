@@ -105,6 +105,7 @@ Yazi 文件复制和移动现在只保留原生工作流：`Space` 选择，`y` 
 
 - `codex`: OpenAI Codex CLI
 - `opencode`: 直接运行 `~/.npm-global` 中安装的最新版 OpenCode CLI
+- `claude`: 直接运行 `~/.npm-global` 中安装的 Claude Code CLI
 - `cc-connect`: chat relay for connecting Claude Code and other local agents to
   supported chat platforms
 

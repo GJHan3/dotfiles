@@ -73,7 +73,7 @@ Ubuntu/Debian 分支判断，不要假设 Homebrew、apt、字体路径或二进
 
 `.zshrc` 的启动顺序维护在 `docs/machine-specific.md#zsh-startup-order`；修改时保持单线性加载流程，
 不要重复初始化 Oh My Zsh 或 Powerlevel10k；共享 PATH 逻辑放在 `config/zsh/path.zsh`，
-共享 EPT/Claude wrapper 逻辑放在 `config/zsh/ept.zsh`，机器专属覆盖仍放在 `~/.config/zsh/local/*.zsh`。
+机器专属覆盖仍放在 `~/.config/zsh/local/*.zsh`。Claude Code 直接使用 npm 全局安装的命令。
 Neovim Lua 配置遵循 `config/nvim/stylua.toml`：2 空格缩进，120 列宽。
 插件文件名应与功能对应，例如 `lua/plugins/lualine.lua`、`lua/plugins/lazygit.lua`。
 Neovim 结构规则见 `config/nvim/README.md`：`lua/config/autocmds.lua` 只做索引，具体 autocmd
